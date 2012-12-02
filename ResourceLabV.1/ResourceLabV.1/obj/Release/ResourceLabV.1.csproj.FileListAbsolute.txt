@@ -1,0 +1,8 @@
+C:\Users\PMAN\documents\visual studio 2010\Projects\ResourceLabV.1\ResourceLabV.1\bin\Release\UnityEditor.dll
+C:\Users\PMAN\documents\visual studio 2010\Projects\ResourceLabV.1\ResourceLabV.1\bin\Release\UnityEngine.dll
+C:\Users\PMAN\documents\visual studio 2010\Projects\ResourceLabV.1\ResourceLabV.1\bin\Release\nunit.framework.dll
+C:\Users\PMAN\documents\visual studio 2010\Projects\ResourceLabV.1\ResourceLabV.1\obj\Release\ResourceLabV.1.csprojResolveAssemblyReference.cache
+C:\Users\PMAN\Documents\Visual Studio 2010\Projects\ResourceLabV.1\ResourceLabV.1\bin\Release\kTileEditorResource.dll
+C:\Users\PMAN\Documents\Visual Studio 2010\Projects\ResourceLabV.1\ResourceLabV.1\bin\Release\kTileEditorResource.pdb
+C:\Users\PMAN\Documents\Visual Studio 2010\Projects\ResourceLabV.1\ResourceLabV.1\obj\Release\kTileEditorResource.dll
+C:\Users\PMAN\Documents\Visual Studio 2010\Projects\ResourceLabV.1\ResourceLabV.1\obj\Release\kTileEditorResource.pdb

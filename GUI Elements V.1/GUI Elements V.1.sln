@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C# Express 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "kUnityV.1", "GUI Elements V.1\kUnityV.1.csproj", "{EDF3B0F4-F13E-43BB-8C89-2126B22393E6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EDF3B0F4-F13E-43BB-8C89-2126B22393E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDF3B0F4-F13E-43BB-8C89-2126B22393E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDF3B0F4-F13E-43BB-8C89-2126B22393E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDF3B0F4-F13E-43BB-8C89-2126B22393E6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
