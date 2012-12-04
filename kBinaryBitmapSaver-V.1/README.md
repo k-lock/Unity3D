@@ -11,3 +11,7 @@ Extension window.
 
  * http://k-lock.de/klock/sources/bsaver/Manual_english.pdf
  * http://k-lock.de/klock/sources/ 
+
+ Update:
+
+  * 04/12/2012 - Renesting the menuitem in windows tab
