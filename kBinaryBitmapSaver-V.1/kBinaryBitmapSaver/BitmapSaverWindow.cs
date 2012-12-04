@@ -1,8 +1,7 @@
-/* BitmapSaverWindow V.0.2.1 - 2012 - Paul Knab */
+/* BitmapSaverWindow V.0.2.2 - 2012 - Paul Knab */
 using UnityEngine;
 using UnityEditor;
 using System.IO;
-
 using klock;
 
 public class BitmapSaverWindow : EditorWindow
@@ -29,19 +28,18 @@ public class BitmapSaverWindow : EditorWindow
 	
 	private static BitmapSaverWindow 	instance;
 
-    [MenuItem("klock/utils/Binary Bitmap Converter")]
+    [MenuItem("Window/klock/Binary Bitmap Saver")]
 	public static void ShowWindow()
 	{
 		if (instance != null)
 		{	
 			instance.position = new Rect( 50, 50, 600, 500);
-			//instance.ShowUtility();
 			instance.Show();
 			return;
 			
 		}
-		
-		instance = ( BitmapSaverWindow )EditorWindow.GetWindow(typeof( BitmapSaverWindow ), false, "Binary Export");
+
+        instance = (BitmapSaverWindow)EditorWindow.GetWindow(typeof(BitmapSaverWindow), false, "Saver");
 		instance.position = new Rect( 50, 50, 600, 500);
 		instance.wantsMouseMove = true;	
 		instance.Show();
@@ -57,9 +55,6 @@ public class BitmapSaverWindow : EditorWindow
 	private void AutoEditorResizer()
 	{
 
-	//	if( EditorRect.width  < 500 )	EditorRect = new Rect( EditorRect.x, EditorRect.y, 600, EditorRect.height );
-	//	if( EditorRect.height < 225 ) 	EditorRect = new Rect( EditorRect.x, EditorRect.y, EditorRect.width, 225  );
-		
 		if( tempRect.width != EditorRect.width &&  !lineDrag)
 		{
 			
@@ -119,12 +114,9 @@ public class BitmapSaverWindow : EditorWindow
 		GUIDraw.DrawRect( d, new Color( 0,0,0,0) );
 
 		if( d.Contains( e.mousePosition ))
-		{
-			
+		{			
 			EditorGUIUtility.AddCursorRect (d, MouseCursor.ResizeHorizontal );        
-
 			lineDrag = (  e.type == EventType.mouseDrag  ) ? true : false;
-
 		}
 		if(lineDrag && e.type == EventType.MouseUp || e.mousePosition.x<50 || e.mousePosition.x >EditorRect.width-50){ 
 			lineDrag = false;
@@ -140,8 +132,7 @@ public class BitmapSaverWindow : EditorWindow
 	{
 		Rect   box 		= new Rect(5, 5, EditorRect.width-10, 48 );
 		float  boxWidth = box.width - 20;
-	//	string tempPath = fPath;
-
+	
 		DrawRect( new Rect( 0,0, EditorRect.width, 15), new Color(.6f,.6f,.6f));
 		
 		GUI.skin.label.fontSize = 8;
@@ -151,17 +142,8 @@ public class BitmapSaverWindow : EditorWindow
 		
 		GUI.Label(new Rect( 5, 0, 70, 15) , "Target Folder" );
 		GUI.BeginGroup( new Rect(5, 15, box.width, 150));
-			
-			//fPath = 
-			EditorGUI.TextField( new Rect( 10, 8, boxWidth-10 , 20 ),  fPath);
-           /* if (!fPath.EndsWith("/")) fPath += "/";
-			if(GUI.Button( new Rect( boxWidth-45, 8, 60, 20 ), new GUIContent("Directory", "Choose or create a folder to copy files from user environment in the Unity project") )){
-				fPath = EditorUtility.OpenFolderPanel( "Target Unity Folder", fPath, "");
-			}
-			if( fPath == "" && tempPath != "" ) { fPath = tempPath; }*/
-		
-		GUI.EndGroup();
-		
+			EditorGUI.TextField( new Rect( 10, 8, boxWidth-10 , 20 ),  fPath);		
+		GUI.EndGroup();	
 	}
 	
 	private void DrawFileList()
@@ -208,10 +190,6 @@ public class BitmapSaverWindow : EditorWindow
 		GUI.EndGroup();
 
 		if( fLength > 0 ){
-
-		//	GUIHelper.BeginGroup( new Rect( 15, 113, box.width-20, box.height - 74));
-		//		for( int j = 0; j < fLength; j++  ) GUIHelper.DrawLine(new Vector2(0 , (22*j) - scrollPos.y+20) , new Vector2( box.width-10 , (22*j) - scrollPos.y+20), Color.grey);	
-		//	GUIHelper.EndGroup();
 			
 			scrollPos = GUI.BeginScrollView( new Rect( 16, 113, box.width-22, box.height - 76), scrollPos, new Rect( 0, 0, box.width-42 , (22 * fLength)));
 
@@ -243,14 +221,7 @@ public class BitmapSaverWindow : EditorWindow
 		GUIDraw.DrawLine(new Vector2( sideWidth+box.x, 45+box.y ), new Vector2( sideWidth+box.x, box.height+box.y-15 ), Color.grey);
 
 	}
-	
-	private void SetupType()
-	{
-	
-	
-	
-	}
-	
+
 	private void DrawExporter()
 	{	
 		Rect  box = new Rect(0, EditorRect.height - 50, EditorRect.width, 50);
@@ -567,7 +538,6 @@ public class BitmapSaverWindow : EditorWindow
 		
 		try
 		{
-		
 			float i = 1;
 			float f = fLength;
 			foreach( string s in fList ){
@@ -582,9 +552,7 @@ public class BitmapSaverWindow : EditorWindow
 				if( AssetDatabase.GetAssetPath( texture ) != null ) {
 					BinaryData.Save( texture, nFile );
 					if( saveSource && IsTargetFolder( s )) File.Delete( s );
-		
 				}
-	
 				i++;
 			}
 		}
@@ -605,20 +573,7 @@ public class BitmapSaverWindow : EditorWindow
 	private bool IsTargetFolder( string file )
 	{
 		if( file.Contains( "TextureBinary" ) ) return true;
-		
-		
-		
-		/*Texture2D[] tex = Resources.FindObjectsOfTypeAll (typeof(Texture2D)) as Texture2D[];
-		
-		if( tex == null ) return false;
-		
-		foreach ( Texture2D t in tex ) {
-	
-			if (t.name == file ) {
-				return true;
-			}
-		}*/
-		
+
 		return false;
 	}	
 	
@@ -647,9 +602,7 @@ public class BitmapSaverWindow : EditorWindow
 		EditorStyles.miniButtonLeft.fontSize = 10;
 		EditorStyles.miniButtonMid.fontSize = 10;
 		EditorStyles.miniButtonRight.fontSize = 10;
-		
-		//EditorStyles.boldLabel.contentOffset = new Vector2( 0, 0);
-		
+
 	}
 	
 	#endregion	

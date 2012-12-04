@@ -1,8 +1,7 @@
-/* BinaryBitmapViewer V.0.1 - 2011 - Paul Knab */
+/* BinaryBitmapViewer V.0.2 - 2011 - Paul Knab */
 using UnityEngine;
 using UnityEditor;
 using System.IO;
-
 using klock;
 
 public class BinaryBitmapViewer : EditorWindow
@@ -16,21 +15,15 @@ public class BinaryBitmapViewer : EditorWindow
 	
 	private static BinaryBitmapViewer 	instance;
 
-	[MenuItem ("klock/utils/Binary Bitmap Viewer")]
+    [MenuItem("Window/klock/Binary Bitmap Viewer")]
 	public static void ShowWindow()
 	{
 		if (instance != null)
 		{	
-			//instance.position = new Rect( 50, 50, 600, 500);
-			//instance.ShowUtility();
-			//instance.Show();
-			//return;
-			
-			instance = null;
-			
+			instance = null;	
 		}
 		
-		instance = ( BinaryBitmapViewer )EditorWindow.GetWindow(typeof( BinaryBitmapViewer ), false, "Binary Viewer");
+		instance = ( BinaryBitmapViewer )EditorWindow.GetWindow(typeof( BinaryBitmapViewer ), false, "Viewer");
 		instance.position = new Rect( 50, 50, 600, 500);
 		instance.wantsMouseMove = true;	
 		instance.Show();
@@ -42,22 +35,6 @@ public class BinaryBitmapViewer : EditorWindow
 		get{ return ((BinaryBitmapViewer)this).position; }
 		set{ ((BinaryBitmapViewer)this).position = value; }
 	}
-	
-	/*private void AutoEditorResizer()
-	{
-	
-		if( EditorRect.width  < 500 )	EditorRect = new Rect(EditorRect.x, EditorRect.y, 500, EditorRect.height );
-		if( EditorRect.height < 225 ) 	EditorRect = new Rect(EditorRect.x, EditorRect.y, EditorRect.width, 225 );
-		
-		if( tempRect.width != EditorRect.width &&  !lineDrag){
-			
-			tempRect = EditorRect;
-			sideWidth = (EditorRect.width-30)/2;
-			
-		}
-	}*/
-	
-
 	#endregion
 
 	private void Awake()
@@ -116,7 +93,7 @@ public class BinaryBitmapViewer : EditorWindow
 		GUI.EndGroup();
 		
 	}
-	private Rect bitmapRect;
+
 	private void DrawFileView()
 	{
 		Rect  box = new Rect( 5, 52, EditorRect.width-10, EditorRect.height - 50 );	
@@ -157,8 +134,7 @@ public class BinaryBitmapViewer : EditorWindow
 		if( _typ == ".bin" ) return true;
 		if( _typ == ".lab" ) return true;
 		
-		return false;
-		
+		return false;	
 	}
 	
 	private void DrawRect( Rect r, Color c)
@@ -186,9 +162,7 @@ public class BinaryBitmapViewer : EditorWindow
 		EditorStyles.miniButtonLeft.fontSize = 10;
 		EditorStyles.miniButtonMid.fontSize = 10;
 		EditorStyles.miniButtonRight.fontSize = 10;
-		
-		//EditorStyles.boldLabel.contentOffset = new Vector2( 0, 0);
-		
+
 	}
 	
 	#endregion	

@@ -6,7 +6,6 @@ using System.Collections;
 public class TextureImporterWindow : EditorWindow
 {
 	private static TextureImporterWindow window;
-
 	private string[] npot = new string[4]{ "None", "ToLarger", "ToNearest", "ToSmaller"};
 	private string[] form = new string[2]{ "ARGB32", "RGB24" };
 	private string[] size = new string[8]{ "32", "64", "128", "256", "512", "1024", "2048", "4096" };
@@ -90,7 +89,5 @@ public class TextureImporterWindow : EditorWindow
 	{
 		TextureImporterSetting.show = false;	
 	}
-	
-
 }
 

@@ -5,7 +5,6 @@ using System.Collections;
 
 public class ExportTypesWindow : EditorWindow
 {
-	
 	private string[] types;
 	private bool draw = true;
 	private bool namer = false;
@@ -15,12 +14,10 @@ public class ExportTypesWindow : EditorWindow
 	
 	private int selected = -1;
 	private  int tempIndex;
-	//private string[] tempTypes;
-	
+
 	private static BitmapSaverWindow parent;
 	private static ExportTypesWindow window;
 
-	//[MenuItem ("Klock/Tools/Binary Bitmap File Types %7")]
 	public static void Init ( BitmapSaverWindow _parent ) 
 	{		
 		Rect pos 	= _parent.EditorRect;
@@ -41,9 +38,7 @@ public class ExportTypesWindow : EditorWindow
     }
 	private void Awake()
 	{
-		//tempTypes = parent.Ftypes;
 		tempIndex = parent.Ftype;
-		
 		ResetList();
 
 	}
@@ -208,7 +203,6 @@ public class ExportTypesWindow : EditorWindow
 
 		_defaultStyle.onHover.textColor  = Color.blue;
 	    _defaultStyle.padding.left = _defaultStyle.padding.right = _defaultStyle.padding.top = _defaultStyle.padding.bottom = 4;
-	//	_defaultStyle.contentOffset = new Vector2(-10, 0);
 
 		GUIStyle _selectedStyle = new GUIStyle();
 		_selectedStyle.normal.background  = EditorGUIUtility.whiteTexture;
