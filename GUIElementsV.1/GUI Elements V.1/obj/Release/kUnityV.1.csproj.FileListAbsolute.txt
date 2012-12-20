@@ -1,8 +1,0 @@
-C:\Users\PMAN\documents\visual studio 2010\Projects\GUI Elements V.1\GUI Elements V.1\obj\Release\kUnityV.1.csprojResolveAssemblyReference.cache
-C:\Users\PMAN\documents\visual studio 2010\Projects\GUI Elements V.1\GUI Elements V.1\bin\Release\kUnityV.1.dll
-C:\Users\PMAN\documents\visual studio 2010\Projects\GUI Elements V.1\GUI Elements V.1\bin\Release\kUnityV.1.pdb
-C:\Users\PMAN\documents\visual studio 2010\Projects\GUI Elements V.1\GUI Elements V.1\bin\Release\UnityEditor.dll
-C:\Users\PMAN\documents\visual studio 2010\Projects\GUI Elements V.1\GUI Elements V.1\bin\Release\UnityEngine.dll
-C:\Users\PMAN\documents\visual studio 2010\Projects\GUI Elements V.1\GUI Elements V.1\bin\Release\nunit.framework.dll
-C:\Users\PMAN\documents\visual studio 2010\Projects\GUI Elements V.1\GUI Elements V.1\obj\Release\kUnityV.1.dll
-C:\Users\PMAN\documents\visual studio 2010\Projects\GUI Elements V.1\GUI Elements V.1\obj\Release\kUnityV.1.pdb
