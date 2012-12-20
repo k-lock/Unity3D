@@ -1,5 +1,3 @@
-# Tower Defense | Unity Project Package
-
 Script Package for use in a gridbase Tower Defense game.
 
 **Contains classes for** 
