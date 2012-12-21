@@ -8,4 +8,5 @@ have the ability to create animations. The tool
 has 3 comfortable editor views to create, edit
 or export the tile data.
 
-Website : http://k-lock.de/klock/sources/ktileeditor.html
+Class Reference  : http://k-lock.de/code/labor/te/doc/html/index.html
+Website			 : http://k-lock.de/klock/sources/ktileeditor.html
