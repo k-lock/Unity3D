@@ -8,4 +8,4 @@ Script Package for use in a gridbase Tower Defense game.
 	* Controlling the movement for the bot object on the gridboard
 	* Class to display level statistics
 
-Class Reference : k-lock.de/code/labor/defender/project/doc/html/index.html
+Class Reference : http://k-lock.de/code/labor/defender/project/doc/html/index.html

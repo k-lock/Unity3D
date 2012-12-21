@@ -12,4 +12,4 @@ Add new elements
 	* ComboBox
 	* NumericStepper ( kStep, kMstep, kRstep )
 
-Class Reference : k-lock.de/code/labor/kgui/doc/html/index.html
+Class Reference : http://k-lock.de/code/labor/kgui/doc/html/index.html
