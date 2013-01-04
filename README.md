@@ -10,5 +10,6 @@ Contains projects of:
  * **kTile** - Package to create a gameobject with mesh component and a animated or a static texture.
  * **Defender V.0.3** - Unity3D tower defense ai pathfinding project. 
  * **Skate V.1.1** - GameObject Controller for a skateboard game. (Wheelcollider)
+ * **kFOV** - Field of View Mesh Modifier - Cutting out colliding meshes.
 
  and ...
