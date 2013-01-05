@@ -46,13 +46,15 @@ public class kFOV : MonoBehaviour
 		//UpdateTile ();
 	}
 	#endif
-	void Update(){
-		TESTER2();
+	void Update ()
+	{
+		TESTER2 ();
 	}
 	
-	void TESTER2(){
+	void TESTER2 ()
+	{
 
-		Components();
+		Components ();
 
 		vertices2D = new List<Vector2> ();
 		vertices2D.Add (new Vector2 (0, 0));
@@ -64,30 +66,31 @@ public class kFOV : MonoBehaviour
 		for (float i = 0; i<.5f; i+=dpi) {
 			
 			Vector3 newPoint;
-			Vector3 dirPoint = transform.rotation*new Vector3 (-length* (.5f - i), 0, width)+transform.position;
+			Vector3 dirPoint = transform.rotation * new Vector3 (-length * (.5f - i), 0, width) + transform.position;
 			
-			Ray ray = new Ray (transform.position, dirPoint-transform.position);
+			Ray ray = new Ray (transform.position, dirPoint - transform.position);
 			RaycastHit hit = RayHiter (ray);
 			
-			if (hit.collider == null){
+			if (hit.collider == null) {
 			
 				Debug.DrawLine (transform.position, dirPoint, Color.cyan);
+				dirPoint = dirPoint;
 				vertices2D.Add (new Vector2 (dirPoint.x, dirPoint.z));
 				
-			}else{
+			} else {
 				hitter = true;
 				
-				newPoint = hit.point+ offset * -ray.direction.normalized;
-				newPoint = new Vector3(newPoint.x,transform.position.y,newPoint.z)-transform.position;
+				newPoint = hit.point;//+ offset * -ray.direction.normalized;
+				newPoint = new Vector3 (newPoint.x, transform.position.y, newPoint.z);
 
 				
-				Debug.DrawLine (transform.position,newPoint+transform.position, Color.red);
-				vertices2D.Add (new Vector2 (newPoint.x,newPoint.z));
+				Debug.DrawLine (transform.position, newPoint, Color.red);
+				vertices2D.Add (new Vector2 (newPoint.x, newPoint.z));
 			}
 				
 		}
 		
-		if(!hitter){
+		if (!hitter) {
 			vertices2D = new List<Vector2> ();
 			vertices2D.Add (new Vector2 (0, 0));
 			vertices2D.Add (new Vector2 (-length * .5f, width));		
@@ -105,24 +108,36 @@ public class kFOV : MonoBehaviour
 			
 			vertices [i] = new Vector3 (vertices2D [i].x, 0, vertices2D [i].y);
 			
-			if(!hitter)
-				vertices [i] = (transform.rotation*vertices [i]);
-			else{
+			if (!hitter) {
+	
+				if (i == 0)
+					vertices [i] = (vertices [i]) + transform.localPosition;
+				if (i > 0)
+					Debug.DrawLine (transform.rotation * vertices [i - 1] + transform.position,
+									transform.rotation * vertices [i] + transform.position,
+									Color.magenta);	
 				
-				if(i==0)vertices [i] = (vertices [i]);
+				if (i > 0)
+					vertices [i] = (transform.localRotation * vertices [i]);
+		
+			} else {
 				
-				if(i>0)vertices [i] = (vertices [i]);//+mesh.vertices[0];
-			}
-			
-			if(i>0)Debug.DrawLine(	vertices [i-1]+transform.position,
-									vertices [i]+transform.position,
+				if (i == 0)
+					vertices [i] = (vertices [i]) + transform.position;
+				
+				if (i > 0)
+					Debug.DrawLine (vertices [i - 1],
+									vertices [i],
 									Color.magenta);		
+				
+				vertices [i] = (vertices [i]) + transform.localPosition;//+mesh.vertices[0];	
+			}	
 		}
-		Debug.DrawLine (transform.position, transform.rotation*new Vector3 (0, 0, width)+transform.position, Color.yellow);
+		Debug.DrawLine (transform.position, transform.rotation * new Vector3 (0, 0, width) + transform.position, Color.yellow);
 		
-		
+		/*	
 	// Setup mesh
-	/*	mesh.Clear();
+		mesh.Clear();
 		mesh.vertices = vertices;
 		mesh.triangles = triangles;
 		mesh.uv = vertices2D.ToArray ();
@@ -132,57 +147,59 @@ public class kFOV : MonoBehaviour
 		mesh.RecalculateBounds ();*/
 	}
 	
-	void TESTER(){
+	void TESTER ()
+	{
 	
 		
-		Components();
+		Components ();
 		
 		List<Vector2> verticezz = new List<Vector2> ();
 		List<Vector3> verticez = new List<Vector3> ();
 		
 		Vector3[] verts = new Vector3[100];
-		verts[0] = new Vector3 (0,0, 0);
+		verts [0] = new Vector3 (0, 0, 0);
 		int counter = 0;
 		for (float i = 0; i<.5f; i+=dpi/10f) {
 			
 			Vector3 newPoint;
 			Vector3 dirPoint = //transform.TransformPoint (Vector3.forward * width + new Vector3 (-length * (.5f - i), 0, 0));
 			//new Vector3 (-length* (.5f - i) , 0, width)+transform.position ;//+ transform.localEulerAngles;
-			transform.rotation*new Vector3 (-length* (.5f - i), 0, width)+transform.position;
+			transform.rotation * new Vector3 (-length * (.5f - i), 0, width) + transform.position;
 			
 			
-			Ray ray = new Ray (transform.position, dirPoint-transform.position);
+			Ray ray = new Ray (transform.position, dirPoint - transform.position);
 			RaycastHit hit = RayHiter (ray);
 			
 			if (hit.collider == null) {
-			//	Debug.DrawLine (transform.position, dirPoint, Color.yellow);
+				//	Debug.DrawLine (transform.position, dirPoint, Color.yellow);
 				//verticez.Add (dirPoint);
-				verts[counter] = dirPoint;
-			}else{
+				verts [counter] = dirPoint;
+			} else {
 
-				newPoint = hit.point + offset * -new Ray (transform.position, transform.rotation*(dirPoint-transform.position).normalized).direction;
-				newPoint = new Vector3(newPoint.x,transform.position.y,newPoint.z);
+				newPoint = hit.point + offset * -new Ray (transform.position, transform.rotation * (dirPoint - transform.position).normalized).direction;
+				newPoint = new Vector3 (newPoint.x, transform.position.y, newPoint.z);
 
-		//		Debug.DrawLine (transform.position, newPoint, Color.red);
+				//		Debug.DrawLine (transform.position, newPoint, Color.red);
 				
-			///	verticez.Add (newPoint);
-				verts[counter] = newPoint;
+				///	verticez.Add (newPoint);
+				verts [counter] = newPoint;
 			}
 			counter++;
 		}
 		
-		Debug.Log(counter);
-		Debug.DrawLine(transform.position, verts [0],Color.magenta);
-		Debug.DrawLine(transform.position, verts [counter-1],Color.magenta);
+		Debug.Log (counter);
+		Debug.DrawLine (transform.position, verts [0], Color.magenta);
+		Debug.DrawLine (transform.position, verts [counter - 1], Color.magenta);
 		
-		List<Vector2> verties = new List<Vector2>();
+		List<Vector2> verties = new List<Vector2> ();
 		
 		for (int i=0; i<counter; i++) {
 			
-			if(i>0)Debug.DrawLine(verts [i-1], verts [i],Color.magenta);
+			if (i > 0)
+				Debug.DrawLine (verts [i - 1], verts [i], Color.magenta);
 			
-		//	verticez[i] = verticez[i];
-			verties.Add( new Vector2(verts [i].x,verts [i].z));
+			//	verticez[i] = verticez[i];
+			verties.Add (new Vector2 (verts [i].x, verts [i].z));
 		}
 		
 		// Use the triangulator to get indices for creating triangles
@@ -190,10 +207,10 @@ public class kFOV : MonoBehaviour
 		triangles = tr.Triangulate ();
  		
 		// Setup mesh
-		mesh.Clear();
+		mesh.Clear ();
 		mesh.vertices = verts;
 		mesh.triangles = triangles;
-		mesh.uv = verties.ToArray();
+		mesh.uv = verties.ToArray ();
 		
 		// Update mesh
 		mesh.RecalculateNormals ();
@@ -239,10 +256,10 @@ public class kFOV : MonoBehaviour
 	}*/
 	#endregion
 	#region MESH 
-	void RayCheck()
+	void RayCheck ()
 	{
 		
-		Debug.Log(transform.rotation);
+		Debug.Log (transform.rotation);
 		// Reset vertices2D
 		vertices2D = new List<Vector2> ();
 		vertices2D.Add (new Vector2 (0, 0));
@@ -252,24 +269,24 @@ public class kFOV : MonoBehaviour
 			Vector3 newPoint;
 			Vector3 dirPoint = //transform.TransformPoint (Vector3.forward * width + new Vector3 (-length * (.5f - i), 0, 0));
 			//new Vector3 (-length* (.5f - i) , 0, width)+transform.position ;//+ transform.localEulerAngles;
-			transform.rotation*new Vector3 (-length* (.5f - i), 0, width)+transform.position;
+			transform.rotation * new Vector3 (-length * (.5f - i), 0, width) + transform.position;
 			
-		//	Debug.DrawLine (transform.position, dirPoint, Color.yellow);
+			//	Debug.DrawLine (transform.position, dirPoint, Color.yellow);
 			
-			Ray ray = new Ray (transform.position, dirPoint-transform.position);
+			Ray ray = new Ray (transform.position, dirPoint - transform.position);
 			RaycastHit hit = RayHiter (ray);
 			
 			if (hit.collider != null) {
 				
-				newPoint = hit.point + offset * -new Ray (transform.position, transform.rotation*dirPoint-transform.position).direction;
-				newPoint = new Vector3(newPoint.x,transform.position.y,newPoint.z);
+				newPoint = hit.point + offset * -new Ray (transform.position, transform.rotation * dirPoint - transform.position).direction;
+				newPoint = new Vector3 (newPoint.x, transform.position.y, newPoint.z);
 				
 				Debug.DrawLine (transform.position, newPoint, Color.red);
 				
-				Vector3 cPoint = newPoint-transform.position;
+				Vector3 cPoint = newPoint - transform.position;
 				vertices2D.Add (new Vector2 (cPoint.x, cPoint.z));
 			
-			/*	for (float i2 = i; i2<i+.15f; i2+=(dpi/10)*.025f) {
+				/*	for (float i2 = i; i2<i+.15f; i2+=(dpi/10)*.025f) {
 				
 					Vector3 np2 = new Vector3 (-length* (.5f - i2), 0, width);
 					Ray ray2 = new Ray (transform.position, np2);
@@ -285,13 +302,13 @@ public class kFOV : MonoBehaviour
 					//	vertices2D.Add (new Vector2 (newPoint.x-transform.position.x, newPoint.z-transform.position.z));
 					}
 				}*/
-			}else{
+			} else {
 				newPoint = dirPoint;
-			//	Debug.DrawLine (transform.position, newPoint, Color.yellow);
-				vertices2D.Add (new Vector2 (newPoint.x-transform.position.x, newPoint.z-transform.position.z));
+				//	Debug.DrawLine (transform.position, newPoint, Color.yellow);
+				vertices2D.Add (new Vector2 (newPoint.x - transform.position.x, newPoint.z - transform.position.z));
 			}
 		}
-	/*	// check the right side of fov object
+		/*	// check the right side of fov object
 		for (float i = 0;  i>-.5f; i-=dpi/10f) {
 			Vector3 newPoint;
 			Vector3 dirPoint = transform.rotation*new Vector3 (length* -i, 0, width)+transform.position;
@@ -322,9 +339,10 @@ public class kFOV : MonoBehaviour
 			if(i>0)Debug.DrawLine(vertices [i-1]+transform.position,vertices [i]+transform.position,Color.green);
 		
 		}*/
-	//	Components();
-	//	MeshCalc();
+		//	Components();
+		//	MeshCalc();
 	}
+
 	RaycastHit RayHiter (Ray ray)
 	{
 		RaycastHit hit;
@@ -333,7 +351,9 @@ public class kFOV : MonoBehaviour
 		}
 		return hit;
 	}
-	void ResetVerticies(){
+
+	void ResetVerticies ()
+	{
 		// Create Vector2 vertices
 		vertices2D = new List<Vector2> ();
 		vertices2D.Add (new Vector2 (0, 0));
@@ -341,14 +361,16 @@ public class kFOV : MonoBehaviour
 		vertices2D.Add (new Vector2 (0, width));
 		vertices2D.Add (new Vector2 (length * .5f, width));
 	}
+
 	public void UpdateTile ()
 	{
-		Components();
-		MeshCalc();
+		Components ();
+		MeshCalc ();
 	}
-	void MeshCalc()
+
+	void MeshCalc ()
 	{
-	///	
+		///	
 		
 		// Use the triangulator to get indices for creating triangles
 		Triangulator tr = new Triangulator (vertices2D);
@@ -359,14 +381,15 @@ public class kFOV : MonoBehaviour
 		for (int i=0; i<vertices.Length; i++) {
 			vertices [i] = new Vector3 (vertices2D [i].x, 0, vertices2D [i].y);
 			
-			if(i>0)Debug.DrawLine(vertices [i-1]+transform.position,vertices [i]+transform.position,Color.magenta);
+			if (i > 0)
+				Debug.DrawLine (vertices [i - 1] + transform.position, vertices [i] + transform.position, Color.magenta);
 		
 		}
-		Debug.DrawLine (transform.position, transform.rotation*new Vector3 (0, 0, width)+transform.position, Color.yellow);
+		Debug.DrawLine (transform.position, transform.rotation * new Vector3 (0, 0, width) + transform.position, Color.yellow);
 		
 		
 		// Setup mesh
-		mesh.Clear();
+		mesh.Clear ();
 		mesh.vertices = vertices;
 		mesh.triangles = triangles;
 		mesh.uv = vertices2D.ToArray ();
@@ -375,13 +398,15 @@ public class kFOV : MonoBehaviour
 		mesh.RecalculateNormals ();
 		mesh.RecalculateBounds ();
 		
-	//	transform.rotation = Quaternion.identity;
+		//	transform.rotation = Quaternion.identity;
 	}
-	void Components()
+
+	void Components ()
 	{	
-		if(vertices2D==null)ResetVerticies();
+		if (vertices2D == null)
+			ResetVerticies ();
 		MeshRenderer meshRenderer = GetComponent<MeshRenderer> ();
-		if (meshRenderer == null){
+		if (meshRenderer == null) {
 			meshRenderer = gameObject.AddComponent<MeshRenderer> ();
 		}
 		MeshFilter meshFilter = GetComponent<MeshFilter> ();
@@ -396,7 +421,7 @@ public class kFOV : MonoBehaviour
 		}
 		meshFilter.mesh = mesh;
 
-		if (mat == null){
+		if (mat == null) {
 			GetComponent<MeshRenderer> ().sharedMaterial = mat = new Material (Shader.Find ("Transparent/Diffuse"));	
 		}
 		color1.a = .6f;
@@ -409,8 +434,8 @@ public class kFOV : MonoBehaviour
 		meshCollider.sharedMesh = mesh;
 		meshCollider.isTrigger = true;
 
-		Rigidbody rigid = GetComponent<Rigidbody>();
-		if (rigid == null){
+		Rigidbody rigid = GetComponent<Rigidbody> ();
+		if (rigid == null) {
 			rigid = gameObject.AddComponent<Rigidbody> ();
 			rigid.useGravity = false;
 		}	
