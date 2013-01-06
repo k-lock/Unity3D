@@ -81,7 +81,7 @@ public class kFOV : MonoBehaviour
 				hitter = true;
 				
 				newPoint = hit.point;//+ offset * -ray.direction.normalized;
-				newPoint = new Vector3 (newPoint.x, transform.position.y, newPoint.z);
+		//		newPoint = new Vector3 (newPoint.x, transform.position.y, newPoint.z);
 
 				
 				Debug.DrawLine (transform.position, newPoint, Color.red);
@@ -116,26 +116,27 @@ public class kFOV : MonoBehaviour
 					Debug.DrawLine (transform.rotation * vertices [i - 1] + transform.position,
 									transform.rotation * vertices [i] + transform.position,
 									Color.magenta);	
-				
 				if (i > 0)
 					vertices [i] = (transform.localRotation * vertices [i]);
 		
 			} else {
 				
 				if (i == 0)
-					vertices [i] = (vertices [i]) + transform.position;
-				
+					vertices [i] = (transform.localRotation * vertices [i]) + transform.position;
+				else
+					vertices [i] = (transform.localRotation * vertices [i]) + new Vector3(0,transform.position.y,0);
+					
 				if (i > 0)
 					Debug.DrawLine (vertices [i - 1],
 									vertices [i],
-									Color.magenta);		
-				
-				vertices [i] = (vertices [i]) + transform.localPosition;//+mesh.vertices[0];	
+									Color.magenta);	
+				if (i > 0)
+					vertices [i] = (transform.localRotation * vertices [i]);	
 			}	
 		}
 		Debug.DrawLine (transform.position, transform.rotation * new Vector3 (0, 0, width) + transform.position, Color.yellow);
 		
-		/*	
+			
 	// Setup mesh
 		mesh.Clear();
 		mesh.vertices = vertices;
@@ -144,7 +145,7 @@ public class kFOV : MonoBehaviour
 			
 		// Update mesh
 		mesh.RecalculateNormals ();
-		mesh.RecalculateBounds ();*/
+		mesh.RecalculateBounds ();
 	}
 	
 	void TESTER ()
