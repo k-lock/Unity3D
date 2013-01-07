@@ -12,6 +12,7 @@ public class kFOV : MonoBehaviour
 	{
 		public Vector3 pos;
 	}
+	public bool showDebug = true;
 	public Set[] points;
 	public float width = 7f;
 	public float length = 4f;
@@ -30,7 +31,8 @@ public class kFOV : MonoBehaviour
 	#if UNITY_EDITOR
 	void OnEnable ()
 	{
-		//UpdateTile ();
+		//HitUpdate ();
+		
 	}
 	
 	void OnDisable ()
@@ -43,307 +45,128 @@ public class kFOV : MonoBehaviour
 	
 	void Reset ()
 	{	
-		//UpdateTile ();
+		//EditorUpdate ();
 	}
 	#endif
 	void Update ()
 	{
-		TESTER2 ();
-	}
-	
-	void TESTER2 ()
-	{
-
-		Components ();
-
-		vertices2D = new List<Vector2> ();
-		vertices2D.Add (new Vector2 (0, 0));
-		
-
-		
-		bool hitter = false;
-		
-		for (float i = 0; i<.5f; i+=dpi) {
-			
-			Vector3 newPoint;
-			Vector3 dirPoint = transform.rotation * new Vector3 (-length * (.5f - i), 0, width) + transform.position;
-			
-			Ray ray = new Ray (transform.position, dirPoint - transform.position);
-			RaycastHit hit = RayHiter (ray);
-			
-			if (hit.collider == null) {
-			
-				Debug.DrawLine (transform.position, dirPoint, Color.cyan);
-				dirPoint = dirPoint;
-				vertices2D.Add (new Vector2 (dirPoint.x, dirPoint.z));
-				
-			} else {
-				hitter = true;
-				
-				newPoint = hit.point;//+ offset * -ray.direction.normalized;
-		//		newPoint = new Vector3 (newPoint.x, transform.position.y, newPoint.z);
-
-				
-				Debug.DrawLine (transform.position, newPoint, Color.red);
-				vertices2D.Add (new Vector2 (newPoint.x, newPoint.z));
-			}
-				
-		}
-		
-		if (!hitter) {
-			vertices2D = new List<Vector2> ();
-			vertices2D.Add (new Vector2 (0, 0));
-			vertices2D.Add (new Vector2 (-length * .5f, width));		
-			vertices2D.Add (new Vector2 (0, width));
-			vertices2D.Add (new Vector2 (length * .5f, width));
-		}
-		
-		// Use the triangulator to get indices for creating triangles
-		Triangulator tr = new Triangulator (vertices2D);
-		triangles = tr.Triangulate ();
- 
-		// Convert vertices - Vector2 in Vector3 
-		vertices = new Vector3[vertices2D.Count];
-		for (int i=0; i<vertices.Length; i++) {
-			
-			vertices [i] = new Vector3 (vertices2D [i].x, 0, vertices2D [i].y);
-			
-			if (!hitter) {
-	
-				if (i == 0)
-					vertices [i] = (vertices [i]) + transform.localPosition;
-				if (i > 0)
-					Debug.DrawLine (transform.rotation * vertices [i - 1] + transform.position,
-									transform.rotation * vertices [i] + transform.position,
-									Color.magenta);	
-				if (i > 0)
-					vertices [i] = (transform.localRotation * vertices [i]);
-		
-			} else {
-				
-				if (i == 0)
-					vertices [i] = (transform.localRotation * vertices [i]) + transform.position;
-				else
-					vertices [i] = (transform.localRotation * vertices [i]) + new Vector3(0,transform.position.y,0);
-					
-				if (i > 0)
-					Debug.DrawLine (vertices [i - 1],
-									vertices [i],
-									Color.magenta);	
-				if (i > 0)
-					vertices [i] = (transform.localRotation * vertices [i]);	
-			}	
-		}
-		Debug.DrawLine (transform.position, transform.rotation * new Vector3 (0, 0, width) + transform.position, Color.yellow);
-		
-			
-	// Setup mesh
-		mesh.Clear();
-		mesh.vertices = vertices;
-		mesh.triangles = triangles;
-		mesh.uv = vertices2D.ToArray ();
-			
-		// Update mesh
-		mesh.RecalculateNormals ();
-		mesh.RecalculateBounds ();
-	}
-	
-	void TESTER ()
-	{
-	
-		
-		Components ();
-		
-		List<Vector2> verticezz = new List<Vector2> ();
-		List<Vector3> verticez = new List<Vector3> ();
-		
-		Vector3[] verts = new Vector3[100];
-		verts [0] = new Vector3 (0, 0, 0);
-		int counter = 0;
-		for (float i = 0; i<.5f; i+=dpi/10f) {
-			
-			Vector3 newPoint;
-			Vector3 dirPoint = //transform.TransformPoint (Vector3.forward * width + new Vector3 (-length * (.5f - i), 0, 0));
-			//new Vector3 (-length* (.5f - i) , 0, width)+transform.position ;//+ transform.localEulerAngles;
-			transform.rotation * new Vector3 (-length * (.5f - i), 0, width) + transform.position;
-			
-			
-			Ray ray = new Ray (transform.position, dirPoint - transform.position);
-			RaycastHit hit = RayHiter (ray);
-			
-			if (hit.collider == null) {
-				//	Debug.DrawLine (transform.position, dirPoint, Color.yellow);
-				//verticez.Add (dirPoint);
-				verts [counter] = dirPoint;
-			} else {
-
-				newPoint = hit.point + offset * -new Ray (transform.position, transform.rotation * (dirPoint - transform.position).normalized).direction;
-				newPoint = new Vector3 (newPoint.x, transform.position.y, newPoint.z);
-
-				//		Debug.DrawLine (transform.position, newPoint, Color.red);
-				
-				///	verticez.Add (newPoint);
-				verts [counter] = newPoint;
-			}
-			counter++;
-		}
-		
-		Debug.Log (counter);
-		Debug.DrawLine (transform.position, verts [0], Color.magenta);
-		Debug.DrawLine (transform.position, verts [counter - 1], Color.magenta);
-		
-		List<Vector2> verties = new List<Vector2> ();
-		
-		for (int i=0; i<counter; i++) {
-			
-			if (i > 0)
-				Debug.DrawLine (verts [i - 1], verts [i], Color.magenta);
-			
-			//	verticez[i] = verticez[i];
-			verties.Add (new Vector2 (verts [i].x, verts [i].z));
-		}
-		
-		// Use the triangulator to get indices for creating triangles
-		Triangulator tr = new Triangulator (verties);
-		triangles = tr.Triangulate ();
- 		
-		// Setup mesh
-		mesh.Clear ();
-		mesh.vertices = verts;
-		mesh.triangles = triangles;
-		mesh.uv = verties.ToArray ();
-		
-		// Update mesh
-		mesh.RecalculateNormals ();
-		mesh.RecalculateBounds ();
-		
-		 
-	}
-	
-	
-	/*void OnTriggerEnter (Collider collider)
-	{
 		if (dpi <= 0)
 			dpi = .05f;
-
-		Color c = GetComponent<MeshRenderer> ().material.color;
-
-		if (collider.transform.name != "") {
-			
-			c = Color.red; 
-			GetComponent<MeshRenderer> ().material.color = new Color (c.r, c.g, c.b, .2f);
+		
+		//	MeshUpdate ();
+		HitUpdate ();
+	}
+	/*
+	void OnTriggerEnter (Collider collider)
+	{
+		if (collider.transform.name == "Player") { 
+			GetComponent<MeshRenderer> ().material.color = new Color (color2.r, color2.g, color2.b, .2f);
 		} 
 	}
+
 	void OnTriggerStay (Collider collider)
 	{
-		if (dpi <= 0) dpi = .05f;
-		RayCheck();
+		
+		HitUpdate ();
 		
 	}
 	
 	void OnTriggerExit (Collider collider)
 	{
-		if (dpi <= 0)
-			dpi = .05f;
-
-		Color c = GetComponent<MeshRenderer> ().material.color;
-		if (collider.transform.name != "") {
-			
-			c = Color.green; 
-			GetComponent<MeshRenderer> ().material.color = new Color (c.r, c.g, c.b, .2f);
-		} 
-		ResetVerticies();
-		UpdateTile ();
+		//if (collider.transform.name == "Player") {
+			GetComponent<MeshRenderer> ().material.color = new Color (color1.r, color1.g, color1.b, .2f);
+		//} 	
+		//ResetVerticies();
+		//MeshUpdate();
 	}*/
 	#endregion
-	#region MESH 
-	void RayCheck ()
+
+	void HitUpdate ()
 	{
+		Components ();
 		
-		Debug.Log (transform.rotation);
-		// Reset vertices2D
+		Vector3[] verts = new Vector3[999];
 		vertices2D = new List<Vector2> ();
-		vertices2D.Add (new Vector2 (0, 0));
+		int counter = 1;
 		
-		// check the left side of the fov object
-		for (float i = 0; i<.5f; i+=dpi/10f) {
-			Vector3 newPoint;
-			Vector3 dirPoint = //transform.TransformPoint (Vector3.forward * width + new Vector3 (-length * (.5f - i), 0, 0));
-			//new Vector3 (-length* (.5f - i) , 0, width)+transform.position ;//+ transform.localEulerAngles;
-			transform.rotation * new Vector3 (-length * (.5f - i), 0, width) + transform.position;
+		verts [0] = transform.position;
+		
+		//left sector
+		for (float i = 0; i<.5f; i+=dpi/10) {
+			Vector3 point = transform.rotation * new Vector3 (-length * (.5f - i), 0, width) + transform.position;
+			Ray ray = new Ray (transform.position, point - transform.position);
 			
-			//	Debug.DrawLine (transform.position, dirPoint, Color.yellow);
+			if (showDebug)
+				Debug.DrawRay (transform.position, point - transform.position, Color.black);
 			
-			Ray ray = new Ray (transform.position, dirPoint - transform.position);
-			RaycastHit hit = RayHiter (ray);
+			RaycastHit rayHit = RayHiter (ray);
 			
-			if (hit.collider != null) {
-				
-				newPoint = hit.point + offset * -new Ray (transform.position, transform.rotation * dirPoint - transform.position).direction;
-				newPoint = new Vector3 (newPoint.x, transform.position.y, newPoint.z);
-				
-				Debug.DrawLine (transform.position, newPoint, Color.red);
-				
-				Vector3 cPoint = newPoint - transform.position;
-				vertices2D.Add (new Vector2 (cPoint.x, cPoint.z));
-			
-				/*	for (float i2 = i; i2<i+.15f; i2+=(dpi/10)*.025f) {
-				
-					Vector3 np2 = new Vector3 (-length* (.5f - i2), 0, width);
-					Ray ray2 = new Ray (transform.position, np2);
-					RaycastHit hit2 = CheckRay (ray2);
-					
-					if(hit2.collider!=null){
-						Debug.DrawRay (transform.position, (hit2.point + offset * -ray2.direction)-transform.position,Color.cyan);
-						
-					}else{
-						newPoint = np2+transform.position;
-						Debug.DrawLine (transform.position, np2+transform.position, Color.blue);
-						i2=.5f;
-					//	vertices2D.Add (new Vector2 (newPoint.x-transform.position.x, newPoint.z-transform.position.z));
-					}
-				}*/
+			if (rayHit.collider == null) {
+				verts [counter] = point;
 			} else {
-				newPoint = dirPoint;
-				//	Debug.DrawLine (transform.position, newPoint, Color.yellow);
-				vertices2D.Add (new Vector2 (newPoint.x - transform.position.x, newPoint.z - transform.position.z));
+				if (rayHit.collider.tag == "kFOV")
+					verts [counter] = rayHit.point + offset * -new Ray (transform.position, point - transform.position).direction;
+					else verts [counter] = point;
 			}
+			
+			if (showDebug)
+				Debug.DrawLine (transform.position, verts [counter], Color.white);
+			counter++;
+			
 		}
-		/*	// check the right side of fov object
-		for (float i = 0;  i>-.5f; i-=dpi/10f) {
-			Vector3 newPoint;
-			Vector3 dirPoint = transform.rotation*new Vector3 (length* -i, 0, width)+transform.position;
-		//	Debug.DrawLine (transform.position, dirPoint, Color.yellow);
+		//right sector
+		for (float i = 0; i>-.5f; i-=dpi/10) {
+			Vector3 point = transform.rotation * new Vector3 (-length * i, 0, width) + transform.position;
+			Ray ray = new Ray (transform.position, point - transform.position);
 			
-			Ray ray = new Ray (transform.position, dirPoint-transform.position);
-			RaycastHit hit = RayHiter (ray);
+			if (showDebug)
+				Debug.DrawRay (transform.position, point - transform.position, Color.black);
 			
-			if (hit.collider != null) {
-				
-				newPoint = hit.point + offset * -ray.direction;
-				newPoint = new Vector3(newPoint.x,transform.position.y,newPoint.z);
-		//		Debug.DrawLine (transform.position, newPoint, Color.red);
-				
-				vertices2D.Add (new Vector2 (newPoint.x-transform.position.x, newPoint.z-transform.position.z));
-
-			}else{
-				newPoint = dirPoint;
-		//		Debug.DrawLine (transform.position, newPoint, Color.yellow);
-				vertices2D.Add (new Vector2 (newPoint.x-transform.position.x, newPoint.z-transform.position.z));
+			RaycastHit rayHit = RayHiter (ray);
+			
+			if (rayHit.collider == null) {
+				verts [counter] = point;
+			} else {
+				if (rayHit.collider.tag == "kFOV")
+					verts [counter] = rayHit.point + offset * -new Ray (transform.position, point - transform.position).direction;
+					else verts [counter] = point;
 			}
-		}*/
-/*	//	
+			
+			if (showDebug)
+				Debug.DrawLine (transform.position, verts [counter], Color.white);
+			counter++;
+		}
 		
-		vertices = new Vector3[vertices2D.Count];
-		for (int i=0; i<vertices.Length; i++) {
-			vertices [i] = new Vector3 (vertices2D [i].x, 0, vertices2D [i].y);
-			if(i>0)Debug.DrawLine(vertices [i-1]+transform.position,vertices [i]+transform.position,Color.green);
-		
-		}*/
-		//	Components();
-		//	MeshCalc();
-	}
+		verts [counter] = verts [0];
 
+		Matrix4x4 transformMatrix = transform.worldToLocalMatrix;
+		vertices = new Vector3[counter];
+		
+		// convert verts && transform verts
+		for (int k=0; k<counter; k++) {
+			vertices [k] = transformMatrix.MultiplyPoint3x4 (verts [k]);
+			vertices2D.Add (new Vector2 (vertices [k].x, vertices [k].z));	
+		}	
+		MeshUpdate ();
+	}
+	
+	void MeshUpdate ()
+	{
+		// Use the triangulator to get indices for creating triangles
+		Triangulator tr = new Triangulator (vertices2D);
+		triangles = tr.Triangulate ();
+			
+		// Setup mesh
+		mesh.Clear ();
+		mesh.vertices = vertices;
+		mesh.triangles = triangles;
+		mesh.uv = vertices2D.ToArray ();
+	
+		// Update mesh
+		mesh.RecalculateBounds ();
+		mesh.RecalculateNormals ();
+	}
+	
 	RaycastHit RayHiter (Ray ray)
 	{
 		RaycastHit hit;
@@ -353,59 +176,14 @@ public class kFOV : MonoBehaviour
 		return hit;
 	}
 
-	void ResetVerticies ()
-	{
-		// Create Vector2 vertices
-		vertices2D = new List<Vector2> ();
-		vertices2D.Add (new Vector2 (0, 0));
-		vertices2D.Add (new Vector2 (-length * .5f, width));		
-		vertices2D.Add (new Vector2 (0, width));
-		vertices2D.Add (new Vector2 (length * .5f, width));
-	}
-
-	public void UpdateTile ()
+	public void EditorUpdate ()
 	{
 		Components ();
-		MeshCalc ();
-	}
-
-	void MeshCalc ()
-	{
-		///	
-		
-		// Use the triangulator to get indices for creating triangles
-		Triangulator tr = new Triangulator (vertices2D);
-		triangles = tr.Triangulate ();
- 
-		// Convert vertices - Vector2 in Vector3 
-		vertices = new Vector3[vertices2D.Count];
-		for (int i=0; i<vertices.Length; i++) {
-			vertices [i] = new Vector3 (vertices2D [i].x, 0, vertices2D [i].y);
-			
-			if (i > 0)
-				Debug.DrawLine (vertices [i - 1] + transform.position, vertices [i] + transform.position, Color.magenta);
-		
-		}
-		Debug.DrawLine (transform.position, transform.rotation * new Vector3 (0, 0, width) + transform.position, Color.yellow);
-		
-		
-		// Setup mesh
-		mesh.Clear ();
-		mesh.vertices = vertices;
-		mesh.triangles = triangles;
-		mesh.uv = vertices2D.ToArray ();
-		
-		// Update mesh
-		mesh.RecalculateNormals ();
-		mesh.RecalculateBounds ();
-		
-		//	transform.rotation = Quaternion.identity;
+		MeshUpdate ();
 	}
 
 	void Components ()
 	{	
-		if (vertices2D == null)
-			ResetVerticies ();
 		MeshRenderer meshRenderer = GetComponent<MeshRenderer> ();
 		if (meshRenderer == null) {
 			meshRenderer = gameObject.AddComponent<MeshRenderer> ();
@@ -425,7 +203,7 @@ public class kFOV : MonoBehaviour
 		if (mat == null) {
 			GetComponent<MeshRenderer> ().sharedMaterial = mat = new Material (Shader.Find ("Transparent/Diffuse"));	
 		}
-		color1.a = .6f;
+		color1.a = color2.a =.6f;
 		mat.color = color1;
 
 		MeshCollider meshCollider = GetComponent<MeshCollider> ();
@@ -441,5 +219,19 @@ public class kFOV : MonoBehaviour
 			rigid.useGravity = false;
 		}	
 	}
-	#endregion
+	
+	void ResetVerticies ()
+	{
+		// Create Vector2 vertices
+		vertices2D = new List<Vector2> ();
+		vertices2D.Add (new Vector2 (0, 0));
+		vertices2D.Add (new Vector2 (-length * .5f, width));		
+		vertices2D.Add (new Vector2 (0, width));
+		vertices2D.Add (new Vector2 (length * .5f, width));
+		
+		vertices = new Vector3[vertices2D.Count];
+		for (int k=0; k<vertices2D.Count; k++) {
+			vertices [k] = new Vector3(vertices2D[k].x, 0, vertices2D[k].y);
+		}	
+	}
 }

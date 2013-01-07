@@ -52,6 +52,8 @@ public class kfovCE : Editor
 		EditorGUILayout.PropertyField (_color1, elementWidth);
 		EditorGUILayout.PropertyField (_color2, elementWidth);
 		
+		EditorGUILayout.PropertyField (_kFOV.FindProperty ("showDebug"), elementWidth);
+		
 		EditorGUILayout.EndVertical ();		
 	
 		if (EditorGUI.EndChangeCheck ()) {
@@ -59,7 +61,7 @@ public class kfovCE : Editor
 				(Event.current.type == EventType.ValidateCommand && Event.current.commandName == "UndoRedoPerformed")) {
 				foreach (kFOV k in targets) {
 					if (PrefabUtility.GetPrefabType (k) != PrefabType.Prefab) {
-						k.UpdateTile ();
+						k.EditorUpdate ();
 					}
 				}
 			}
