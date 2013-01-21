@@ -11,5 +11,5 @@ Contains projects of:
  * **Defender V.0.3** - Unity3D tower defense ai pathfinding project. 
  * **Skate V.1.1** - GameObject Controller for a skateboard game. (Wheelcollider)
  * **kFOV** - Field of View Mesh Modifier - Cutting out colliding meshes.
-
+ * **kMultiplyEditor** - A beta version of an editor extension for comfortable cloning gameobjects in the scene view.
  and ...
