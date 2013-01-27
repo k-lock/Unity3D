@@ -1,4 +1,4 @@
-kMultiplyEditor - Editor Utility 
+kMultiplyEditor - Unity3D Utility 
 
 kMultiplyEditor is an tool for creating clone objects of an selected gameobject in the scene view.
 
