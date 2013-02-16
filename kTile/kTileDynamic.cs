@@ -7,133 +7,144 @@ public class kTileDynamic : MonoBehaviour
 {
 
 	[HideInInspector]
-	public     Rect 			uvRect = new Rect(0,0,100,100);	
+	public  Rect 			uvRect = new Rect(0,0,100,100);	
 
-	public 		float 			_width  = 1;		
-	public 		float 			_height = 1;
+	public 	float 			_width  = 1;		
+	public 	float 			_height = 1;
 
-	public 	int 				_currentFrame = 0;
-	public 	int 				_lastFrame    = 0;
+	public 	int 			_currentFrame = 0;
+	public 	int 			_lastFrame    = 0;
 	
-	public 		float 			_frameTick = 0.05f;	
-	public 		Rect[] 			_frameRects;
-	private 	float 			_frameTime = 0.0f;
-	private   	int 			_frameTemp = 0;	
+	public 	float 			_frameTick = 0.05f;	
+	public 	Rect[] 			_frameRects;
+	private float 			_frameTime = 0.0f;
+	private int 			_frameTemp = 0;	
 
-	private 	Vector3[] 		verts  = new Vector3[4];
-	private 	Vector2[] 		uvs    = new Vector2[4];
-	private 	int[]			trias  = new int[6];
+	private Vector3[] 		verts  = new Vector3[4];
+	private Vector2[] 		uvs    = new Vector2[4];
+	private int[]			trias  = new int[6];
 //	private 	Color[] 		colors = new Color[4];
 	
 	[HideInInspector]
-	public 		Mesh 			mesh;
+	public 	Mesh 			mesh;
 	[HideInInspector]
-	public 		MeshFilter 		meshFilter;
+	public 	MeshFilter 		meshFilter;
 	[HideInInspector]
-	public 		MeshRenderer 	meshRenderer;
+	public 	MeshRenderer 	meshRenderer;
 	
 	//[HideInInspector]
-	public 		bool 			playAnimation = false;
+	public 	bool 			playAnimation = false;
 	//[HideInInspector]
-	public 		bool 			looping = false;
+	public 	bool 			looping = false;
 //	[HideInInspector]
-//	public 		bool 			reverse	= false;
+//	public 		bool 		reverse	= false;
 	
-	public Mesh MESH_init()
+	#region UNITY
+	#if UNITY_EDITOR
+	
+	public void Awake ()
 	{
-		meshFilter = (MeshFilter)gameObject.GetComponent (typeof(MeshFilter));
-		if (meshFilter == null) meshFilter = (MeshFilter)gameObject.AddComponent (typeof(MeshFilter));
-
-		meshRenderer = (MeshRenderer)gameObject.GetComponent (typeof(MeshRenderer));
-		if (meshRenderer == null) meshRenderer = (MeshRenderer)gameObject.AddComponent (typeof(MeshRenderer));
-		
-		Mesh m = new Mesh ();
-		m.name = "kTileDynamic";
-		m.vertices = VERTS;
-		m.uv = UVS;
-		m.triangles = TRIAS;	
-		m.RecalculateNormals ();
-	
-		meshFilter.sharedMesh = new Mesh();
-		mesh = meshFilter.mesh = m;
-		
-		m.RecalculateBounds ();	
-	
-		return m;
-	}
-	
-	public void MESH_update()
-	{
-	
-		SetupArrays( _width, _height, FrameRect);
-			
-		Mesh m =  ( mesh != null ) ? mesh : MESH_init(); 
-
-		m.Clear();
-		m.vertices = VERTS;
-		m.uv = UVS;
-		m.triangles = TRIAS;
-       
-		m.RecalculateNormals ();
-	//	m.RecalculateBounds (); //-  Assigning triangles will automatically Recalculate the bounding	
-
-	}
-	
-	private void Awake ()
-	{
-
+		if( mesh != null) mesh = null;
 	}
 
-	private void Update ()
+	void Update ()
 	{
 		if( playAnimation && Application.isPlaying )  Frame_check();
 	}
-	
-	/*
-	
-	V1
-	
-	public void Awake()
+
+    void OnEnable ()
 	{
-			
-		meshFilter   = (MeshFilter)	 gameObject.GetComponent(typeof(MeshFilter));
-		meshRenderer = (MeshRenderer)gameObject.GetComponent(typeof(MeshRenderer));
 		
-		if (meshFilter   == null) meshFilter   = (MeshFilter)  gameObject.AddComponent(typeof(MeshFilter));
-		if (meshRenderer == null) meshRenderer = (MeshRenderer)gameObject.AddComponent(typeof(MeshRenderer));
-
-		m = new Mesh();
-        m.name = "";
-		m.vertices  = VERTS;
-		m.uv 	    = UVS;
-    	m.triangles = TRIAS;
-		m.RecalculateNormals();
+		MESH_refresh ();
+		
+	}
 	
-		meshFilter.sharedMesh = m;
-       
-		m.RecalculateBounds();	
+	void OnDisable ()
+	{
+		GetComponent<MeshFilter> ().mesh = mesh = null;
+		DestroyImmediate (mesh);
 
-		if ( meshRenderer.sharedMaterial == null)
-		{  
-			meshRenderer.sharedMaterial = new Material (Shader.Find("Transparent/Diffuse"));
-			meshRenderer.sharedMaterial.mainTexture = UnityEditor.EditorGUIUtility.whiteTexture;
+	}
+
+	#endif
+	#endregion
+	public void MESH_refresh ()
+	{
+
+		Components ();
+		MeshUpdate ();
+		
+	}
+	public void Components ()
+	{
+		meshRenderer = GetComponent<MeshRenderer> ();
+		if (meshRenderer == null) {
+			meshRenderer = gameObject.AddComponent<MeshRenderer> ();
 		}
-		
-	}
-	private void Update()
-	{
-		RUpdate();
+		MeshFilter meshFilter = GetComponent<MeshFilter> ();
+		if (meshFilter == null) {
+			meshFilter = gameObject.AddComponent<MeshFilter> ();
+			//meshRenderer.material = mat;
+		}
+		if (mesh == null) {
+			GetComponent<MeshFilter> ().mesh = mesh = new Mesh ();
+			mesh.name = "kMesh";
+			mesh.hideFlags = HideFlags.HideAndDontSave;
+		}
+		/*if (mat == null) {
+			GetComponent<MeshRenderer> ().sharedMaterial = mat = new Material (Shader.Find ("Transparent/Diffuse"));
+		}*/
+		//meshFilter.mesh = mesh;
 	}
 	
-	private void LateUpdate()
+    void MeshUpdate ()
 	{
-		RLateUpdate();
+		if(meshRenderer.sharedMaterial==null)return; 
+	
 		
+		Mesh m = (mesh == null ) ? GetComponent<MeshFilter> ().sharedMesh : mesh ;
+		
+		Rect fRect 	= FrameRect;
+		float width = (fRect.width * _width/100);
+		float height = (fRect.height * _height/100);
+
+		// Setup mesh
+		m.Clear ();
+		m.vertices = verts = new Vector3[4] 
+		{ 
+			new Vector3 (0, 0, 0), 
+			new Vector3 (0, height, 0), 
+			new Vector3 (width, height, 0), 
+			new Vector3 (width, 0, 0) 
+		};
+		m.triangles = trias = new int[6] { 0, 1, 3, 3, 1, 2 };
+		m.uv = uvs = UV_setup ();
+
+		// Update mesh
+		m.RecalculateBounds ();
+		m.RecalculateNormals ();
 	}
-	*/
+
+	public void MESH_setup (Rect UVrect)
+	{
+		MESH_setup (UVrect.width, UVrect.height, UVrect);
+	}
+
+	public void MESH_setup (float width, float height, Rect UVrect)
+	{
+		_width = UVrect.width / 100;
+		_height = UVrect.height / 100;
+
+		uvRect = UVrect;
+
+		MESH_refresh ();
+
+	}
+
+	#region Animation 
 	
 	//int i = 0;
-	private void Frame_check()
+	public void Frame_check()
 	{
 		_frameTemp = _currentFrame;
 		
@@ -143,27 +154,30 @@ public class kTileDynamic : MonoBehaviour
 	
 		if( _frameTemp != _currentFrame )
 		{
-			
 			Frame_draw();
-			
-			//i=0;
 		}	
 	}
 		
-	private void Frame_draw()
+	public void Frame_draw()
 	{
 		if(_currentFrame < 0 )return;
-
-		SetupArrays( _width, _height, FrameRect);
+		if( mesh == null )
+		{
+			Components();
+			return;
+		}
 		
-		Mesh m =  ( mesh != null ) ? mesh : MESH_init (); 
+		Mesh m = GetComponent<MeshFilter> ().mesh = mesh;
+		
+		UV_setup();
 		
 		m.Clear();
 		m.vertices  = VERTS;
 		m.uv 	    = UVS;
 	    m.triangles = TRIAS;
 	       
-		m.RecalculateNormals();
+		m.RecalculateBounds ();
+		m.RecalculateNormals ();
 
 	}
 
@@ -213,54 +227,8 @@ public class kTileDynamic : MonoBehaviour
 			}
 		}
 	}
-	
-	public void FrameSetup()
-	{
-	
-		Rect frameRect = FrameRect;
 
-		_width  = frameRect.width/50.0f;
-		_height = frameRect.height/50.0f;
-			
-		uvRect  = frameRect;
-			
-		SetupArrays( _width, _height, frameRect);
-
-	}
-	
-	public void SetupArrays( float width, float height, Rect UVrect )
-	{
-		_width = UVrect.width/100;
-		_height = UVrect.height/100;
-		
-		uvRect = UVrect;
-		
-		SetupArrays();
-
-	}
-	
-	private void SetupArrays()
-	{
-		verts = new Vector3[4]{	new Vector3(0, 0, 0), new Vector3(0, _height, 0), new Vector3(_width, _height, 0), new Vector3(_width, 0, 0) };
-		uvs   = new Vector2[4]{ new Vector2(0, 0),    new Vector2(0, 1),          new Vector2(1, 1),               new Vector2(1, 0) };
-		
-		if( meshRenderer != null )
-		{
-		
-			Vector2 lowerLeftUV  = PixelCoordToUVCoord( new Vector2( uvRect.x, uvRect.y) );
-			Vector2 UVDimensions = PixelSpaceToUVSpace( new Vector2( uvRect.width, -uvRect.height) );
-	
-			uvs[0] = lowerLeftUV + Vector2.up * UVDimensions.y;		 		
-			uvs[1] = lowerLeftUV;	 										
-			uvs[2] = lowerLeftUV + Vector2.right * UVDimensions.x;			
-			uvs[3] = lowerLeftUV + UVDimensions;
-			
-		}
-
-        trias = new int[6] {0, 1, 3, 3, 1, 2};
-
-	}
-
+	#endregion 
 	public Vector3[] VERTS 
 	{
 		get{ return verts; }	
@@ -295,7 +263,21 @@ public class kTileDynamic : MonoBehaviour
 	}
 	
 	#region HELPERZ
-	
+	private Vector2[] UV_setup ()
+	{
+		if (meshRenderer != null) {
+			Vector2 lLeftUV = PixelCoordToUVCoord (new Vector2 (FrameRect.x, FrameRect.y));
+			Vector2 UVDimen = PixelSpaceToUVSpace (new Vector2 (FrameRect.width, -FrameRect.height));
+
+			uvs [0] = lLeftUV + Vector2.up * UVDimen.y;
+			uvs [1] = lLeftUV;
+			uvs [2] = lLeftUV + Vector2.right * UVDimen.x;
+			uvs [3] = lLeftUV + UVDimen;
+	//		Debug.Log (meshRenderer.sharedMaterial.mainTexture);
+		}
+		
+		return uvs;
+	}
 	public Vector2 PixelSpaceToUVSpace(Vector2 xy)
 	{
 		Texture t = meshRenderer.sharedMaterial.mainTexture;
