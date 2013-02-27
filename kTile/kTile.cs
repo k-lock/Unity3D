@@ -22,11 +22,11 @@ public class kTile : MonoBehaviour
 	public 		MeshRenderer meshRenderer;
 
     #region UNITY
-#if UNITY_EDITOR
+//#if UNITY_EDITOR
 	
 	public void Awake ()
 	{
-		
+		if( mesh != null) mesh = null;
 	}
 
 	void Update ()
@@ -41,13 +41,11 @@ public class kTile : MonoBehaviour
 	
 	void OnDisable ()
 	{
-		/*if (Application.isEditor) {
-			GetComponent<MeshFilter> ().mesh = null;
-			DestroyImmediate (mesh);
-		}*/
+		//GetComponent<MeshFilter> ().mesh = mesh = null;
+		//DestroyImmediate (mesh);
 	}
 
-	#endif
+//	#endif
 	public void MESH_refresh ()
 	{
 
@@ -59,17 +57,20 @@ public class kTile : MonoBehaviour
     #endregion
 	void MeshUpdate ()
 	{
+	//	if( gameObject.name=="LOGO_big" )Debug.Log(  meshRenderer.sharedMaterial);
 		if(meshRenderer.sharedMaterial==null)return; 
 	
+		Mesh m = (mesh == null ) ? GetComponent<MeshFilter> ().sharedMesh : mesh ;
+		
 		// Setup mesh
-		mesh.Clear ();
-		mesh.vertices = verts = new Vector3[4] { new Vector3 (0, 0, 0), new Vector3 (0, _height, 0), new Vector3 (_width, _height, 0), new Vector3 (_width, 0, 0) };
-		mesh.triangles = trias = new int[6] { 0, 1, 3, 3, 1, 2 };
-		mesh.uv = uvs = UV_setup ();
+		m.Clear ();
+		m.vertices = verts = new Vector3[4] { new Vector3 (0, 0, 0), new Vector3 (0, _height, 0), new Vector3 (_width, _height, 0), new Vector3 (_width, 0, 0) };
+		m.triangles = trias = new int[6] { 0, 1, 3, 3, 1, 2 };
+		m.uv = uvs = UV_setup ();
 
 		// Update mesh
-		mesh.RecalculateBounds ();
-		mesh.RecalculateNormals ();
+		m.RecalculateBounds ();
+		m.RecalculateNormals ();
 	}
 
 	public void MESH_setup (Rect UVrect)
