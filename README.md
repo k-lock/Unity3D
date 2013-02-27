@@ -1,4 +1,4 @@
-# Unity3D Script Libary
+# Unity3D Script Library
 
 Contains projects of:
 
