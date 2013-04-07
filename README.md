@@ -12,4 +12,5 @@ Contains projects of:
  * **Skate V.1.1** - GameObject Controller for a skateboard game. (Wheelcollider)
  * **kFOV** - Field of View Mesh Modifier - Cutting out colliding meshes.
  * **kMultiplyEditor** - A beta version of an editor extension for comfortable cloning gameobjects in the scene view.
+ * **kPolyMesh** - Editor Window for mesh creation in a Unity3D project.
  and ...
