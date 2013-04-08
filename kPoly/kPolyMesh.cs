@@ -17,19 +17,19 @@ public class kPolyMesh : EditorWindow
 	/** Static instance to this editor class. */
 	public static kPolyMesh 	instance;
 	private 	  string 		_meshName;
-	private 	  float 		_width 		= 1;
-	private 	  float 		_height 	= 1;
-	private 	  int 			_uSegments 	= 1;
-	private 	  int			_vSegments	= 1;
+	private 	  float 		_width = 1;
+	private 	  float 		_height = 1;
+	private 	  int 			_uSegments = 1;
+	private 	  int			_vSegments = 1;
 	private 	  int 			_pivotIndex = 0;
-	private 	  TextAnchor 	_pivot 		= TextAnchor.MiddleCenter;
-	private 	  string[] 		_pivotLabels 	= {"UpperLeft","UpperCenter","UpperRight", "MiddleLeft","MiddleCenter","MiddleRight", "LowerLeft", "LowerCenter","LowerRight"};
-	private 	  int 			_faceIndex 		= 0;
-	private 	  string[] 		_faceLabels 	= {"XZ","XY"};
-	private		  string[]		_windinLabels 	= { "TopLeft","TopRight", "ButtomLeft", "ButtomRight" };
-	private		  int 			_windinIndex 	= 2;
+	private 	  TextAnchor 	_pivot = TextAnchor.MiddleCenter;
+	private 	  string[] 		_pivotLabels = {"UpperLeft","UpperCenter","UpperRight", "MiddleLeft","MiddleCenter","MiddleRight", "LowerLeft", "LowerCenter","LowerRight"};
+	private 	  int 			_faceIndex = 0;
+	private 	  string[] 		_faceLabels = {"XZ","XY"};
+	private		  string[]		_windinLabels = { "TopLeft","TopRight", "ButtomLeft", "ButtomRight" };
+	private		  int 			_windinIndex = 2;
 	private		  string[]		_colliderLabels = { "none" ,"MeshCollider", "BoxCollider" };
-	private		  int 			_colliderIndex 	= 1;
+	private		  int 			_colliderIndex = 1;
 	
 	#endregion
 	#region Editor
@@ -148,7 +148,6 @@ public class kPolyMesh : EditorWindow
 	{
 		string assetName = "Assets/quad.asset";
 		GameObject quad = new GameObject ();
- 
 		if (!string.IsNullOrEmpty (_meshName))
 			quad.name = _meshName;
 		else
@@ -158,112 +157,102 @@ public class kPolyMesh : EditorWindow
 		
 		MeshFilter mf = quad.AddComponent<MeshFilter> ();
 		MeshRenderer mr = quad.AddComponent<MeshRenderer> ();
-		Mesh m = null;//(Mesh)AssetDatabase.LoadAssetAtPath (assetName, typeof(Mesh));
-		if (m == null) {
-			m = new Mesh ();
-			m.name = quad.name;
- 
-			int xCount = _uSegments + 1;
-			int yCount = _vSegments + 1;
-			int tCount = _uSegments * _vSegments * 6;
-			int vCount = xCount * yCount;
- 
-			Vector3[] vertices = new Vector3[vCount];
-			Vector2[] uvs = new Vector2[vCount];
-			int[] triangles = new int[tCount];
+		Mesh m = new Mesh ();
+	
+		int xCount = _uSegments + 1;
+		int yCount = _vSegments + 1;
+		int tCount = _uSegments * _vSegments * 6;
+		int vCount = xCount * yCount;
+
+		Vector3[] vertices = new Vector3[vCount];
+		Vector2[] uvs = new Vector2[vCount];
+		int[] triangles = new int[tCount];
 			
-			int index = 0;
-			float xUV = 1.0f / _uSegments;
-			float yUV = 1.0f / _vSegments;
-			float xSC = _width / _uSegments;
-			float ySC = _height / _vSegments;
+		int index = 0;
+		float xUV = 1.0f / _uSegments;
+		float yUV = 1.0f / _vSegments;
+		float xSC = _width / _uSegments;
+		float ySC = _height / _vSegments;
 			
-			Vector2 pivot = PivotVector;
-			Vector2 windin = TriangleWinding;
+		Vector2 pivot = PivotVector;
+		Vector2 windin = TriangleWinding;
 						
-			for (float y = 0.0f; y < yCount; y++) {
-				for (float x = 0.0f; x < xCount; x++) {
+		for (float y = 0.0f; y < yCount; y++) {
+			for (float x = 0.0f; x < xCount; x++) {
+
+				float dx = x * xSC - _width * .5f - pivot.x * .5f;
+				float dy = y * ySC - _height * .5f - pivot.y * .5f;
 					
-					float dx = x * xSC - _width * .5f - pivot.x * .5f;
-					float dy = y * ySC - _height * .5f - pivot.y * .5f;
-					
-					vertices [index] = new Vector3 (
-						dx,
-						(_faceIndex == 0) ? 0.0f : dy,
-						(_faceIndex == 0) ? dy : 0.0f
-					);
-					
-					uvs [index++] = new Vector2 (
-						x * xUV,
-						y * yUV
-					);
-				}
+				vertices [index] = (_faceIndex == 0) ? new Vector3 (dx, 0.0f, dy) : new Vector3 (dx, dy, 0.0f);		
+				uvs [index++] = new Vector2 ( x * xUV, y * yUV );
 			}
-
-			index = 0;
-			for (int y = 0; y < _vSegments; y++) {
-				for (int x = 0; x < _uSegments; x++) {
-
-					int p1 = (y * yCount) + x;
-					int p2 = (y * yCount) + x + 1;
-					int p3 = ((y + 1) * yCount) + x;
-					int p4 = ((y + 1) * yCount) + x + 1;
-
-					switch (_windinIndex) {
-					case 0:
-						triangles [index] = p4;
-						triangles [index + 1] = p1;
-						triangles [index + 2] = p3;
- 
-						triangles [index + 3] = p4;
-						triangles [index + 4] = p2;
-						triangles [index + 5] = p1;
-						break;
-					case 1:
-						triangles [index] = p3;
-						triangles [index + 1] = p2;
-						triangles [index + 2] = p1;
- 
-						triangles [index + 3] = p3;
-						triangles [index + 4] = p4;
-						triangles [index + 5] = p2;
-						break;
-					case 2:
-						triangles [index] = p1;
-						triangles [index + 1] = p4;
-						triangles [index + 2] = p2;
- 
-						triangles [index + 3] = p1;
-						triangles [index + 4] = p3;
-						triangles [index + 5] = p4;
-						break;
-					case 3:
-						triangles [index] = p2;
-						triangles [index + 1] = p3;
-						triangles [index + 2] = p4;
- 
-						triangles [index + 3] = p2;
-						triangles [index + 4] = p1;
-						triangles [index + 5] = p3;
-						break;
-					}					
-					index += 6;
-				}
-			}
-
-			m.vertices = vertices;
-			m.uv = uvs;
-			m.triangles = triangles;	
-			m.RecalculateNormals ();
-			m.RecalculateBounds ();
-			
-			mf.sharedMesh = m;
-			
-			AddCollider (quad, m);
-
-			//	AssetDatabase.CreateAsset (m, assetName);
-			//	AssetDatabase.SaveAssets ();
 		}
+
+		index = 0;
+		for (int y = 0; y < _vSegments; y++) {
+			for (int x = 0; x < _uSegments; x++) {
+
+				int p1 = (y * xCount) + x;
+				int p2 = (y * xCount) + x + 1;
+				int p3 = ((y + 1) * xCount) + x;
+				int p4 = ((y + 1) * xCount) + x + 1;
+				
+				switch (_windinIndex) {
+				case 1:
+					triangles [index] = p4;
+					triangles [index + 1] = p1;
+					triangles [index + 2] = p3;
+ 
+					triangles [index + 3] = p4;
+					triangles [index + 4] = p2;
+					triangles [index + 5] = p1;
+					break;
+				case 0:
+					triangles [index] = p3;
+					triangles [index + 1] = p2;
+					triangles [index + 2] = p1;
+ 
+					triangles [index + 3] = p3;
+					triangles [index + 4] = p4;
+					triangles [index + 5] = p2;
+					break;
+				case 2:
+					triangles [index] = p1;
+					triangles [index + 1] = p4;
+					triangles [index + 2] = p2;
+ 
+					triangles [index + 3] = p1;
+					triangles [index + 4] = p3;
+					triangles [index + 5] = p4;
+					break;
+				case 3:
+					triangles [index] = p2;
+					triangles [index + 1] = p3;
+					triangles [index + 2] = p4;
+ 
+					triangles [index + 3] = p2;
+					triangles [index + 4] = p1;
+					triangles [index + 5] = p3;
+					break;
+				}					
+				index += 6;
+			}
+		}
+		m.name = quad.name;
+		m.vertices = vertices;
+		m.uv = uvs;
+		m.triangles = triangles;	
+
+		mf.sharedMesh = m;
+			
+		m.RecalculateNormals ();
+		m.RecalculateBounds ();
+		
+		AddCollider (quad, m);
+
+		//	AssetDatabase.CreateAsset (m, assetName);
+		//	AssetDatabase.SaveAssets ();
+		
 	}
 	
 	private Vector2 TriangleWinding {
@@ -322,6 +311,7 @@ public class kPolyMesh : EditorWindow
 			return p;	
 		}
 	}
+
 	private void AddCollider (GameObject quad, Mesh m = null)
 	{
 		if (_colliderIndex > 0) {
