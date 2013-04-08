@@ -26,6 +26,7 @@ public class kMeshInfo : EditorWindow
 	/** Helper for gui text scroll field.*/
 	private Vector2 sc = Vector2.zero;
 	private Vector2 sc2 = Vector2.zero;
+	private Vector2 sc3 = Vector2.zero;
 	private static bool _displayActTri = true;
 	private static bool _displayParTri = false;
 	
@@ -39,7 +40,7 @@ public class kMeshInfo : EditorWindow
 		instance = (kMeshInfo)EditorWindow.GetWindow (typeof(kMeshInfo), false, "Mesh Info");
 		instance.Show ();
 		instance.OnEnable ();
-		instance.position = new Rect( 200,100, 200, 228 );
+		instance.position = new Rect (200, 100, 200, 228);
 	}
     #endregion
     #region unity
@@ -62,7 +63,8 @@ public class kMeshInfo : EditorWindow
 
 	void FillList ()
 	{
-		if(_selectMesh == null )return;
+		if (_selectMesh == null)
+			return;
 		
 		
 		int n = _selectMesh.triangles.Length;
@@ -89,7 +91,7 @@ public class kMeshInfo : EditorWindow
 			
 			//Debug.Log (i/3+ " " +  TriList [i/3]);
 			TriPoint tp = (p1 < n && list [p1] == null) ? new TriPoint () : list [p1];
-		//	Debug.Log ("Has Local "+ list [p1]);
+			//	Debug.Log ("Has Local "+ list [p1]);
 			if (p2 + 1 != p3) {
 				tp._p2 = p2;
 				tp._p3 = p3;			
@@ -255,10 +257,28 @@ public class kMeshInfo : EditorWindow
 		GUILayout.EndHorizontal ();
 		string s = "";
 		if (_selectMesh != null) {
-			sc = GUILayout.BeginScrollView (sc);
+			EditorGUILayout.Space ();
+			EditorGUILayout.Separator ();
 			GUIStyle gs = new GUIStyle ();
 			gs.wordWrap = true;
 			gs.contentOffset = new Vector2 (10, 0);
+			
+			if (_selectMesh != null) {
+				sc3 = GUILayout.BeginScrollView (sc3);
+				int vc = _selectMesh.vertices.Length;//Debug.Log (n);
+				GUILayout.Label ("Verts :" + vc);
+				for (int i = 0; i < vc; i++) {
+					if (_selectMesh.vertices [i] != null) {
+						GUILayout.Label (i + " - "
+					+ _selectMesh.vertices [i].x + " "
+					+ _selectMesh.vertices [i].y + " "
+					+ _selectMesh.vertices [i].z + " ", gs);
+					}		
+				}
+				GUILayout.EndScrollView ();	
+			}
+			EditorGUILayout.Space ();
+			sc = GUILayout.BeginScrollView (sc);
 			int n = _selectMesh.triangles.Length;
 			for (int i = 0; i < n; i += 6) {
 				s = "";
@@ -290,10 +310,10 @@ public class kMeshInfo : EditorWindow
 			gs.contentOffset = new Vector2 (10, 0);
 			
 			int n = list.Length;//Debug.Log (n);
-			GUILayout.Label ( "tList :"+n);
+			GUILayout.Label ("tList :" + n);
 			for (int i = 0; i < n; i++) {
 				if (((TriPoint)list [i]) != null) {
-					GUILayout.Label (i  + " - "
+					GUILayout.Label (i + " - "
 					+ ((TriPoint)list [i])._p1 + " "
 					+ ((TriPoint)list [i])._p2 + " "
 					+ ((TriPoint)list [i])._p3 + " "
@@ -340,16 +360,16 @@ public class kMeshInfo : EditorWindow
 		if (!Physics.Raycast (r, out hit, float.MaxValue)) {
 			return-1;
 		}
-		if( hit.collider.gameObject != _selection ){
+		if (hit.collider.gameObject != _selection) {
 			_selection = hit.collider.gameObject;
-		if (_selection != null) {
-			_selectMeshFilter = _selection.GetComponent<MeshFilter> ();
-			if (_selectMeshFilter != null) {
-				_selectMesh = _selectMeshFilter.sharedMesh;
-				//TriList = null;
+			if (_selection != null) {
+				_selectMeshFilter = _selection.GetComponent<MeshFilter> ();
+				if (_selectMeshFilter != null) {
+					_selectMesh = _selectMeshFilter.sharedMesh;
+					//TriList = null;
+				}
+				//	CreateTriList ();	
 			}
-			//	CreateTriList ();	
-		}
 		}
 		instance.Repaint ();
 		return hit.triangleIndex;
