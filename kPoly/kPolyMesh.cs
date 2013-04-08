@@ -1,11 +1,24 @@
 /** http://www.k-lock.de  | Paul Knab 
- * 	_________________________________
+ * 	_______________________________________
  * 	
  * 	kPolyMesh | V.1.0.0 | 05.04.2013
- *  _________________________________
+ *  ________________________________________
  * 
  * 	Editor Window for mesh creation  
  * 	in Unity3D Scene Editor
+ * 
+ * 
+ * 	Properties for generating mesh component
+ * 
+ * 	- Segments 
+ * 	- Size
+ * 	- Pivot point for mesh
+ * 	- Facing direction
+ * 	- Triangle winding
+ * 
+ *  Extra :
+ *  
+ *  - Add your favorite MeshCollider / BoxCollider
  * 
  * */
 using UnityEngine;
@@ -16,13 +29,13 @@ public class kPolyMesh : EditorWindow
     #region vars
 	/** Static instance to this editor class. */
 	public static kPolyMesh 	instance;
-	private 	  string 		_meshName;
+	private 	  string 		_meshName = "";
 	private 	  float 		_width = 1;
 	private 	  float 		_height = 1;
 	private 	  int 			_uSegments = 1;
 	private 	  int			_vSegments = 1;
 	private 	  int 			_pivotIndex = 0;
-	private 	  TextAnchor 	_pivot = TextAnchor.MiddleCenter;
+	//private 	  TextAnchor 	_pivot = TextAnchor.MiddleCenter;
 	private 	  string[] 		_pivotLabels = {"UpperLeft","UpperCenter","UpperRight", "MiddleLeft","MiddleCenter","MiddleRight", "LowerLeft", "LowerCenter","LowerRight"};
 	private 	  int 			_faceIndex = 0;
 	private 	  string[] 		_faceLabels = {"XZ","XY"};
@@ -34,15 +47,15 @@ public class kPolyMesh : EditorWindow
 	#endregion
 	#region Editor
 	/** The Unity EditorWindow start function.*/
-	[MenuItem("Window/klock/kMesh/kPolyMesh %M2")]
+	[MenuItem("Window/klock/kMesh/kPolyCreate %M1")]
 	public static void Init ()
 	{
-		instance = (kPolyMesh)EditorWindow.GetWindow (typeof(kPolyMesh), false, "Poly Mesh");
+		instance = (kPolyMesh)EditorWindow.GetWindow (typeof(kPolyMesh), false, "Poly Create");
 		instance.Show ();
 		instance.OnEnable ();
 		instance.position = new Rect (200, 100, 200, 228);
 	}
-		
+	/** Reset the editor values to default.*/
 	private void ResetEditorValues ()
 	{
 		_width = 1;
@@ -82,7 +95,7 @@ public class kPolyMesh : EditorWindow
 	}
 	#endregion
 	#region Editor GUI
-
+	/** Main GUI draw function.*/
 	private void DrawPanel ()
 	{
 		EditorGUI.BeginChangeCheck ();
@@ -144,9 +157,10 @@ public class kPolyMesh : EditorWindow
 
 	#endregion
 	#region Export - Mesh Creation
+	/** GameObject Export / Mesh Creation function*/
 	private void CreateMesh ()
 	{
-		string assetName = "Assets/quad.asset";
+		//string assetName = "Assets/quad.asset";
 		GameObject quad = new GameObject ();
 		if (!string.IsNullOrEmpty (_meshName))
 			quad.name = _meshName;
@@ -155,9 +169,7 @@ public class kPolyMesh : EditorWindow
 		
 		quad.transform.position = Vector3.zero;
 		
-		MeshFilter mf = quad.AddComponent<MeshFilter> ();
-		MeshRenderer mr = quad.AddComponent<MeshRenderer> ();
-		Mesh m = new Mesh ();
+		
 	
 		int xCount = _uSegments + 1;
 		int yCount = _vSegments + 1;
@@ -175,7 +187,7 @@ public class kPolyMesh : EditorWindow
 		float ySC = _height / _vSegments;
 			
 		Vector2 pivot = PivotVector;
-		Vector2 windin = TriangleWinding;
+		//Vector2 windin = TriangleWinding;
 						
 		for (float y = 0.0f; y < yCount; y++) {
 			for (float x = 0.0f; x < xCount; x++) {
@@ -184,7 +196,7 @@ public class kPolyMesh : EditorWindow
 				float dy = y * ySC - _height * .5f - pivot.y * .5f;
 					
 				vertices [index] = (_faceIndex == 0) ? new Vector3 (dx, 0.0f, dy) : new Vector3 (dx, dy, 0.0f);		
-				uvs [index++] = new Vector2 ( x * xUV, y * yUV );
+				uvs [index++] = new Vector2 (x * xUV, y * yUV);
 			}
 		}
 
@@ -198,15 +210,6 @@ public class kPolyMesh : EditorWindow
 				int p4 = ((y + 1) * xCount) + x + 1;
 				
 				switch (_windinIndex) {
-				case 1:
-					triangles [index] = p4;
-					triangles [index + 1] = p1;
-					triangles [index + 2] = p3;
- 
-					triangles [index + 3] = p4;
-					triangles [index + 4] = p2;
-					triangles [index + 5] = p1;
-					break;
 				case 0:
 					triangles [index] = p3;
 					triangles [index + 1] = p2;
@@ -215,6 +218,15 @@ public class kPolyMesh : EditorWindow
 					triangles [index + 3] = p3;
 					triangles [index + 4] = p4;
 					triangles [index + 5] = p2;
+					break;
+				case 1:
+					triangles [index] = p4;
+					triangles [index + 1] = p1;
+					triangles [index + 2] = p3;
+ 
+					triangles [index + 3] = p4;
+					triangles [index + 4] = p2;
+					triangles [index + 5] = p1;
 					break;
 				case 2:
 					triangles [index] = p1;
@@ -238,6 +250,11 @@ public class kPolyMesh : EditorWindow
 				index += 6;
 			}
 		}
+		
+		MeshFilter mf = quad.AddComponent<MeshFilter> ();
+		quad.AddComponent<MeshRenderer> (); //MeshRenderer mr = 
+		Mesh m = new Mesh ();
+		
 		m.name = quad.name;
 		m.vertices = vertices;
 		m.uv = uvs;
@@ -254,7 +271,26 @@ public class kPolyMesh : EditorWindow
 		//	AssetDatabase.SaveAssets ();
 		
 	}
-	
+	/** Add a collider object to the generated gameobject.
+	 *  @params GameObject quad - The target gameobject.
+	 * 	@params Mesh m - The sharedMesh property for a MeshCollider componete.
+	 */
+	private void AddCollider (GameObject quad, Mesh m)
+	{
+		if (_colliderIndex > 0) {
+				
+			switch (_colliderIndex) {
+			case 1: // mesh 
+				MeshCollider mc = quad.AddComponent<MeshCollider> ();
+				mc.sharedMesh = m;
+				break;
+			case 2: // box
+				quad.AddComponent<BoxCollider> ();
+				break;
+			}				
+		}
+	}
+	/** Returns a vector2 containing the winding order for the triangles in the generated mesh.*/
 	private Vector2 TriangleWinding {
 		get {
 			Vector2 p = Vector2.zero;
@@ -275,7 +311,7 @@ public class kPolyMesh : EditorWindow
 			return p;
 		}
 	}
-
+	/** Returns a vector2 containing the new position for the transform point of the generated mesh.*/
 	private Vector2 PivotVector {
 		get {
 			Vector2 p = Vector2.zero;
@@ -309,22 +345,6 @@ public class kPolyMesh : EditorWindow
 				break;	
 			}
 			return p;	
-		}
-	}
-
-	private void AddCollider (GameObject quad, Mesh m = null)
-	{
-		if (_colliderIndex > 0) {
-				
-			switch (_colliderIndex) {
-			case 1: // mesh 
-				MeshCollider mc = quad.AddComponent<MeshCollider> ();
-				mc.sharedMesh = m;
-				break;
-			case 2: // box
-				BoxCollider bc = quad.AddComponent<BoxCollider> ();
-				break;
-			}				
 		}
 	}
 	#endregion
