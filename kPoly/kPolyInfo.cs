@@ -4,9 +4,9 @@
  * 	kPolyInfo | V.1.0.0 | 07.04.2013
  *  ________________________________________
  * 
- * 	Editor Window for editing the current
- * 	selected gamobject mesh component.  
- * 	 
+ * 	Editor Window  getting info about the 
+ * 	mesh component for the current selected 
+ * 	gamobject. 
  */
 using UnityEngine;
 using UnityEditor;
@@ -279,7 +279,7 @@ public class kPolyInfo: EditorWindow
 			int[] tList = _selectMesh.triangles;
 			int tIndex = _hitTriangle * 3;
 		
-			if (tList == null || tIndex > tList.Length )
+			if (tList == null || tIndex > tList.Length)
 				return;
 		
 			int t1 = tList [tIndex + 0];
@@ -289,7 +289,7 @@ public class kPolyInfo: EditorWindow
 			// Draw current Triangle 
 			//	bool isOpen = TriangleOpen;
 			//	int tIndicie = _hitTriangle % 2;
-			float cubeSize = .1f;
+			float cubeSize =HandleUtility.GetHandleSize(_selectMesh.vertices [t1])* .1f;
 		
 			Vector3 v1 = root.TransformPoint (_selectMesh.vertices [t1]);
 			Vector3 v2 = root.TransformPoint (_selectMesh.vertices [t2]);
@@ -298,20 +298,31 @@ public class kPolyInfo: EditorWindow
 			Handles.color = new Color (Color.yellow.r, Color.yellow.g, Color.yellow.b, .85f);
 			Handles.CubeCap (0, v1, root.rotation, cubeSize);
 		
-			if (t1 + 1 == t3)
+			int neighbourID = -1;
+			Vector3 neighbourVector = Vector3.zero;
+			if (t1 + 1 == t3) {
+				if (_SHOW_NEIBS)
+					neighbourVector = _selectMesh.vertices [((TriPoint)neigbourList [t1])._p1];
 				Handles.color = new Color (Color.green.r, Color.green.g, Color.green.b, .85f); // TRI Point a
-			else
+			} else {
+				if (_SHOW_NEIBS)
+					neighbourVector = _selectMesh.vertices [((TriPoint)neigbourList [t1])._p3];
 				Handles.color = new Color (Color.red.r, Color.red.g, Color.red.b, .85f); // TRI Point b 
-		
+			}
 		
 			Handles.CubeCap (0, v2, root.rotation, cubeSize);
 			Handles.CubeCap (0, v3, root.rotation, cubeSize);
+			if (_SHOW_NEIBS) {
+				Handles.color = new Color (Color.blue.r, Color.blue.g, Color.blue.b, .85f);
+				Handles.CubeCap (0, root.TransformPoint (neighbourVector), root.rotation, cubeSize);
+			}
 		
 			Handles.Label (v1, new GUIContent ("" + t1));
 			Handles.Label (v2, new GUIContent ("" + t2));
 			Handles.Label (v3, new GUIContent ("" + t3));
 		
 			Handles.Label ((v1 + v2 + v3) / 3, new GUIContent ("" + t1));
+
 		}
 	}
 
@@ -323,18 +334,18 @@ public class kPolyInfo: EditorWindow
 		if (!Physics.Raycast (r, out hit, float.MaxValue)) {
 			return-1;
 		}
-		/*if (hit.collider.gameObject != _selection) {
+		if (hit.collider.gameObject != _selection) {
 			_selection = hit.collider.gameObject;
 			
 			if (_selection != null) {
 				_selectMeshFilter = _selection.GetComponent<MeshFilter> ();
 				if (_selectMeshFilter != null) {
 					_selectMesh = _selectMeshFilter.sharedMesh;
-					//TriList = null;
+					neigbourList = null;
 				}
-				//	CreateTriList ();	
+				instance.Calc_Neigbours ();	
 			}
-		}*/
+		}
 		instance.Repaint ();
 		return hit.triangleIndex;
 	}
