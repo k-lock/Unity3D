@@ -17,6 +17,7 @@ public class kPolyEdit : EditorWindow
     #region vars
 	/** Static instance to this editor class. */
 	public 	static kPolyEdit 	instance;
+	private static int[] 		_SelectionIndicies = null;
 	/** Static gui id to this editor window. */
 	private static int 			_instanceHash = -1;
 	/**The Selected gameobject from the scene view.*/
@@ -32,7 +33,9 @@ public class kPolyEdit : EditorWindow
 	private static bool 		_SHOW_TRIAS = true;
 	private static bool 		_SHOW_NEIBS = false;
 	private static MODE			_editorMode = MODE.None;
-	
+	private 		int 		_sIndex = -1;
+	private			Transform	_sTrans = null;
+	private			bool		_freeze = false;
 	#endregion
 	#region Editor
 	/** The Unity EditorWindow start function.*/
@@ -43,6 +46,8 @@ public class kPolyEdit : EditorWindow
 		instance.Show ();
 		instance.OnEnable ();
 		instance.position = new Rect (200, 100, 200, 228);
+		instance.minSize = new Vector2 (190, 200);
+		instance.maxSize = new Vector2 (250, 250);
 	}
 	#endregion
 	#region Unity
@@ -61,12 +66,19 @@ public class kPolyEdit : EditorWindow
 	/*private void OnDisable ()
 	{
 	
-	}
+	}*/
 	
 	private void Update ()
 	{
-	
-	}*/
+		if (_freeze && Selection.activeInstanceID != _sIndex)
+			OnSelectionChange ();
+	}
+
+	void OnInspectorUpdate ()
+	{
+		if (_freeze && Selection.activeInstanceID != _sIndex)
+			OnSelectionChange ();
+	}
 
 	private void OnGUI ()
 	{	
@@ -75,22 +87,29 @@ public class kPolyEdit : EditorWindow
 
 	private void OnSelectionChange ()
 	{
-		//if (_editorMode != MODE.None) {
-		_selection = Selection.activeGameObject;
+		if (!_freeze && Selection.activeInstanceID > 0) {
+		
+			_sTrans = Selection.activeTransform;
+			_sIndex = Selection.activeInstanceID;
+			_selection = Selection.activeGameObject;
+		}
+		
+		if (_freeze && Selection.activeInstanceID != _sIndex) {
+	
+			Selection.activeTransform = _sTrans;
+			Selection.activeInstanceID = _sIndex;
+			_selection = Selection.activeGameObject = _sTrans.gameObject;
+			
+		}
 
 		if (_selection != null) {
 			_selectMeshFilter = _selection.GetComponent<MeshFilter> ();
 			if (_selectMeshFilter != null) {
 				_selectMesh = _selectMeshFilter.sharedMesh;
 			}
-			neigbourList = kPoly.Neigbours (_selectMesh);
-		} else {
-			
-			//	neigbourList = null;
-		}
-		/*}else{
-			Selection.activeGameObject = _selection;	
-		}*/
+			neigbourList = kPoly.Neigbours (_selectMesh);	
+		} 
+
 		Repaint ();
 	}
 	#endregion
@@ -125,6 +144,8 @@ public class kPolyEdit : EditorWindow
 		GUI.color = Color.white;
 		GUILayout.EndHorizontal ();
 		
+		_freeze = (_editorMode != MODE.None);
+		
 		EditorGUILayout.EndVertical ();		
 	}
 	#endregion
@@ -139,40 +160,75 @@ public class kPolyEdit : EditorWindow
 
 	public static void OnSceneGUI (SceneView sceneview)
 	{ 
-		int controlID = GUIUtility.GetControlID (_instanceHash, FocusType.Native);	
+		int controlID = GUIUtility.GetControlID (_instanceHash, FocusType.Passive);	
 		Event e = Event.current;
 		switch (e.GetTypeForControl (controlID)) {
+		case EventType.mouseDown:
 		case EventType.mouseUp:
 		case EventType.mouseMove:
 		case EventType.repaint:
+		case EventType.layout:
 			if (_selectMesh != null) {
 				if (_editorMode != MODE.None) {
-					Draw_Handles ();
+					
+					
+					switch (_editorMode) {
+					case MODE.E_Point:	
+						Draw_Handles2 ();
+						break;
+					}
 				}
 			}
 			break;
-		case EventType.layout:
-			
-			break;
+		
+		/*if (Selection.activeObject != _selection ||
+				_selection == null && _editorMode != MODE.None) {
+				
+				Selection.objects = sList;
+				Selection.activeGameObject = sList[0];
+			}*/
+			 
+		//break;
 				
 		}
 	}
 
-	private static int[] _SelectionIndicies = null;
+	private static void Draw_Handles2 ()
+	{
+		if (_selectMesh == null || _selection == null) {
+			return;
+		}
+		Debug.Log (Event.current.type);
+		Transform root = _selection.transform;
+		int[] tList = _selectMesh.triangles;
+		/*Event e = Event.current;
+		Ray r = Camera.current.ScreenPointToRay (new Vector3 (e.mousePosition.x, -e.mousePosition.y + Camera.current.pixelHeight));
+		Vector3 mousePos = r.origin;
+			*/
+		foreach (Vector3 mv in _selectMesh.vertices) {
+
+			float cubeSize = HandleUtility.GetHandleSize (mv) * .1f;
+			Vector3 v1 = root.TransformPoint (mv);
+			/*if (Vector3.Distance (mousePos, mv) < .05f) {// && Event.current.type == EventType.mouseDown) {
+				Handles.color = new Color (Color.red.r, Color.red.g, Color.red.b, .85f);
+			} else*/
+			Handles.color = new Color (Color.green.r, Color.green.g, Color.green.b, .85f);
+			Handles.CubeCap (_instanceHash, v1, root.rotation, cubeSize);
+	
+		}
+	}
 
 	private static void Draw_Handles ()
 	{
 		int _hitTriangle = kPoly.HitTriangle ();
-		if (_hitTriangle == -1) {
+		if (_hitTriangle == -1 || _selection == null) {
 			return;
 		}
 		if (_SelectionIndicies == null) {
 			_SelectionIndicies = new int[99];
 			_SelectionIndicies [0] = 0;
 		}
-		
-		//	Selection.activeGameObject = _selection;
-		
+
 		Transform root = _selection.transform;
 		int[] tList = _selectMesh.triangles;
 		int tIndex = _hitTriangle * 3;
@@ -189,18 +245,9 @@ public class kPolyEdit : EditorWindow
 				Handles.color = new Color (Color.red.r, Color.red.g, Color.red.b, .85f);
 			else*/
 			Handles.color = new Color (Color.green.r, Color.green.g, Color.green.b, .85f);
-			//Handles.CubeCap (0, v1, root.rotation, cubeSize);
-			Vector3 cv = Handles.PositionHandle (v1, root.rotation);
-			if (Event.current.type == EventType.mouseDrag) {
-				
-				/*.FreeMoveHandle (v1, 
-                            Quaternion.identity,
-                            .5f,
-                            Vector3.zero, 
-                            Handles.CubeCap);*/
+			Handles.CubeCap (0, v1, root.rotation, cubeSize);
+			//Vector3 cv = Handles.PositionHandle (v1, root.rotation);
 			
-				_selectMesh.vertices [t1] = _selection.transform.InverseTransformPoint (cv);
-			}
 		}
 	}
 	#endregion
