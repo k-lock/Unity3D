@@ -157,26 +157,31 @@ public class kPolyEdit : EditorWindow
 
 	public static void OnSceneGUI (SceneView sceneview)
 	{ 
-		int controlID = GUIUtility.GetControlID (_instanceHash, FocusType.Passive);	
+		/*int controlID = GUIUtility.GetControlID (_instanceHash, FocusType.Passive);	
 		Event e = Event.current;
 		switch (e.GetTypeForControl (controlID)) {
 		case EventType.mouseDown:
 		case EventType.mouseUp:
 		case EventType.mouseMove:
 		case EventType.repaint:
-		case EventType.layout:
+		case EventType.layout:*/
 			if (_selectMesh != null) {
 				if (_editorMode != MODE.None) {
 					
-					
+					if( verts == null)verts =  _selectMesh.vertices;
 					switch (_editorMode) {
 					case MODE.E_Point:	
 						Draw_Handles2 ();
 						break;
 					}
+					_selectMesh.vertices = verts;
+					_selectMesh.RecalculateNormals();
+					_selectMesh.RecalculateBounds();
+					_selectMeshFilter.sharedMesh = _selectMesh;
+					
 				}
 			}
-			break;
+		//	break;
 		
 		/*if (Selection.activeObject != _selection ||
 				_selection == null && _editorMode != MODE.None) {
@@ -187,11 +192,12 @@ public class kPolyEdit : EditorWindow
 			 
 		//break;
 				
-		}
+	//	}
 	}
 
 	static int curPointIndex = 0;
 	static Vector3 dragPoint = Vector3.zero;
+	static Vector3[] verts;
 	private static void Draw_Handles2 ()
 	{
 		if (_selectMesh == null || _selection == null) {
@@ -200,13 +206,14 @@ public class kPolyEdit : EditorWindow
 
 		int someHashCode = instance.GetHashCode ();		
 		Transform root = _selection.transform;
-		int i = 0;
+		//int i = 0;
+		
 		bool refreshMesh = false;
 		
-		foreach (Vector3 mv in _selectMesh.vertices) {
+		for (int i =0 ; i<verts.Length;i++){// (Vector3 mv in verts) {
 
-			float cubeSize = HandleUtility.GetHandleSize (mv);
-			Vector3 v1 = root.TransformPoint (mv);
+			float cubeSize = HandleUtility.GetHandleSize (verts [i]);
+			Vector3 v1 = root.TransformPoint (verts [i]);
 			
 			int controlIDBeforeHandle = GUIUtility.GetControlID (someHashCode, FocusType.Passive);
 			bool isEventUsedBeforeHandle = (Event.current.type == EventType.used);
@@ -220,37 +227,27 @@ public class kPolyEdit : EditorWindow
 			if (curPointIndex == i) {
 				
 				v1 = Handles.PositionHandle (v1, Quaternion.identity);
+				verts [i] = root.InverseTransformPoint (v1);
+			//Debug.Log("Moving "+ mv + " " + verts[i]);
+				refreshMesh = true;
 				
-				if( Event.current.type == EventType.MouseDrag || Event.current.type == EventType.MouseDown) {
-					
-					Debug.Log ("MOSE EVENT");
-				
-					_selectMesh.vertices [i] = root.InverseTransformPoint (mv);
-					refreshMesh = true;
-					
-				}
 			}
 
 			int controlIDAfterHandle = GUIUtility.GetControlID (someHashCode, FocusType.Native);
 			bool isEventUsedByHandle = !isEventUsedBeforeHandle && (Event.current.type == EventType.used);
  
 			if
-             (( controlIDBeforeHandle < GUIUtility.hotControl && 
+             ((controlIDBeforeHandle < GUIUtility.hotControl && 
 				GUIUtility.hotControl < controlIDAfterHandle) || isEventUsedByHandle) {
 				curPointIndex = i;
 				
 			}
+			if (Event.current.type == EventType.MouseDrag || Event.current.type == EventType.MouseDown) {
+	
+				
+			}
 
-
-			i++;
-		}
-		if( refreshMesh )
-		{
-			_selectMesh.RecalculateNormals();
-			_selectMesh.RecalculateBounds();
-			
-			_selectMeshFilter.sharedMesh = _selectMesh;
-		}
+		}		
 	}
 
 	private static void Draw_Handles ()
