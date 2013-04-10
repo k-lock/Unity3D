@@ -13,15 +13,47 @@ using System.Collections;
 
 public class kPoly
 {
+	/** Static helper to create a ray from mouse position in scene view. [ GUIPointToWorldRay ]
+	 * 
+	 * 	@params returns Ray - */
+	private static Ray HitRay()
+	{
+		Vector2 mp = Event.current.mousePosition;
+		return HandleUtility.GUIPointToWorldRay (mp);
+	}
+	
+	/** Returns the complete raycast hit object from the mouse position.
+	 * 
+	 * 	@returns RaycastHit hit.collider */
+	public static RaycastHit HitTriangleObject ()
+	{
+		Ray r = HitRay();
+		RaycastHit hit;
+		if (!Physics.Raycast (r, out hit, float.MaxValue)) {
+			return hit;
+		}
+		return hit;
+	}
+	/** Returns the hitting mesh collider from the mouse position.
+	 * 
+	 * 	@returns Collider hit.collider */
+	public static Collider HitTriangleCollider ()
+	{
+		Ray r = HitRay();
+		RaycastHit hit;
+		if (!Physics.Raycast (r, out hit, float.MaxValue)) {
+			return null;
+		}
+		return hit.collider;
+	}
 	/** Get the mesh triangle index from the mouse position
-	 * 	and the current selected mesh componente of 
+	 * 	and the current selected mesh componente of the
 	 * 	selection.gameobject.
 	 * 
 	 * 	@returns int hit.triangleIndex */
 	public static int HitTriangle ()
 	{
-		Vector2 mp = Event.current.mousePosition;
-		Ray r = HandleUtility.GUIPointToWorldRay (mp);
+		Ray r = HitRay();
 		RaycastHit hit;
 		if (!Physics.Raycast (r, out hit, float.MaxValue)) {
 			return-1;
@@ -55,7 +87,17 @@ public class kPoly
 		return neigbourList;
 	}
 }
-/** Helper to hold the data of an pair of triangles.*/
+
+
+/** TriPoint -----------------------------------------------------------------------------------------
+ * 
+ * 	Paul Knab - k-lock.de - 08.04.2013
+ * 	___________________________________
+ * 
+ * 	
+ * 	Helper to define the data of an pair of triangles.
+ * 
+ */
 public class TriPoint
 {
 	public  int _p1, _p2, _p3 = -1;
@@ -71,13 +113,22 @@ public class TriPoint
 		
 		return this;
 	}
-
+	/** Debug Helper.
+	 * 
+	 * 	@returns string - A string containing the values of all points.
+	 * 
+	 * */
 	public string Trace ()
 	{
 		return this._p1 + " " + this._p2 + " " + this._p3;	
 	}
 }
-/** Editor state mode enum struct.*/
+
+/** EDITOR - STATE MODES -------------------------------------------------------------------------------
+ *
+ *	Editor state mode enum struct.
+ *
+ */
 public enum MODE
 {
 	None,
