@@ -33,9 +33,10 @@ public class kPolyEdit : EditorWindow
 	private static bool 		_SHOW_TRIAS = true;
 	private static bool 		_SHOW_NEIBS = false;
 	private static MODE			_editorMode = MODE.None;
-	private 		int 		_sIndex = -1;
-	private			Transform	_sTrans = null;
-	private			bool		_freeze = false;
+	private 		int 			_sIndex = -1;
+	private			Transform		_sTrans = null;
+	private			GameObject		_sObjec = null;
+	private			bool			_freeze = false;
 	#endregion
 	#region Editor
 	/** The Unity EditorWindow start function.*/
@@ -70,8 +71,8 @@ public class kPolyEdit : EditorWindow
 	
 	private void Update ()
 	{
-		if (_freeze && Selection.activeInstanceID != _sIndex)
-			OnSelectionChange ();
+		//if (_freeze && Selection.activeInstanceID != _sIndex)
+		//	OnSelectionChange ();
 	}
 
 	void OnInspectorUpdate ()
@@ -83,23 +84,19 @@ public class kPolyEdit : EditorWindow
 	private void OnGUI ()
 	{	
 		DrawPanel ();
+		Repaint ();
 	}
 
 	private void OnSelectionChange ()
 	{
-		if (!_freeze && Selection.activeInstanceID > 0) {
-		
-			_sTrans = Selection.activeTransform;
-			_sIndex = Selection.activeInstanceID;
-			_selection = Selection.activeGameObject;
+
+		if (!_freeze && Selection.activeInstanceID != _sIndex) {
+			ResetSelection ();
+			GetSelection ();		
 		}
 		
 		if (_freeze && Selection.activeInstanceID != _sIndex) {
-	
-			Selection.activeTransform = _sTrans;
-			Selection.activeInstanceID = _sIndex;
-			_selection = Selection.activeGameObject = _sTrans.gameObject;
-			
+			SetSelection ();			
 		}
 
 		if (_selection != null) {
@@ -193,28 +190,66 @@ public class kPolyEdit : EditorWindow
 		}
 	}
 
+	static int curPointIndex = 0;
+	static Vector3 dragPoint = Vector3.zero;
 	private static void Draw_Handles2 ()
 	{
 		if (_selectMesh == null || _selection == null) {
 			return;
 		}
-		Debug.Log (Event.current.type);
+
+		int someHashCode = instance.GetHashCode ();		
 		Transform root = _selection.transform;
-		int[] tList = _selectMesh.triangles;
-		/*Event e = Event.current;
-		Ray r = Camera.current.ScreenPointToRay (new Vector3 (e.mousePosition.x, -e.mousePosition.y + Camera.current.pixelHeight));
-		Vector3 mousePos = r.origin;
-			*/
+		int i = 0;
+		bool refreshMesh = false;
+		
 		foreach (Vector3 mv in _selectMesh.vertices) {
 
-			float cubeSize = HandleUtility.GetHandleSize (mv) * .1f;
+			float cubeSize = HandleUtility.GetHandleSize (mv);
 			Vector3 v1 = root.TransformPoint (mv);
-			/*if (Vector3.Distance (mousePos, mv) < .05f) {// && Event.current.type == EventType.mouseDown) {
+			
+			int controlIDBeforeHandle = GUIUtility.GetControlID (someHashCode, FocusType.Passive);
+			bool isEventUsedBeforeHandle = (Event.current.type == EventType.used);
+
+			if (curPointIndex == i)
 				Handles.color = new Color (Color.red.r, Color.red.g, Color.red.b, .85f);
-			} else*/
-			Handles.color = new Color (Color.green.r, Color.green.g, Color.green.b, .85f);
-			Handles.CubeCap (_instanceHash, v1, root.rotation, cubeSize);
-	
+			else
+				Handles.color = new Color (Color.green.r, Color.green.g, Color.green.b, .85f);
+
+			Handles.ScaleValueHandle (0, v1, Quaternion.identity, cubeSize, Handles.CubeCap, 0);
+			if (curPointIndex == i) {
+				
+				v1 = Handles.PositionHandle (v1, Quaternion.identity);
+				
+				if( Event.current.type == EventType.MouseDrag || Event.current.type == EventType.MouseDown) {
+					
+					Debug.Log ("MOSE EVENT");
+				
+					_selectMesh.vertices [i] = root.InverseTransformPoint (mv);
+					refreshMesh = true;
+					
+				}
+			}
+
+			int controlIDAfterHandle = GUIUtility.GetControlID (someHashCode, FocusType.Native);
+			bool isEventUsedByHandle = !isEventUsedBeforeHandle && (Event.current.type == EventType.used);
+ 
+			if
+             (( controlIDBeforeHandle < GUIUtility.hotControl && 
+				GUIUtility.hotControl < controlIDAfterHandle) || isEventUsedByHandle) {
+				curPointIndex = i;
+				
+			}
+
+
+			i++;
+		}
+		if( refreshMesh )
+		{
+			_selectMesh.RecalculateNormals();
+			_selectMesh.RecalculateBounds();
+			
+			_selectMeshFilter.sharedMesh = _selectMesh;
 		}
 	}
 
@@ -249,6 +284,28 @@ public class kPolyEdit : EditorWindow
 			//Vector3 cv = Handles.PositionHandle (v1, root.rotation);
 			
 		}
+	}
+	#endregion
+	#region SELECTION
+	void SetSelection ()
+	{
+		Selection.activeTransform = _sTrans;
+		Selection.activeInstanceID = _sIndex;
+		Selection.activeGameObject = _selection = _sObjec;
+	}
+
+	void GetSelection ()
+	{
+		_sTrans = Selection.activeTransform;
+		_sIndex = Selection.activeInstanceID;
+		_selection = _sObjec = Selection.activeGameObject;
+	}
+	
+	void ResetSelection ()
+	{
+		_sTrans = null;
+		_sIndex = -1;
+		_selection = _sObjec = null;
 	}
 	#endregion
 }
