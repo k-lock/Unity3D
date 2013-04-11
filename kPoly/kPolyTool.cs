@@ -71,14 +71,13 @@ public class kPolyTool : EditorWindow
 		
 			DrawPanelSelector ();
 			DrawActMenu ();
+			
 			break;
-		}
-		
-		
-		
+		}		
 	}
 	
-	private static kPolyCreate pCreate = null;
+	private static kPolyCreate 	pCreate = null;
+	private static kPolyEdit	pEdit	= null;
 	
 	void InstanciesInit ()
 	{
@@ -86,7 +85,9 @@ public class kPolyTool : EditorWindow
 		if (pCreate == null) {
 			pCreate = kPolyCreate.Create ();
 		}
-		
+		if (pEdit == null) {
+			pEdit = kPolyEdit.Create ();
+		}
 	}
 	
 	private void DrawActMenu ()
@@ -96,6 +97,7 @@ public class kPolyTool : EditorWindow
 			pCreate.DrawPanel ();
 			break;
 		case PANEL.EDIT:
+			pEdit.DrawPanel();
 			break;
 		case PANEL.INFO:
 			break;

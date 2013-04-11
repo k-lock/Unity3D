@@ -42,7 +42,7 @@ public class kPolyEdit : EditorWindow
 	#region Editor
 	/** The Unity EditorWindow start function.*/
 	[MenuItem("Window/klock/kMesh/kPolyEdit %M3")]
-	public static void Init ()
+	public static kPolyEdit Init ()
 	{
 		/*System.Type[]	ts = new System.Type[3]{typeof(kPolyCreate),typeof(kPolyEdit),typeof(kPolyInfo)};
 		kPolyCreate pm = null;
@@ -60,6 +60,13 @@ public class kPolyEdit : EditorWindow
 		instance.position = new Rect (200, 100, 200, 228);
 		instance.minSize = new Vector2 (190, 200);
 		instance.maxSize = new Vector2 (250, 250);
+		
+		return instance;
+	}
+
+	public static kPolyEdit Create ()
+	{
+		return CreateInstance<kPolyEdit> ();
 	}
 	#endregion
 	#region Unity
@@ -90,6 +97,7 @@ public class kPolyEdit : EditorWindow
 
 	void OnInspectorUpdate ()
 	{
+		Debug.Log ("--->");
 		if (_freeze && Selection.activeInstanceID != _sIndex)
 			OnSelectionChange ();
 	}
@@ -125,7 +133,13 @@ public class kPolyEdit : EditorWindow
 	#endregion
 	#region Editor GUI
 	/** Main GUI draw function.*/
-	private void DrawPanel ()
+	public void DrawPanel ()
+	{
+		GetSelection();
+		DrawPanel2 ();
+	}
+
+	private void DrawPanel2 ()
 	{
 		EditorGUILayout.BeginVertical (new GUIStyle { contentOffset = new Vector2 (-10, 0) });
 		EditorGUILayout.Space ();
@@ -154,7 +168,7 @@ public class kPolyEdit : EditorWindow
 		GUI.color = Color.white;
 		GUILayout.EndHorizontal ();
 		EditorGUILayout.Space ();
-		GUILayout.Label( ""+EDITOR_activeSelection );
+		GUILayout.Label ("" + EDITOR_activeSelection);
 		_freeze = (_editorMode != MODE.None);
 		
 		EditorGUILayout.EndVertical ();		
@@ -181,7 +195,8 @@ public class kPolyEdit : EditorWindow
 		case EventType.layout:*/
 		if (_selectMesh != null) {
 			if (_editorMode != MODE.None) {
-				if (verts == null && _selectMesh != null) verts = _selectMesh.vertices;
+				if (verts == null && _selectMesh != null)
+					verts = _selectMesh.vertices;
 				switch (_editorMode) {
 				case MODE.E_Point:	
 					Draw_Handles2 ();
@@ -253,7 +268,7 @@ public class kPolyEdit : EditorWindow
              ((controlIDBeforeHandle < GUIUtility.hotControl && 
 				GUIUtility.hotControl < controlIDAfterHandle) || isEventUsedByHandle) {
 				curPointIndex = i;
-				EDITOR_activeSelection = "Point "+i;
+				EDITOR_activeSelection = "Point " + i;
 			}
 
 		}		
