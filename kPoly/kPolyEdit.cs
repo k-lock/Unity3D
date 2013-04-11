@@ -37,13 +37,24 @@ public class kPolyEdit : EditorWindow
 	private			Transform		_sTrans = null;
 	private			GameObject		_sObjec = null;
 	private			bool			_freeze = false;
+	
 	#endregion
 	#region Editor
 	/** The Unity EditorWindow start function.*/
 	[MenuItem("Window/klock/kMesh/kPolyEdit %M3")]
 	public static void Init ()
 	{
-		instance = (kPolyEdit)EditorWindow.GetWindow (typeof(kPolyEdit), false, "Poly Edit");
+		/*System.Type[]	ts = new System.Type[3]{typeof(kPolyCreate),typeof(kPolyEdit),typeof(kPolyInfo)};
+		kPolyCreate pm = null;
+		if(FindObjectsOfType( typeof(kPolyCreate) ).Length == 0 ){
+			pm = kPolyCreate.Init();
+		}else{
+			pm = kPolyCreate.instance;
+		}
+
+		instance = (kPolyEdit)EditorWindow.GetWindow<kPolyEdit>("Edit", ts);
+		 */
+		instance = (kPolyEdit)EditorWindow.GetWindow (typeof(kPolyEdit), false, "Edit");
 		instance.Show ();
 		instance.OnEnable ();
 		instance.position = new Rect (200, 100, 200, 228);
@@ -64,10 +75,12 @@ public class kPolyEdit : EditorWindow
 		}
 	}
 
-	/*private void OnDisable ()
+	private void OnDisable ()
 	{
-	
-	}*/
+		_selection = null;
+		_selectMesh = null;
+		verts = null;
+	}
 	
 	private void Update ()
 	{
@@ -140,7 +153,8 @@ public class kPolyEdit : EditorWindow
 			_editorMode = (_editorMode == MODE.E_All) ? MODE.None : MODE.E_All;
 		GUI.color = Color.white;
 		GUILayout.EndHorizontal ();
-		
+		EditorGUILayout.Space ();
+		GUILayout.Label( ""+EDITOR_activeSelection );
 		_freeze = (_editorMode != MODE.None);
 		
 		EditorGUILayout.EndVertical ();		
@@ -165,22 +179,20 @@ public class kPolyEdit : EditorWindow
 		case EventType.mouseMove:
 		case EventType.repaint:
 		case EventType.layout:*/
-			if (_selectMesh != null) {
-				if (_editorMode != MODE.None) {
-					
-					if( verts == null)verts =  _selectMesh.vertices;
-					switch (_editorMode) {
-					case MODE.E_Point:	
-						Draw_Handles2 ();
-						break;
-					}
-					_selectMesh.vertices = verts;
-					_selectMesh.RecalculateNormals();
-					_selectMesh.RecalculateBounds();
-					_selectMeshFilter.sharedMesh = _selectMesh;
-					
+		if (_selectMesh != null) {
+			if (_editorMode != MODE.None) {
+				if (verts == null && _selectMesh != null) verts = _selectMesh.vertices;
+				switch (_editorMode) {
+				case MODE.E_Point:	
+					Draw_Handles2 ();
+					break;
 				}
+				_selectMesh.vertices = verts;
+				_selectMesh.RecalculateNormals ();
+				_selectMesh.RecalculateBounds ();
+				//_selectMeshFilter.sharedMesh = _selectMesh;	
 			}
+		}
 		//	break;
 		
 		/*if (Selection.activeObject != _selection ||
@@ -192,15 +204,16 @@ public class kPolyEdit : EditorWindow
 			 
 		//break;
 				
-	//	}
+		//	}
 	}
 
 	static int curPointIndex = 0;
 	static Vector3 dragPoint = Vector3.zero;
 	static Vector3[] verts;
+
 	private static void Draw_Handles2 ()
 	{
-		if (_selectMesh == null || _selection == null) {
+		if (_selectMesh == null || _selection == null || verts == null) {
 			return;
 		}
 
@@ -210,7 +223,7 @@ public class kPolyEdit : EditorWindow
 		
 		bool refreshMesh = false;
 		
-		for (int i =0 ; i<verts.Length;i++){// (Vector3 mv in verts) {
+		for (int i =0; i<verts.Length; i++) {// (Vector3 mv in verts) {
 
 			float cubeSize = HandleUtility.GetHandleSize (verts [i]);
 			Vector3 v1 = root.TransformPoint (verts [i]);
@@ -228,8 +241,8 @@ public class kPolyEdit : EditorWindow
 				
 				v1 = Handles.PositionHandle (v1, Quaternion.identity);
 				verts [i] = root.InverseTransformPoint (v1);
-			//Debug.Log("Moving "+ mv + " " + verts[i]);
-				refreshMesh = true;
+				//Debug.Log("Moving "+ mv + " " + verts[i]);
+				///refreshMesh = true;
 				
 			}
 
@@ -240,16 +253,14 @@ public class kPolyEdit : EditorWindow
              ((controlIDBeforeHandle < GUIUtility.hotControl && 
 				GUIUtility.hotControl < controlIDAfterHandle) || isEventUsedByHandle) {
 				curPointIndex = i;
-				
-			}
-			if (Event.current.type == EventType.MouseDrag || Event.current.type == EventType.MouseDown) {
-	
-				
+				EDITOR_activeSelection = "Point "+i;
 			}
 
 		}		
 	}
 
+	private static string EDITOR_activeSelection = "";
+	/*
 	private static void Draw_Handles ()
 	{
 		int _hitTriangle = kPoly.HitTriangle ();
@@ -273,15 +284,15 @@ public class kPolyEdit : EditorWindow
 			int t1 = tList [index + 0];
 			float cubeSize = HandleUtility.GetHandleSize (_selectMesh.vertices [t1]) * .1f;
 			Vector3 v1 = root.TransformPoint (_selectMesh.vertices [t1]);
-			/*if (Event.current.type == EventType.mouseUp)
+			if (Event.current.type == EventType.mouseUp)
 				Handles.color = new Color (Color.red.r, Color.red.g, Color.red.b, .85f);
-			else*/
-			Handles.color = new Color (Color.green.r, Color.green.g, Color.green.b, .85f);
+			else
+				Handles.color = new Color (Color.green.r, Color.green.g, Color.green.b, .85f);
 			Handles.CubeCap (0, v1, root.rotation, cubeSize);
 			//Vector3 cv = Handles.PositionHandle (v1, root.rotation);
 			
 		}
-	}
+	}*/
 	#endregion
 	#region SELECTION
 	void SetSelection ()
@@ -300,6 +311,9 @@ public class kPolyEdit : EditorWindow
 	
 	void ResetSelection ()
 	{
+		_selection = null;
+		_selectMesh = null;
+		verts = null;
 		_sTrans = null;
 		_sIndex = -1;
 		_selection = _sObjec = null;
