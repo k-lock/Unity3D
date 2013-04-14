@@ -97,7 +97,7 @@ public class kPolyEdit : EditorWindow
 
 	void OnInspectorUpdate ()
 	{
-		Debug.Log ("--->");
+		//Debug.Log ("--->");
 		if (_freeze && Selection.activeInstanceID != _sIndex)
 			OnSelectionChange ();
 	}
@@ -125,7 +125,7 @@ public class kPolyEdit : EditorWindow
 			if (_selectMeshFilter != null) {
 				_selectMesh = _selectMeshFilter.sharedMesh;
 			}
-			neigbourList = kPoly.Neigbours (_selectMesh);	
+			neigbourList = klock.geometry.kPoly.Neigbours (_selectMesh);	
 		} 
 
 		Repaint ();
@@ -240,7 +240,7 @@ public class kPolyEdit : EditorWindow
 		
 		for (int i =0; i<verts.Length; i++) {// (Vector3 mv in verts) {
 
-			float cubeSize = HandleUtility.GetHandleSize (verts [i]);
+			float cubeSize = HandleUtility.GetHandleSize (root.position)*.5f;//verts [i]);
 			Vector3 v1 = root.TransformPoint (verts [i]);
 			
 			int controlIDBeforeHandle = GUIUtility.GetControlID (someHashCode, FocusType.Passive);

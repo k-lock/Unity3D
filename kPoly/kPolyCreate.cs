@@ -23,6 +23,7 @@
  * */
 using UnityEngine;
 using UnityEditor;
+using klock.geometry;
 
 public class kPolyCreate : EditorWindow
 {
@@ -32,14 +33,15 @@ public class kPolyCreate : EditorWindow
 	private 	  string 		_meshName = "";
 	private 	  float 		_width = 1;
 	private 	  float 		_height = 1;
-	private 	  float 		_deep = 1;
+	private 	  float 		_depth = 1;
 	private 	  int 			_uSegments = 1;
 	private 	  int			_vSegments = 1;
+	private 	  int			_zSegments = 1;
 	private 	  int 			_pivotIndex = 0;
 	//private 	  TextAnchor 	_pivot = TextAnchor.MiddleCenter;
 	private 	  string[] 		_pivotLabels = {"UpperLeft","UpperCenter","UpperRight", "MiddleLeft","MiddleCenter","MiddleRight", "LowerLeft", "LowerCenter","LowerRight"};
 	private 	  int 			_faceIndex = 0;
-	private 	  string[] 		_faceLabels = {"XZ","XY"};
+	//private 	  string[] 		_faceLabels = klock.geometry.kPoly.FACING; //;{"XZ","XY"};
 	private		  string[]		_windinLabels = { "TopLeft","TopRight", "ButtomLeft", "ButtomRight" };
 	private		  int 			_windinIndex = 2;
 	private		  string[]		_colliderLabels = { "none" ,"MeshCollider", "BoxCollider" };
@@ -68,7 +70,7 @@ public class kPolyCreate : EditorWindow
 	{
 		_width = 1;
 		_height = 1;
-		_deep = 1;
+		_depth = 1;
 			
 		_uSegments = 1;
 		_vSegments = 1;
@@ -169,7 +171,7 @@ public class kPolyCreate : EditorWindow
 			
 			switch (P_OBJECT_TYPE_INDEX) {
 			case 0:
-				DrawPanel_Cube();
+				DrawPanel_Cube ();
 				break;	
 			case 1:
 				
@@ -189,23 +191,26 @@ public class kPolyCreate : EditorWindow
 	{
 		EditorGUILayout.BeginVertical ();
 		
-				// Editor value reset button
+		// Editor value reset button
 		if (GUILayout.Button (new GUIContent ("Reset Editor"), EditorStyles.miniButton)) {
 			ResetEditorValues ();
 		}
-	
 		EditorGUILayout.Space ();
 		// Editor value for width and height of the created mesh [ float ]
 		_width = EditorGUILayout.FloatField ("Width", _width);
 		_height = EditorGUILayout.FloatField ("Height", _height);
-		_deep = EditorGUILayout.FloatField ("Length", _deep);
+		_depth = EditorGUILayout.FloatField ("Depth", _depth);
 		EditorGUILayout.Space ();
+		// Editor value for width and height segments of the created mesh [ int ]
+		_uSegments = EditorGUILayout.IntField ("uSegments", _uSegments);
+		_vSegments = EditorGUILayout.IntField ("vSegments", _vSegments);
+		_zSegments = EditorGUILayout.IntField ("zSegments", _zSegments);
+		EditorGUILayout.Space ();
+		
 		if (GUILayout.Button (new GUIContent ("Create Mesh"))) {
 			//CreateMesh ();
-			CreateCube.CreateMesh (_meshName, _width,_height,_deep
-									/*_uSegments, _vSegments,
-									_width, _height,
-									_faceIndex, _windinIndex, _pivotIndex*/);
+			CreateCube.CreateMesh (_meshName, _uSegments, _vSegments, _zSegments, _width, _height, _depth
+			/*_faceIndex, _windinIndex, _pivotIndex*/);
 		}
 		EditorGUILayout.EndVertical ();
 
@@ -240,7 +245,7 @@ public class kPolyCreate : EditorWindow
 		// Editor value for the mesh face direction FACING.XZ
 		GUILayout.Label ("Facing ");
 		GUILayout.Space (10);
-		_faceIndex = EditorGUILayout.Popup (_faceIndex, _faceLabels);
+		_faceIndex = EditorGUILayout.Popup (_faceIndex, klock.geometry.kPoly.FACING);
 		GUILayout.EndHorizontal ();	
 		GUILayout.BeginHorizontal ();
 		// Editor value for triangle winding order
@@ -267,41 +272,22 @@ public class kPolyCreate : EditorWindow
 		// Editor Button for start mesh creation
 		if (GUILayout.Button (new GUIContent ("Create Mesh"))) {
 			//CreateMesh ();
-			CreatePlane.CreateMesh (_meshName,
+			//CreatePlane.CreateMesh 
+			kPoly.Create_Plane_Object
+								  (_meshName,
 									_uSegments, _vSegments,
 									_width, _height,
-									_faceIndex, _windinIndex, _pivotIndex);
+									_faceIndex, _windinIndex, _pivotIndex, _colliderIndex);
 		}
 		EditorGUILayout.EndVertical ();
 	}
 
 	#endregion
-	#region Export - Mesh Creation
-	/** Add a collider object to the generated gameobject.
-	 *  @params GameObject quad - The target gameobject.
-	 * 	@params Mesh m - The sharedMesh property for a MeshCollider componete.
-	 */
-	private void AddCollider (GameObject quad, Mesh m)
-	{
-		if (_colliderIndex > 0) {
-				
-			switch (_colliderIndex) {
-			case 1: // mesh 
-				MeshCollider mc = quad.AddComponent<MeshCollider> ();
-				mc.sharedMesh = m;
-				break;
-			case 2: // box
-				quad.AddComponent<BoxCollider> ();
-				break;
-			}				
-		}
-	}
-	#endregion
-	private 	bool 		FOLD_para = false;
+	private 	bool 		FOLD_para = true;
 	private 	bool 		FOLD_name = false;
 	private 	bool 		FOLD_object = false;
 	private 	int 		OBJECT_TYPES_INDEX = 0;
 	private 	string[] 	OBJECT_TYPES = new string[2]{"Standard","Extra"};
-	private 	int 		P_OBJECT_TYPE_INDEX = -1;
+	private 	int 		P_OBJECT_TYPE_INDEX = 0;
 	private 	string[]	P_OBJECT_TYPE = new string[3]{"Cube","Sphere","Plane"};
 }

@@ -129,10 +129,33 @@ namespace klock.geometry
                 for (float x = 0.0f; x < xCount; x++)
                 {
 
-                    float dx = x * xSC - _width * .5f - pivot.x * .5f;
-                    float dy = y * ySC - _height * .5f - pivot.y * .5f;
+                    float dx = x * xSC - _width * .5f - pivot.x;
+                    float dy = y * ySC - _height * .5f - pivot.y;
 
-                    vertices[index] = (_faceIndex == 0) ? new Vector3(dx, 0.0f, dy) : new Vector3(dx, dy, 0.0f);
+                    switch (_faceIndex)
+                    {
+                        case 0:
+                            vertices[index] = new Vector3(dx, 0.0f, dy);
+                            break;
+                        case 1:
+                            vertices[index] = new Vector3(dx, 0.0f, -dy);
+                            break;
+
+                        case 2:
+                            vertices[index] = new Vector3(0.0f, dy, dx);
+                            break;
+                        case 3:
+                            vertices[index] = new Vector3(0.0f, dy, -dx);
+                            break;
+                        case 4:
+                            vertices[index] = new Vector3(dx, dy, 0.0f);
+                            break;
+                        case 5:
+                            vertices[index] = new Vector3(-dx, dy, 0.0f);
+                            break;
+                    }
+
+                    //vertices [index] = (_faceIndex == 0) ? new Vector3 (dx, 0.0f, dy) : new Vector3 (dx, dy, 0.0f);
                     uvs[index++] = new Vector2(x * xUV, y * yUV);
                 }
             }
@@ -220,6 +243,17 @@ namespace klock.geometry
             return Create_Mesh(name, xseg, yseg, width, height, _facingIndex, _windingIndex, _pivotIndex, _colliderIndex);
 
         }
+
+        public static GameObject Create_Plane_Object(string name, int xseg, int yseg,
+                                        float width, float height,
+                                        int _facingIndex = 0, int _windingIndex = 0, int _pivotIndex = 0, int _colliderIndex = 1)
+        {
+            GameObject quad = new GameObject((name != "") ? name : "kPoly");
+            quad.AddComponent<MeshRenderer>();
+            Mesh m = Create_Mesh(name, xseg, yseg, width, height, _facingIndex, _windingIndex, _pivotIndex, _colliderIndex);
+            ((MeshFilter)quad.AddComponent<MeshFilter>()).sharedMesh = m;
+            return quad;
+        }
         #endregion
         #region COLLIDER
         //---------------------------------------------------------------------------------- COLLIDER INIT
@@ -248,19 +282,32 @@ namespace klock.geometry
         //---------------------------------------------------------------------------------- FACE OBJECT
 
         public static string[] FACING = new string[6] { "TOP", "BUTTOM", "FRONT", "BACK", "LEFT", "RIGHT" };
+
         public static Vector3 Facing(int facingIndex)
         {
             Vector3 p = Vector3.zero;
             switch (facingIndex)
             {
-                case 0: p = Vector3.forward; break;
-                case 1: p = -Vector3.forward; break;
+                case 0:
+                    p = Vector3.forward;
+                    break;
+                case 1:
+                    p = -Vector3.forward;
+                    break;
 
-                case 2: p = Vector3.up; break;
-                case 3: p = -Vector3.up; break;
+                case 2:
+                    p = Vector3.up;
+                    break;
+                case 3:
+                    p = -Vector3.up;
+                    break;
 
-                case 4: p = Vector3.right; break;
-                case 5: p = -Vector3.right; break;
+                case 4:
+                    p = Vector3.right;
+                    break;
+                case 5:
+                    p = -Vector3.right;
+                    break;
             }
 
             return Vector3.zero;
@@ -277,6 +324,7 @@ namespace klock.geometry
                                                             "RTL","RTC","RTR", 
                                                             "RML","RMC","RMR",
                                                             "RBL","RBC","RBR" };
+
         public static Vector3 Pivot3D(int pivotIndex = 0, float width = 1.0f, float height = 1.0f, float depth = 1.0f)
         {
             Vector3 p = Vector3.zero;
@@ -377,6 +425,7 @@ namespace klock.geometry
          BL , BC, BR
          * */
         public static string[] PIVOT2D = new string[9] { "TL", "TC", "TR", "ML", "MC", "MR", "BL", "BC", "BR" };
+
         public static Vector2 Pivot2D(int pivotIndex = 0, float width = 1.0f, float height = 1.0f)
         {
             Vector2 p = Vector2.zero;
