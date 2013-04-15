@@ -49,7 +49,13 @@ public class kPolyInfo: EditorWindow
 		instance.Show ();
 		instance.OnEnable ();
 		instance.position = new Rect (200, 100, 200, 228);
+        instance.minSize = new Vector2(190, 200);
+        instance.maxSize = new Vector2(250, 250);
 	}
+    public static kPolyInfo Create()
+    {
+        return CreateInstance<kPolyInfo>();
+    }
 	#endregion
 	#region Unity
 	private void OnEnable ()
@@ -58,10 +64,10 @@ public class kPolyInfo: EditorWindow
 			instance = this;	
 		}
 		_instanceHash = instance.GetHashCode ();
-		if (_onSceneGUI_ == null) {
+		/*if (_onSceneGUI_ == null) {
 			_onSceneGUI_ = new SceneView.OnSceneFunc (OnSceneGUI);
 			SceneView.onSceneGUIDelegate += _onSceneGUI_;
-		}
+		}*/
 	}
 
 	/*private void OnDisable ()
@@ -76,11 +82,12 @@ public class kPolyInfo: EditorWindow
 
 	private void OnGUI ()
 	{	
-		DrawPanel ();
+		DrawPanel2 ();
 	}
 
-	private void OnSelectionChange ()
+	public void OnSelectionChange ()
 	{
+        Debug.Log("INFO - OnSelectionChange" + _selection);
 		_selection = Selection.activeGameObject;
 
 		if (_selection != null) {
@@ -92,13 +99,14 @@ public class kPolyInfo: EditorWindow
 		} else {
 			
 			_LIST_VERTS = _LIST_TRIAS = false;
+            
 		}
 		Repaint ();
 	}
 
 	public static void OnSceneGUI (SceneView sceneview)
 	{ 
-		int controlID = GUIUtility.GetControlID (_instanceHash, FocusType.Native);	
+		int controlID = GUIUtility.GetControlID (instance.GetHashCode(), FocusType.Native);	
 		Event e = Event.current;
 		switch (e.GetTypeForControl (controlID)) {
 		case EventType.mouseMove:
@@ -119,7 +127,14 @@ public class kPolyInfo: EditorWindow
 	#endregion
 	#region Editor GUI
 	/** Main GUI draw function.*/
-	private void DrawPanel ()
+    public void DrawPanel()
+    {
+        if (_selection == null) OnSelectionChange();
+        Debug.Log("--> "+ instance);
+        DrawPanel2();
+        Repaint();
+    }
+	private void DrawPanel2 ()
 	{
 		EditorGUILayout.BeginVertical (new GUIStyle { contentOffset = new Vector2 (-10, 0) });
 		EditorGUILayout.Space ();
@@ -127,6 +142,8 @@ public class kPolyInfo: EditorWindow
 		// current selection idendifier
 		GUI.enabled = (_selection != null);
 		EditorGUILayout.ObjectField ("Selection ", _selection, typeof(GameObject), true);
+		GUILayout.Label ("SubMeshes : " + (_selection != null && _selectMesh != null ? _selectMesh.subMeshCount : 0));
+        GUILayout.Label("MeshFilters : " + (_selection != null && _selectMesh != null ? _selection.GetComponentsInChildren<MeshFilter>().Length : 0));
 		EditorGUILayout.Space ();
 		
 		_LIST_HANDS = EditorGUILayout.Foldout (_LIST_HANDS, "Display Handles");
@@ -289,7 +306,7 @@ public class kPolyInfo: EditorWindow
 			// Draw current Triangle 
 			//	bool isOpen = TriangleOpen;
 			//	int tIndicie = _hitTriangle % 2;
-			float cubeSize =HandleUtility.GetHandleSize(_selectMesh.vertices [t1])* .1f;
+			float cubeSize = HandleUtility.GetHandleSize (_selectMesh.vertices [t1]) * .1f;
 		
 			Vector3 v1 = root.TransformPoint (_selectMesh.vertices [t1]);
 			Vector3 v2 = root.TransformPoint (_selectMesh.vertices [t2]);

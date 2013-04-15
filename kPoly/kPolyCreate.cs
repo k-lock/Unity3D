@@ -146,8 +146,18 @@ public class kPolyCreate : EditorWindow
 				P_OBJECT_TYPE_INDEX = (P_OBJECT_TYPE_INDEX == 2) ? -1 : 2;
 			}
 			GUI.color = Color.white;
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
 			//EditorGUILayout.Space ();
-			GUILayout.EndHorizontal ();
+            GUI.color = Color.white;
+            GUI.color = (P_OBJECT_TYPE_INDEX == 3) ? Color.grey : Color.white;
+            if (GUILayout.Button("Cone"))
+            {
+                P_OBJECT_TYPE_INDEX = (P_OBJECT_TYPE_INDEX == 3) ? -1 : 3;
+            }
+            GUI.color = Color.white;
+            //EditorGUILayout.Space ();
+            GUILayout.EndHorizontal();
 		}
 		EditorGUILayout.Space ();
 		// OBJECT NAME
@@ -178,7 +188,10 @@ public class kPolyCreate : EditorWindow
 				break;	
 			case 2:
 				DrawPanel2 ();
-				break;	
+				break;
+            case 3:
+                DrawPanelCone();
+                break;	
 			}
 				
 			
@@ -186,7 +199,43 @@ public class kPolyCreate : EditorWindow
 		}
 		EditorGUILayout.EndHorizontal ();
 	}
+    public int numVertices = 10;
+    public float radiusTop = 0f;
+    public float radiusBottom = 1f;
+    public float length = 1f;
+    public float openingAngle = 0f; // if >0, create a cone with this angle by setting radiusTop to 0, and adjust radiusBottom according to length;
+    public bool outside = true;
+    public bool inside = false;
+    public bool addCollider = false;
 
+    private void DrawPanelCone()
+    {
+        EditorGUILayout.BeginVertical();
+
+        // Editor value reset button
+        if (GUILayout.Button(new GUIContent("Reset Editor"), EditorStyles.miniButton))
+        {
+            ResetEditorValues();
+        }
+        EditorGUILayout.Space();
+        numVertices = EditorGUILayout.IntField("numVertices", numVertices);
+        EditorGUILayout.Space();
+        radiusTop = EditorGUILayout.FloatField("radiusTop", radiusTop);
+        radiusBottom = EditorGUILayout.FloatField("radiusBottom", radiusBottom);
+        length = EditorGUILayout.FloatField("length", length);
+        EditorGUILayout.Space();
+        openingAngle = EditorGUILayout.FloatField("openingAngle", openingAngle);
+        EditorGUILayout.Space();
+        GUILayout.BeginHorizontal();
+        outside = EditorGUILayout.Toggle("outside", outside);
+        inside = EditorGUILayout.Toggle("inside", inside);
+        GUILayout.EndHorizontal();
+        if (GUILayout.Button(new GUIContent("Create Mesh")))
+        {
+            kPoly.Create_Cone_Object(_meshName, numVertices, radiusTop, radiusBottom, length, openingAngle, outside, inside);
+        }
+        EditorGUILayout.EndVertical();
+    }
 	private void DrawPanel_Cube ()
 	{
 		EditorGUILayout.BeginVertical ();
@@ -209,8 +258,10 @@ public class kPolyCreate : EditorWindow
 		
 		if (GUILayout.Button (new GUIContent ("Create Mesh"))) {
 			//CreateMesh ();
-			CreateCube.CreateMesh (_meshName, _uSegments, _vSegments, _zSegments, _width, _height, _depth
-			/*_faceIndex, _windinIndex, _pivotIndex*/);
+			//CreateCube.CreateMesh 
+			kPoly.Create_Cube_Object(_meshName, _uSegments, _vSegments, _zSegments, _width, _height, _depth 
+                /*_faceIndex, _windinIndex, _pivotIndex*/);
+
 		}
 		EditorGUILayout.EndVertical ();
 
@@ -289,5 +340,5 @@ public class kPolyCreate : EditorWindow
 	private 	int 		OBJECT_TYPES_INDEX = 0;
 	private 	string[] 	OBJECT_TYPES = new string[2]{"Standard","Extra"};
 	private 	int 		P_OBJECT_TYPE_INDEX = 0;
-	private 	string[]	P_OBJECT_TYPE = new string[3]{"Cube","Sphere","Plane"};
+	private 	string[]	P_OBJECT_TYPE = new string[4]{"Cube","Sphere","Plane","Cone"};
 }

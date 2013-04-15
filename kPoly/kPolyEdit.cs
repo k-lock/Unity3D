@@ -36,7 +36,7 @@ public class kPolyEdit : EditorWindow
 	private 		int 			_sIndex = -1;
 	private			Transform		_sTrans = null;
 	private			GameObject		_sObjec = null;
-	private			bool			_freeze = false;
+	public			bool			_freeze = false;
 	
 	#endregion
 	#region Editor
@@ -70,13 +70,14 @@ public class kPolyEdit : EditorWindow
 	}
 	#endregion
 	#region Unity
-	private void OnEnable ()
+	public void OnEnable ()
 	{
 		if (instance == null) {
 			instance = this;	
 		}
 		_instanceHash = instance.GetHashCode ();
 		if (_onSceneGUI_ == null) {
+            Debug.Log("Init Scene GUI ");
 			_onSceneGUI_ = new SceneView.OnSceneFunc (OnSceneGUI);
 			SceneView.onSceneGUIDelegate += _onSceneGUI_;
 		}
@@ -108,9 +109,9 @@ public class kPolyEdit : EditorWindow
 		Repaint ();
 	}
 
-	private void OnSelectionChange ()
+	public void OnSelectionChange ()
 	{
-
+      
 		if (!_freeze && Selection.activeInstanceID != _sIndex) {
 			ResetSelection ();
 			GetSelection ();		
@@ -126,8 +127,8 @@ public class kPolyEdit : EditorWindow
 				_selectMesh = _selectMeshFilter.sharedMesh;
 			}
 			neigbourList = klock.geometry.kPoly.Neigbours (_selectMesh);	
-		} 
-
+		}
+        Debug.Log("EDIT - OnSelectionChange" + _selection);
 		Repaint ();
 	}
 	#endregion
