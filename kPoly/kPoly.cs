@@ -400,10 +400,10 @@ namespace klock.geometry
                     }
             }
             mesh.triangles = tris;
-            
+
             mesh.RecalculateNormals();
             mesh.RecalculateBounds();
-            
+
             //mesh.Optimize();
             return mesh;
         }
@@ -752,6 +752,41 @@ namespace klock.geometry
                     break;
             }
             return p;
+        }
+        #endregion
+        #region MAKE PLANAR
+        public static Mesh Planar(Mesh m, bool x = false, bool y = false, bool z = false, bool updateMesh = true)
+        {
+            Debug.Log("Flatten Mesh : "+ m.name);
+            float dx = 0,
+                    dy = 0,
+                    dz = 0;
+            for (int i = 0; i < m.vertexCount; i++)
+            {
+                dx += m.vertices[i].x;
+                dy += m.vertices[i].y;
+                dz += m.vertices[i].z;
+            }
+            dx = dx / m.vertexCount;
+            dy = dy / m.vertexCount;
+            dz = dz / m.vertexCount;
+            Debug.Log("Flatten Mesh : " + ((x) ? dx : -1) + " " + ((y) ? dy : -1) + " " + ((z) ? dz : -1));
+            for (int i = 0; i < m.vertexCount; i++)
+            {
+                Debug.Log("vert "+ i + " Before : " +  m.vertices[i].x + " "+  m.vertices[i].y + " "+  m.vertices[i].z);
+                m.vertices[i] = new Vector3(
+                    (x) ? dx : m.vertices[i].x,
+                    (y) ? dy : m.vertices[i].y,
+                    (z) ? dz : m.vertices[i].z);
+                Debug.Log("vert "+ i + "after : " +  m.vertices[i].x + " "+  m.vertices[i].y + " "+  m.vertices[i].z);
+                
+            }
+          //  if (updateMesh)
+         //   {
+
+         //   }
+
+            return m;
         }
         #endregion
     }
