@@ -755,37 +755,38 @@ namespace klock.geometry
         }
         #endregion
         #region MAKE PLANAR
-        public static Mesh Planar(Mesh m, bool x = false, bool y = false, bool z = false, bool updateMesh = true)
+        public static Mesh Planar(Mesh m, bool x = false, bool y = false, bool z = false)
         {
             Debug.Log("Flatten Mesh : "+ m.name);
+            Vector3[] verts = m.vertices;
             float dx = 0,
                     dy = 0,
                     dz = 0;
             for (int i = 0; i < m.vertexCount; i++)
             {
-                dx += m.vertices[i].x;
-                dy += m.vertices[i].y;
-                dz += m.vertices[i].z;
+                dx += verts[i].x;
+                dy += verts[i].y;
+                dz += verts[i].z;
             }
             dx = dx / m.vertexCount;
             dy = dy / m.vertexCount;
             dz = dz / m.vertexCount;
-            Debug.Log("Flatten Mesh : " + ((x) ? dx : -1) + " " + ((y) ? dy : -1) + " " + ((z) ? dz : -1));
+           // Debug.Log("Flatten Mesh : " + ((x) ? dx : -1) + " " + ((y) ? dy : -1) + " " + ((z) ? dz : -1));
             for (int i = 0; i < m.vertexCount; i++)
             {
-                Debug.Log("vert "+ i + " Before : " +  m.vertices[i].x + " "+  m.vertices[i].y + " "+  m.vertices[i].z);
-                m.vertices[i] = new Vector3(
-                    (x) ? dx : m.vertices[i].x,
-                    (y) ? dy : m.vertices[i].y,
-                    (z) ? dz : m.vertices[i].z);
-                Debug.Log("vert "+ i + "after : " +  m.vertices[i].x + " "+  m.vertices[i].y + " "+  m.vertices[i].z);
+                //Debug.Log("vert "+ i + " Before : " +  m.vertices[i].x + " "+  m.vertices[i].y + " "+  m.vertices[i].z);
+                verts[i] = new Vector3(
+                    (x) ? dx : verts[i].x,
+                    (y) ? dy : verts[i].y,
+                    (z) ? dz : verts[i].z);
+                //Debug.Log("vert "+ i + "after : " +  m.vertices[i].x + " "+  m.vertices[i].y + " "+  m.vertices[i].z);
                 
             }
           //  if (updateMesh)
          //   {
 
          //   }
-
+            m.vertices = verts;
             return m;
         }
         #endregion

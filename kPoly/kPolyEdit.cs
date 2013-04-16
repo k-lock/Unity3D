@@ -213,13 +213,13 @@ public class kPolyEdit : EditorWindow
             GUILayout.BeginHorizontal();
             if (GUILayout.Button(new GUIContent("Make Planar")))
             {
-                Debug.Log( _selectMesh + " " + planarHelp.x_Axis + " " + planarHelp.y_Axis + " " + planarHelp.z_Axis);
+                //Debug.Log( _selectMesh + " " + planarHelp.x_Axis + " " + planarHelp.y_Axis + " " + planarHelp.z_Axis);
                 if (_selection != null && _selectMesh != null)
                 {
-                    _selectMesh = klock.geometry.kPoly.Planar(_selectMesh, planarHelp.x_Axis, planarHelp.y_Axis, planarHelp.z_Axis, true);
+                    _selectMesh = klock.geometry.kPoly.Planar(_selectMesh, planarHelp.x_Axis, planarHelp.y_Axis, planarHelp.z_Axis);
                     _selectMesh.RecalculateBounds();
                     _selectMesh.RecalculateNormals();
-                    _selectMeshFilter.sharedMesh = _selectMesh;
+                    Debug.Log("Refresh MEsh ");
                 }
             }
             GUI.color = Color.white;
