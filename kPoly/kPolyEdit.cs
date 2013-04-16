@@ -11,6 +11,7 @@
 using UnityEngine;
 using UnityEditor;
 using System.Collections;
+using System.Collections.Generic;
 
 public class kPolyEdit : EditorWindow
 {
@@ -99,10 +100,11 @@ public class kPolyEdit : EditorWindow
         //if (_freeze && Selection.activeInstanceID != _sIndex)
         //	OnSelectionChange ();
     }
-
+    static bool ANY_KEY = false;
     void OnInspectorUpdate()
     {
         //Debug.Log ("--->");
+        
         if (_freeze && Selection.activeInstanceID != _sIndex)
             OnSelectionChange();
     }
@@ -144,6 +146,7 @@ public class kPolyEdit : EditorWindow
     /** Main GUI draw function.*/
     public void DrawPanel()
     {
+        ANY_KEY = CHECK_USER_INPUT(); 
         GetSelection();
         DrawPanel2();
     }
@@ -289,7 +292,7 @@ public class kPolyEdit : EditorWindow
         //	}
     }
 
-    static int curPointIndex = 0;
+    static List<int> curPointIndex = new List<int>();
     static Vector3 dragPoint = Vector3.zero;
     static Vector3[] verts;
 
@@ -302,50 +305,50 @@ public class kPolyEdit : EditorWindow
 
         int someHashCode = instance.GetHashCode();
         Transform root = _selection.transform;
-        //int i = 0;
-
-        bool refreshMesh = false;
 
         for (int i = 0; i < verts.Length; i++)
-        {// (Vector3 mv in verts) {
-
-            float cubeSize = HandleUtility.GetHandleSize(root.position) * .5f;//verts [i]);
+        {
             Vector3 v1 = root.TransformPoint(verts[i]);
-
+            float cubeSize = HandleUtility.GetHandleSize(v1) * .3f;
             int controlIDBeforeHandle = GUIUtility.GetControlID(someHashCode, FocusType.Passive);
             bool isEventUsedBeforeHandle = (Event.current.type == EventType.used);
 
-            if (curPointIndex == i)
+            if (curPointIndex.Contains(i))
                 Handles.color = new Color(Color.red.r, Color.red.g, Color.red.b, .85f);
             else
                 Handles.color = new Color(Color.green.r, Color.green.g, Color.green.b, .85f);
 
             Handles.ScaleValueHandle(0, v1, Quaternion.identity, cubeSize, Handles.CubeCap, 0);
-            if (curPointIndex == i)
-            {
-
-                v1 = Handles.PositionHandle(v1, Quaternion.identity);
-                verts[i] = root.InverseTransformPoint(v1);
-                //Debug.Log("Moving "+ mv + " " + verts[i]);
-                ///refreshMesh = true;
-
-            }
+            if (curPointIndex.Contains(i))
+                verts[i] = root.InverseTransformPoint(Handles.PositionHandle(v1, Quaternion.identity));
 
             int controlIDAfterHandle = GUIUtility.GetControlID(someHashCode, FocusType.Native);
             bool isEventUsedByHandle = !isEventUsedBeforeHandle && (Event.current.type == EventType.used);
 
-            if
-             ((controlIDBeforeHandle < GUIUtility.hotControl &&
-                GUIUtility.hotControl < controlIDAfterHandle) || isEventUsedByHandle)
+            if ((controlIDBeforeHandle < GUIUtility.hotControl && GUIUtility.hotControl < controlIDAfterHandle) || isEventUsedByHandle)
             {
-                curPointIndex = i;
-                EDITOR_activeSelection = "Point " + i;
-            }
 
+                if (!ANY_KEY) curPointIndex = new List<int>();
+                if (!curPointIndex.Contains(i))
+                    curPointIndex.Add(i);
+                else
+                    curPointIndex.Remove(i);
+
+            }
         }
     }
 
-    private static string EDITOR_activeSelection = "";
+    public static bool CHECK_USER_INPUT()
+    {
+        bool retuner = ANY_KEY = false;
+
+        if (Input.anyKey)
+        {
+            if (Input.GetKey(KeyCode.RightControl)) retuner =ANY_KEY = true;
+        }
+        return retuner;
+    }
+
     /*
     private static void Draw_Handles ()
     {
@@ -403,6 +406,7 @@ public class kPolyEdit : EditorWindow
         _sTrans = null;
         _sIndex = -1;
         _selection = _sObjec = null;
+        curPointIndex = new List<int>();
     }
     #endregion
 }
