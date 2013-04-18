@@ -48,6 +48,7 @@ public class kPoly2Tool : EditorWindow
 
     private void OnSelectionChange()
     {
+        Repaint();
     }
 
     public void OnSceneGUI(SceneView sceneView)
@@ -87,7 +88,7 @@ public class kPoly2Tool : EditorWindow
                 {
                     case 0: kPolyGUI.CREATE_objectSelect();  break;
                     case 1: break;
-                    case 2: break;
+                    case 2: kPolyGUI.INFO_main(); break;
                     case 3: break;
                 }
 

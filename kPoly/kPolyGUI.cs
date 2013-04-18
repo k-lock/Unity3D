@@ -5,7 +5,42 @@ using klock.geometry;
 
 public class kPolyGUI
 {
-    //------------------------------------------------- MAIN PANEL ELEMENTS
+    //--------------------------------------------------------------------------------------------------------------------------------------//
+    //                                                                                                                                      //
+    //    SELECTION HELPER                                                                                                                  //
+    //                                                                                                                                      //
+    //--------------------------------------------------------------------------------------------------------------------------------------//
+    #region SELECTION HELPER
+    public static GameObject S_OBJECT
+    {
+        get
+        {
+            return Selection.activeGameObject;
+        }
+    }
+    public static MeshFilter S_MESHFILTER
+    {
+        get
+        {
+            GameObject selection = S_OBJECT;
+            return (selection != null && selection.GetComponent<MeshFilter>() != null ? selection.GetComponent<MeshFilter>() : null);
+        }
+    }
+    public static Mesh S_MESH
+    {
+        get
+        {
+            MeshFilter meshFilter = S_MESHFILTER;
+            return (meshFilter != null ? meshFilter.sharedMesh : null);
+        }
+    }
+    #endregion
+    //--------------------------------------------------------------------------------------------------------------------------------------//
+    //                                                                                                                                      //
+    //     MAIN TOOL BAR                                                                                                                    //
+    //                                                                                                                                      //
+    //--------------------------------------------------------------------------------------------------------------------------------------//
+    #region  MAIN TOOL BAR
     /*private static Texture2D[] TOOL_BAR_ICONS = new Texture2D[] {   klock.kLibary.LoadBitmap("create", 20,20),
                                                                     klock.kLibary.LoadBitmap("modify", 20,20),
                                                                     klock.kLibary.LoadBitmap("utility", 20,20),
@@ -17,7 +52,13 @@ public class kPolyGUI
         k2p.MAIN_MENU_ID = GUILayout.Toolbar(k2p.MAIN_MENU_ID, S_MAIN_TOOLBAR);
 
     }
-    //------------------------------------------------- PANEL CREATE 
+    #endregion
+    //--------------------------------------------------------------------------------------------------------------------------------------//
+    //                                                                                                                                      //
+    //     PANEL CREATE                                                                                                                     //
+    //                                                                                                                                      //
+    //--------------------------------------------------------------------------------------------------------------------------------------// 
+    #region PANEL CREATE
     private static bool FOLD_para = true;
     private static bool FOLD_name = true;
     private static bool FOLD_object = true;
@@ -280,6 +321,69 @@ public class kPolyGUI
             _width = 0;
         }
     }
+    #endregion
+    //--------------------------------------------------------------------------------------------------------------------------------------//
+    //                                                                                                                                      //
+    //     PANEL INFO                                                                                                                       //
+    //                                                                                                                                      //
+    //--------------------------------------------------------------------------------------------------------------------------------------//
+    #region INFO
+    private static bool _SHOW_TRIAS = true;
+    private static bool _SHOW_NEIBS = false;
+    private static bool _SHOW_DHANS = false;
+
+    public static void INFO_main()
+    {
+        EditorGUILayout.BeginHorizontal();
+        GUILayout.Space(10);
+        EditorGUILayout.BeginVertical();
+        GUILayout.Space(5);
+
+        GameObject _selection = S_OBJECT;
+        Mesh _selectMesh = S_MESH;
+        // current selection idendifier
+        GUI.enabled = (_selection != null);
+        EditorGUILayout.ObjectField("Selection ", _selection, typeof(GameObject), true);
+        EditorGUILayout.LabelField("Mesh Name : " + (_selection != null && _selectMesh != null ? _selectMesh.name : "none"));
+        EditorGUI.indentLevel = 1;
+        EditorGUILayout.LabelField("Vertecies : " + (_selection != null && _selectMesh != null ? _selectMesh.vertexCount + " " : "0"));
+        EditorGUILayout.LabelField("Triangles : " + (_selection != null && _selectMesh != null ? (_selectMesh.vertexCount / 3) + " " : "0"));
+        EditorGUILayout.LabelField("Faces : " + (_selection != null && _selectMesh != null ? (_selectMesh.vertexCount / 6) + " " : "0"));
+        EditorGUILayout.LabelField("SubMeshes : " + (_selection != null && _selectMesh != null ? _selectMesh.subMeshCount : 0));
+        EditorGUILayout.Space();
+        EditorGUI.indentLevel = 0;
+        _SHOW_TRIAS = EditorGUILayout.Toggle("Triangles", _SHOW_TRIAS);
+        _SHOW_NEIBS = EditorGUILayout.Toggle("Neigbours", _SHOW_NEIBS);
+        _SHOW_DHANS = EditorGUILayout.Toggle("Default Handles", _SHOW_DHANS);
+        EditorGUILayout.Space();
+
+        EditorGUILayout.EndVertical();
+        GUILayout.Space(10);
+        EditorGUILayout.EndHorizontal();
+
+    }
+    #endregion
+
+
+
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     #region EXTRA GUI
     public static Enum EnumToolbar(Enum selected)
     {
