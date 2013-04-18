@@ -600,7 +600,7 @@ namespace klock.geometry
                     break;
             }
 
-            return Vector3.zero;
+            return p;
         }
         #endregion
         #region PIVOT

@@ -63,6 +63,7 @@ public class kPolyCreate : EditorWindow
 
 	public static kPolyCreate Create ()
 	{
+        kPolyTool.CLEAR_ALL_OF("Create");
 		return CreateInstance<kPolyCreate> ();
 	}
 	/** Reset the editor values to default.*/
@@ -90,15 +91,15 @@ public class kPolyCreate : EditorWindow
 		ResetEditorValues ();
 	}
 
-	/*private void OnDisable ()
-	{
-	
-	}
-	
+    private void OnDisable()
+    {
+       // instance = null;
+    }
+	/*
 	private void Update ()
 	{
 	
-	}*/
+	}*
 
 	private void OnGUI ()
 	{	
@@ -337,8 +338,8 @@ public class kPolyCreate : EditorWindow
 	private 	bool 		FOLD_para = true;
 	private 	bool 		FOLD_name = false;
 	private 	bool 		FOLD_object = false;
-	private 	int 		OBJECT_TYPES_INDEX = 0;
-	private 	string[] 	OBJECT_TYPES = new string[2]{"Standard","Extra"};
+	//private 	int 		OBJECT_TYPES_INDEX = 0;
+	//private 	string[] 	OBJECT_TYPES = new string[2]{"Standard","Extra"};
 	private 	int 		P_OBJECT_TYPE_INDEX = 0;
 	private 	string[]	P_OBJECT_TYPE = new string[4]{"Cube","Sphere","Plane","Cone"};
 }

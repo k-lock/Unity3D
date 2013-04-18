@@ -45,7 +45,7 @@ public class kPolyInfo: EditorWindow
 	[MenuItem("Window/klock/kMesh/kPolyInfo %M2")]
 	public static void Init ()
 	{
-		instance = (kPolyInfo)EditorWindow.GetWindow (typeof(kPolyInfo), false, "Poly Info");
+		instance = (kPolyInfo)EditorWindow.GetWindow (typeof(kPolyInfo), false, "Info");
 		instance.Show ();
 		instance.OnEnable ();
 		instance.position = new Rect (200, 100, 200, 228);
@@ -54,6 +54,7 @@ public class kPolyInfo: EditorWindow
 	}
     public static kPolyInfo Create()
     {
+        kPolyTool.CLEAR_ALL_OF("Info");
         return CreateInstance<kPolyInfo>();
     }
 	#endregion
@@ -69,12 +70,11 @@ public class kPolyInfo: EditorWindow
 			SceneView.onSceneGUIDelegate += _onSceneGUI_;
 		}*/
 	}
-
-	/*private void OnDisable ()
-	{
-	
-	}
-	
+    private void OnDisable()
+    {
+       // instance = null;
+    }
+	/*
 	private void Update ()
 	{
 	
@@ -315,7 +315,7 @@ public class kPolyInfo: EditorWindow
 			Handles.color = new Color (Color.yellow.r, Color.yellow.g, Color.yellow.b, .85f);
 			Handles.CubeCap (0, v1, root.rotation, cubeSize);
 		
-			int neighbourID = -1;
+			//int neighbourID = -1;
 			Vector3 neighbourVector = Vector3.zero;
 			if (t1 + 1 == t3) {
 				if (_SHOW_NEIBS)

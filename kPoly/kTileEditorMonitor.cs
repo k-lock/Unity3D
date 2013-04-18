@@ -37,13 +37,24 @@ public class kTileEditorMonitor :EditorWindow
 	{
 		
 		EditorGUILayout.BeginVertical();
-		
-		GUILayout.Label("kPolyTool : "+ kPolyTool.FIND_ALL("Tool").Length);
-		GUILayout.Label("kPolyCreate : "+ kPolyTool.FIND_ALL("Create").Length);
-   		GUILayout.Label("kPolyEdit : "+ kPolyTool.FIND_ALL("Edit").Length);
-		GUILayout.Label("kPolyInfo : "+ kPolyTool.FIND_ALL("Info").Length);
-		
-		
+
+        GUILayout.BeginHorizontal();
+		GUILayout.Label("kPolyTool : "+ kPolyTool.FIND_ALL_OF("Tool").Length);
+        GUILayout.Label("ANY KEY " + kPolyEdit.ANY_KEY);
+        GUILayout.EndHorizontal();
+        GUILayout.BeginHorizontal();
+		GUILayout.Label("kPolyCreate : "+ kPolyTool.FIND_ALL_OF("Create").Length);
+        GameObject go = Selection.activeGameObject;
+        GUILayout.Label("flag : " +(go!=null? go.hideFlags.ToString() : "NONE" ));
+        GUILayout.EndHorizontal();
+        GUILayout.BeginHorizontal();
+   		GUILayout.Label("kPolyEdit : "+ kPolyTool.FIND_ALL_OF("Edit").Length);
+        GUILayout.Label("Active GO : " + (go != null ? go.name : "NONE"));
+        GUILayout.EndHorizontal();
+        GUILayout.BeginHorizontal();
+		GUILayout.Label("kPolyInfo : "+ kPolyTool.FIND_ALL_OF("Info").Length);
+        GUILayout.Label("Active ID : " + Selection.activeInstanceID );
+        GUILayout.EndHorizontal();
 		GUILayout.Label("hotControl  ->  " +GUIUtility.hotControl );
  		GUILayout.Label("keyboardControl  ->  " +GUIUtility.keyboardControl  );
 		

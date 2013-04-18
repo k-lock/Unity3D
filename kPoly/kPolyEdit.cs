@@ -69,6 +69,7 @@ public class kPolyEdit : EditorWindow
 
     public static kPolyEdit Create()
     {
+        kPolyTool.CLEAR_ALL_OF("Edit");
         return CreateInstance<kPolyEdit>();
     }
     #endregion
@@ -90,27 +91,28 @@ public class kPolyEdit : EditorWindow
 
     private void OnDisable()
     {
+        //instance = null;
         _selection = null;
         _selectMesh = null;
         verts = null;
     }
 
-    private void Update()
+    public void Updater()
     {
-        //if (_freeze && Selection.activeInstanceID != _sIndex)
-        //	OnSelectionChange ();
+        if (_freeze && Selection.activeGameObject != _sObjec) SetSelection();
     }
-    static bool ANY_KEY = false;
+    public static bool ANY_KEY = false;
     void OnInspectorUpdate()
     {
         //Debug.Log ("--->");
-        
-        if (_freeze && Selection.activeInstanceID != _sIndex)
-            OnSelectionChange();
+
+       // if (_freeze && Selection.activeInstanceID != _sIndex)
+       //     OnSelectionChange();
     }
 
     private void OnGUI()
     {
+
         DrawPanel();
         Repaint();
     }
@@ -120,13 +122,19 @@ public class kPolyEdit : EditorWindow
 
         if (!_freeze && Selection.activeInstanceID != _sIndex)
         {
-            ResetSelection();
-            GetSelection();
+           /* GameObject go = Selection.activeGameObject;
+            if (go.hideFlags != 0)
+            {*/
+                ResetSelection();
+                GetSelection();
+            //}
         }
 
         if (_freeze && Selection.activeInstanceID != _sIndex)
         {
-            SetSelection();
+            //GameObject go = Selection.activeGameObject;
+           // if( go.hideFlags != 0)   
+                SetSelection();
         }
 
         if (_selection != null)
@@ -136,7 +144,7 @@ public class kPolyEdit : EditorWindow
             {
                 _selectMesh = _selectMeshFilter.sharedMesh;
             }
-            neigbourList = klock.geometry.kPoly.Neigbours(_selectMesh);
+           // neigbourList = klock.geometry.kPoly.Neigbours(_selectMesh);
         }
         Debug.Log("EDIT - OnSelectionChange" + _selection);
         Repaint();
@@ -146,7 +154,7 @@ public class kPolyEdit : EditorWindow
     /** Main GUI draw function.*/
     public void DrawPanel()
     {
-        ANY_KEY = CHECK_USER_INPUT(); 
+
         GetSelection();
         DrawPanel2();
     }
@@ -164,13 +172,25 @@ public class kPolyEdit : EditorWindow
          {
              EditorGUILayout.ObjectField("Current Object ", _selection, typeof(GameObject), true);
          }*/
-        FOLD_selection = EditorGUILayout.Foldout(FOLD_selection, "Selection");
+        FOLD_selection = EditorGUILayout.Foldout(FOLD_selection, "Selection " + ((_selection != null) ? "[ " + _selection.name + " ]" : ""));
         if (FOLD_selection)
         {
             GUILayout.BeginHorizontal();
             GUI.color = (_editorMode == MODE.E_Point) ? new Color(0, .5f, 1, .7f) : Color.white;
             if (GUILayout.Button(new GUIContent("Point")))
+            {
                 _editorMode = (_editorMode == MODE.E_Point) ? MODE.None : MODE.E_Point;
+               
+                if (_selection != null)
+                {
+                    _freeze = !_freeze;
+                    
+                    if(_editorMode == MODE.E_Point)
+                        _selection.hideFlags |= HideFlags.NotEditable;
+                    else
+                        _selection.hideFlags =0;
+                }
+            }
             GUI.color = Color.white;
             GUI.color = (_editorMode == MODE.E_Line) ? new Color(0, .5f, 1, .7f) : Color.white;
             if (GUILayout.Button(new GUIContent("Line")))
@@ -186,8 +206,7 @@ public class kPolyEdit : EditorWindow
             GUI.color = Color.white;
             GUILayout.EndHorizontal();
             EditorGUILayout.Separator();
-            /*GUILayout.Label ("" + EDITOR_activeSelection);
-            _freeze = (_editorMode != MODE.None);*/
+
 
             // _backFace = EditorGUILayout.Toggle("show BackFace", _backFace);
             GUILayout.BeginHorizontal();
@@ -260,6 +279,10 @@ public class kPolyEdit : EditorWindow
         case EventType.mouseMove:
         case EventType.repaint:
         case EventType.layout:*/
+        sceneview.Repaint();
+
+        CHECK_USER_INPUT();
+
         if (_selectMesh != null)
         {
             if (_editorMode != MODE.None)
@@ -269,6 +292,7 @@ public class kPolyEdit : EditorWindow
                 switch (_editorMode)
                 {
                     case MODE.E_Point:
+
                         Draw_Handles2();
                         break;
                 }
@@ -298,10 +322,11 @@ public class kPolyEdit : EditorWindow
 
     private static void Draw_Handles2()
     {
-        if (_selectMesh == null || _selection == null || verts == null)
+        if (_selectMesh == null || _selection == null )
         {
             return;
         }
+        if (verts == null && _selectMesh != null) verts = _selection.GetComponent<MeshFilter>().sharedMesh.vertices;//_selectMesh.vertices;
 
         int someHashCode = instance.GetHashCode();
         Transform root = _selection.transform;
@@ -327,26 +352,41 @@ public class kPolyEdit : EditorWindow
 
             if ((controlIDBeforeHandle < GUIUtility.hotControl && GUIUtility.hotControl < controlIDAfterHandle) || isEventUsedByHandle)
             {
-
-                if (!ANY_KEY) curPointIndex = new List<int>();
-                if (!curPointIndex.Contains(i))
-                    curPointIndex.Add(i);
-                else
-                    curPointIndex.Remove(i);
-
+                POINT_SELECTION(i);
             }
         }
     }
-
-    public static bool CHECK_USER_INPUT()
+    private static void POINT_SELECTION(int i)
     {
-        bool retuner = ANY_KEY = false;
+        if (!ANY_KEY && curPointIndex.Count > 0) curPointIndex.Clear();
+        if (!curPointIndex.Contains(i))
+            curPointIndex.Add(i);
+        else
+            curPointIndex.Remove(i);
+    }
 
-        if (Input.anyKey)
-        {
-            if (Input.GetKey(KeyCode.RightControl)) retuner =ANY_KEY = true;
-        }
-        return retuner;
+    public static void CHECK_USER_INPUT()
+    {
+        Event e = Event.current;
+        ANY_KEY = false;
+        //switch (e.type)
+        //{
+           // case EventType.mouseDown:
+                if (e.control && e.isKey)
+                {
+                   
+                    ANY_KEY = true;
+                    e.Use();
+                }
+                //break;
+           /*/ case EventType.mouseUp:
+                if (e.control)
+                {
+                    ANY_KEY = false;
+                    e.Use();
+                }
+                break;*/
+        //}
     }
 
     /*
@@ -384,11 +424,13 @@ public class kPolyEdit : EditorWindow
     }*/
     #endregion
     #region SELECTION
-    void SetSelection()
+    GameObject SetSelection()
     {
         Selection.activeTransform = _sTrans;
         Selection.activeInstanceID = _sIndex;
         Selection.activeGameObject = _selection = _sObjec;
+
+        return _selection;
     }
 
     void GetSelection()
@@ -396,17 +438,20 @@ public class kPolyEdit : EditorWindow
         _sTrans = Selection.activeTransform;
         _sIndex = Selection.activeInstanceID;
         _selection = _sObjec = Selection.activeGameObject;
+        
     }
 
     void ResetSelection()
     {
+        if(_selection!=null)_selection.hideFlags &= ~HideFlags.NotEditable;
         _selection = null;
         _selectMesh = null;
         verts = null;
         _sTrans = null;
         _sIndex = -1;
-        _selection = _sObjec = null;
+        _sObjec = null;
         curPointIndex = new List<int>();
+       
     }
     #endregion
 }
