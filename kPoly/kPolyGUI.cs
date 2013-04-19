@@ -62,8 +62,12 @@ public class kPolyGUI
     private static bool FOLD_para = true;
     private static bool FOLD_name = true;
     private static bool FOLD_object = true;
-    private static int P_OBJECT_TYPE_INDEX = 1;
-    private static string[] P_OBJECT_TYPE = new string[6] { "Cube", "Plane", "Cone", "Cylinder", "Sphere", "Box" };
+    private static bool FOLD_create = true;
+    private static int MESH_PRIM_INDEX = 0;
+    private static string[] MESH_PRIM = new string[2] { "Standard Primitive", "Unity Primitive" };
+    private static int MESH_TYPE_INDEX = 1;
+    private static string[] MESH_TYPE_a = new string[6] { "Cube", "Plane", "Cone", "Cylinder", "Sphere", "Box" };
+    private static string[] MESH_TYPE_b = new string[5] { "Cube", "Sphere", "Capsule", "Cylinder", "Plane" };
 
     private static string _meshName = "kPoly";
     private static float _width = 1;
@@ -84,44 +88,33 @@ public class kPolyGUI
     private static bool outside = true;
     private static bool inside = false;
 
+    private static GUILayoutOption[] E_WIDTH = new GUILayoutOption[]
+    { 
+        GUILayout.MaxWidth( 80 )
+       
+    };
+
+
     public static void CREATE_objectSelect()
     {
         bool GUI_TEMP = GUI.enabled;
 
         EditorGUILayout.BeginVertical();
+        GUILayout.Space(2);
+        // OBJECT CART 
+        MESH_PRIM_INDEX = EditorGUILayout.Popup(MESH_PRIM_INDEX, MESH_PRIM);//, folderSkin());
+
         // OBJECT TYPE 
         FOLD_object = EditorGUILayout.Foldout(FOLD_object, "Object Types");//, folderSkin());
         if (FOLD_object)
         {
-            int objectTemp = P_OBJECT_TYPE_INDEX;
+            int objectTemp = MESH_TYPE_INDEX;
             GUILayout.BeginHorizontal();
             GUILayout.Space(10);
-            P_OBJECT_TYPE_INDEX = GUILayout.SelectionGrid(P_OBJECT_TYPE_INDEX, P_OBJECT_TYPE, 2);
+            MESH_TYPE_INDEX = GUILayout.SelectionGrid(MESH_TYPE_INDEX, (MESH_PRIM_INDEX == 0 ? MESH_TYPE_a : MESH_TYPE_b), 2);
             GUILayout.Space(10);
-            /*for (int i = 0; i < 3; i++)
-            {
-                GUI.color = Color.white;
-                GUI.color = (P_OBJECT_TYPE_INDEX == i) ? Color.grey : Color.white;
-                if (GUILayout.Button(P_OBJECT_TYPE[i], EditorStyles.miniButton))
-                {
-                    P_OBJECT_TYPE_INDEX = (P_OBJECT_TYPE_INDEX == i) ? -1 : i;
-                }
-                GUI.color = Color.white;
-            }
             GUILayout.EndHorizontal();
-            GUILayout.BeginHorizontal();
-            for (int i = 3; i < 6; i++)
-            {
-                GUI.color = Color.white;
-                GUI.color = (P_OBJECT_TYPE_INDEX == i) ? Color.grey : Color.white;
-                if (GUILayout.Button(P_OBJECT_TYPE[i], EditorStyles.miniButton))
-                {
-                    P_OBJECT_TYPE_INDEX = (P_OBJECT_TYPE_INDEX == i) ? -1 : i;
-                }
-                GUI.color = Color.white;
-            }*/
-            GUILayout.EndHorizontal();
-            if (objectTemp != P_OBJECT_TYPE_INDEX)
+            if (objectTemp != MESH_TYPE_INDEX)
             {
                 ResetEditorValues();
             }
@@ -132,7 +125,7 @@ public class kPolyGUI
         {
             GUILayout.BeginHorizontal();
             GUILayout.Space(10);
-            GUI.enabled = P_OBJECT_TYPE_INDEX != -1;
+            GUI.enabled = MESH_TYPE_INDEX != -1;
             _meshName = EditorGUILayout.TextField(_meshName, labelCSkin());
             GUI.enabled = GUI_TEMP;
             GUILayout.Space(10);
@@ -140,25 +133,84 @@ public class kPolyGUI
         }
         // OBJECT PARAMETERS
         FOLD_para = EditorGUILayout.Foldout(FOLD_para, "Parameters");
-
         if (FOLD_para)
         {
             GUILayout.BeginHorizontal();
             GUILayout.Space(10);
-            GUI.enabled = P_OBJECT_TYPE_INDEX != -1;
-            switch (P_OBJECT_TYPE_INDEX)
+            GUI.enabled = MESH_TYPE_INDEX != -1;
+            if (MESH_PRIM_INDEX == 0)
             {
-                case 0:
-                    CREATE_cube();
-                    break;
-                case 1:
-                    CREATE_plane();
-                    break;
-                case 2:
-                    CREATE_cone();
-                    break;
+                switch (MESH_TYPE_INDEX)
+                {
+                    case 0:
+                        CREATE_cube();
+                        break;
+                    case 1:
+                        CREATE_plane();
+                        break;
+                    case 2:
+                        CREATE_cone();
+                        break;
+                }
+            }
+            else
+            {
+                EditorGUILayout.LabelField("No editabled properties.", EditorStyles.boldLabel);
             }
             GUILayout.Space(10);
+            GUILayout.EndHorizontal();
+        }
+        // OBJECT CREATION TYPE 
+        FOLD_create = EditorGUILayout.Foldout(FOLD_create, "Creation Types");//, folderSkin());
+        if (FOLD_create)
+        {
+            // Editor Button for start mesh creation
+            if (GUILayout.Button(new GUIContent("GameObject [ Scene ]")))
+            {
+                switch (MESH_PRIM_INDEX)
+                {
+                    case 0:
+                        // "Cube", "Plane", "Cone", "Cylinder", "Sphere", "Box"
+                        switch (MESH_TYPE_INDEX)
+                        {
+                            case 0:
+                                kPoly.Create_Cube_Object(_meshName, _uSegments, _vSegments, _zSegments, _width, _height, _depth);
+                                break;
+                            case 1:
+                                kPoly.Create_Plane_Object(_meshName, _uSegments, _vSegments, _width, _height, _faceIndex, _windinIndex, _pivotIndex, _colliderIndex);
+                                break;
+                            case 2:
+                                kPoly.Create_Cone_Object(_meshName, _uSegments, _width, _depth, _height, openingAngle, outside, inside);
+                                break;
+                        }
+                        break;
+                    case 1:
+                        //"Cube", "Sphere", "Capsule", "Cylinder", "Plane"
+                        switch (MESH_TYPE_INDEX)
+                        {
+                            case 0:
+                                GameObject.CreatePrimitive(PrimitiveType.Cube);
+                                break;
+                            case 1:
+                                GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                                break;
+                            case 2:
+                                GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                                break;
+                            case 3:
+                                GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                                break;
+                            case 4:
+                                GameObject.CreatePrimitive(PrimitiveType.Plane);
+                                break;
+                        }
+                        break;
+                }
+            }
+            GUILayout.Button(new GUIContent("Mesh Asset [ DataBase ]"));
+            GUILayout.BeginHorizontal();
+            GUILayout.Button(new GUIContent("Export File [ Folder ]"));
+            GUILayout.Button(new GUIContent(".."), GUILayout.Width(18));
             GUILayout.EndHorizontal();
         }
         EditorGUILayout.EndVertical();
@@ -186,10 +238,7 @@ public class kPolyGUI
         outside = EditorGUILayout.Toggle("Outside", outside);
         inside = EditorGUILayout.Toggle("Inside", inside);
         EditorGUILayout.Space();
-        if (GUILayout.Button(new GUIContent("Create Mesh")))
-        {
-            kPoly.Create_Cone_Object(_meshName, _uSegments, _width, _depth, _height, openingAngle, outside, inside);
-        }
+
         EditorGUILayout.EndVertical();
     }
     static void CREATE_cube()
@@ -211,11 +260,6 @@ public class kPolyGUI
         _vSegments = EditorGUILayout.IntField("vSegments", _vSegments);
         _zSegments = EditorGUILayout.IntField("zSegments", _zSegments);
         EditorGUILayout.Space();
-
-        if (GUILayout.Button(new GUIContent("Create Mesh")))
-        {
-            kPoly.Create_Cube_Object(_meshName, _uSegments, _vSegments, _zSegments, _width, _height, _depth);
-        }
         EditorGUILayout.EndVertical();
     }
     static void CREATE_plane()
@@ -273,11 +317,6 @@ public class kPolyGUI
             _vSegments = Mathf.Clamp(_vSegments, 1, int.MaxValue);
             Debug.Log("Change Editor");
         }
-        // Editor Button for start mesh creation
-        if (GUILayout.Button(new GUIContent("Create Mesh")))
-        {
-            kPoly.Create_Plane_Object(_meshName, _uSegments, _vSegments, _width, _height, _faceIndex, _windinIndex, _pivotIndex, _colliderIndex);
-        }
         EditorGUILayout.EndVertical();
     }
     /*public static GUIStyle folderSkin()
@@ -314,8 +353,9 @@ public class kPolyGUI
         openingAngle = 0f;
         outside = true;
         inside = false;
+        _meshName = "kPoly";
 
-        if (P_OBJECT_TYPE_INDEX == 2)
+        if (MESH_TYPE_INDEX == 2)
         {
             _uSegments = 10;
             _width = 0;
@@ -363,26 +403,263 @@ public class kPolyGUI
 
     }
     #endregion
+    //--------------------------------------------------------------------------------------------------------------------------------------//
+    //                                                                                                                                      //
+    //     PANEL INFO MATERIAL                                                                                                                      //
+    //                                                                                                                                      //
+    //--------------------------------------------------------------------------------------------------------------------------------------//
+    #region MATERIAL PANEL
+    private static int MAT_CART_INDEX = 0;
+    private static string[] MAT_CART = new string[2] { "Standard Materials", "Extra" };
+    private static int MAT_TYPE_INDEX = 0;
+    private static string[] MAT_TYPE_a = new string[3] { "Diffuse", "Diffuse Transparent", "Diffuse Bumped" };
+    private static string[] MAT_TYPE_b = new string[1] { "Checker" };
+    private static Color Color_a = Color.white;
+    private static Color Color_b = Color.black;
+    private static int Checker_Size = 1;
+    private static Texture2D Mtexture_a = null;
+    private static Texture2D Mtexture_b = null;
+    private static Texture2D Mtexture_c = null;
+    private static Shader Mshader = null;
+
+    private static Shader[] shaders = null;
+
+    public static void MAT_main()
+    {
+        // Fetch all shader assets
+        if (shaders == null)
+        {
+            shaders = (Shader[])UnityEngine.Resources.FindObjectsOfTypeAll(typeof(Shader));
+            int n = shaders.Length;
+            System.Collections.Generic.List<Shader> ls = new System.Collections.Generic.List<Shader>();
+
+            foreach( Shader s in shaders )
+            {
+                if (s != null && s.name != "" && !s.name.StartsWith("__") && !s.name.StartsWith("Hidden/"))
+                {
+                    ls.Add(s);
+                }
+            }
+            MAT_TYPE_a = new string[ls.Count];
+            for (int i = 0; i < n; i++)
+            {
+                MAT_TYPE_a[i] = ls[i].name;
+            }
+        }
 
 
 
+        bool GUI_TEMP = GUI.enabled;
+        GameObject _selection = S_OBJECT;
+        Material _selectMat = (S_MESHFILTER != null) ? S_MESHFILTER.renderer.sharedMaterial : null;
+        _meshName = (_selectMat != null) ? _selectMat.name : "kMaterial";
+        GUI.enabled = (_selection != null);
 
-   
+        // EditorGUILayout.BeginHorizontal();
+        // GUILayout.Space(10);
+        EditorGUILayout.BeginVertical();
+        GUILayout.Space(2);
 
+        // OBJECT CART 
+        MAT_CART_INDEX = EditorGUILayout.Popup(MAT_CART_INDEX, MAT_CART);//, folderSkin());
 
+        // OBJECT TYPE 
+        FOLD_object = EditorGUILayout.Foldout(FOLD_object, "Shader Types");//, folderSkin());
+        if (FOLD_object)
+        {
+            int objectTemp = MAT_TYPE_INDEX;
+            GUILayout.BeginHorizontal();
+            GUILayout.Space(10);
+            MAT_TYPE_INDEX = GUILayout.SelectionGrid(MAT_TYPE_INDEX, (MAT_CART_INDEX == 0 ? MAT_TYPE_a : MAT_TYPE_b), 2);
+            GUILayout.Space(10);
+            GUILayout.EndHorizontal();
+            if (objectTemp != MAT_TYPE_INDEX)
+            {
+                ResetEditorValues();
+            }
+        }
+        // OBJECT NAME
+        FOLD_name = EditorGUILayout.Foldout(FOLD_name, "Material Name");
+        if (FOLD_name)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Space(10);
+            GUI.enabled = MESH_TYPE_INDEX != -1;
+            _meshName = EditorGUILayout.TextField(_meshName, labelCSkin());
+            GUI.enabled = GUI_TEMP;
+            GUILayout.Space(10);
+            GUILayout.EndHorizontal();
+        }
 
+        EditorGUILayout.Space();
+        /* (MAT_TYPE_INDEX)
+        {
+            case 1:
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("Color", GUILayout.MaxWidth(80));
+                Color_a = EditorGUILayout.ColorField(Color_a);
+                EditorGUILayout.EndHorizontal();
 
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("Texture", GUILayout.MaxWidth(80));
+                Mtexture_a = ((Texture2D)EditorGUILayout.ObjectField(Mtexture_a, typeof(Texture2D), true));
+                EditorGUILayout.EndHorizontal();
+                break;
+            case 2:
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("Color", GUILayout.MaxWidth(80));
+                Color_a = EditorGUILayout.ColorField(Color_a);
+                EditorGUILayout.EndHorizontal();
 
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("Texture", GUILayout.MaxWidth(80));
+                Mtexture_a = ((Texture2D)EditorGUILayout.ObjectField(Mtexture_a, typeof(Texture2D), true));
+                EditorGUILayout.EndHorizontal();
+                break;
+            case 3:
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("Color A", GUILayout.MaxWidth(80));
+                Color_a = EditorGUILayout.ColorField(Color_a);
+                EditorGUILayout.EndHorizontal();
+                //
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("Color B", GUILayout.MaxWidth(80));
+                Color_b = EditorGUILayout.ColorField(Color_b);
+                EditorGUILayout.EndHorizontal();
 
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("Checker Size");
+                Checker_Size = EditorGUILayout.IntField(Checker_Size);
+                EditorGUILayout.EndHorizontal();
+                break;
+        }
+         *  "Diffuse", "Diffuse Transparent", "Diffuse Bumped"
+         */
+        switch (MAT_CART_INDEX)
+        {
+            case 0:
+                switch (MAT_TYPE_INDEX)
+                {
+                    case 0:
+                    case 1:
+                        //diffuse 
+                        //Diffuse Transparent
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField("Color", GUILayout.MaxWidth(80));
+                        Color_a = EditorGUILayout.ColorField(Color_a);
+                        EditorGUILayout.EndHorizontal();
 
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField("Texture", GUILayout.MaxWidth(80));
+                        Mtexture_a = ((Texture2D)EditorGUILayout.ObjectField(Mtexture_a, typeof(Texture2D), true));
+                        EditorGUILayout.EndHorizontal();
 
+                        break;
+                    case 2:
+                        //Diffuse Bumped
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField("Color", GUILayout.MaxWidth(80));
+                        Color_a = EditorGUILayout.ColorField(Color_a);
+                        EditorGUILayout.EndHorizontal();
 
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField("Main Texture", GUILayout.MaxWidth(80));
+                        Mtexture_a = ((Texture2D)EditorGUILayout.ObjectField(Mtexture_a, typeof(Texture2D), true));
+                        EditorGUILayout.EndHorizontal();
 
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField("Bump Texture", GUILayout.MaxWidth(80));
+                        Mtexture_b = ((Texture2D)EditorGUILayout.ObjectField(Mtexture_b, typeof(Texture2D), true));
+                        EditorGUILayout.EndHorizontal();
+                        break;
+                }
+                break;
+            case 1:
+                switch (MAT_TYPE_INDEX)
+                {
+                    case 0:
+                        /*EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField("Shader", GUILayout.MaxWidth(80));
+                         Mshader = EditorGUILayout.ObjectField(Mshader, typeof(Shader), true) as Shader;
+                        EditorGUILayout.EndHorizontal();
+                        */
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField("Color A", GUILayout.MaxWidth(80));
+                        Color_a = EditorGUILayout.ColorField(Color_a);
+                        EditorGUILayout.EndHorizontal();
+                        //
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField("Color B", GUILayout.MaxWidth(80));
+                        Color_b = EditorGUILayout.ColorField(Color_b);
+                        EditorGUILayout.EndHorizontal();
 
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField("Checker Size");
+                        Checker_Size = EditorGUILayout.IntField(Checker_Size);
+                        EditorGUILayout.EndHorizontal();
+                        break;
+                }
+                break;
+        }
+        GUILayout.Space(10);
 
+        // MAT CREATION TYPE 
+        FOLD_create = EditorGUILayout.Foldout(FOLD_create, "Creation Types");//, folderSkin());
+        if (FOLD_create)
+        {
+            // Editor Button for start material creation
+            if (GUILayout.Button(new GUIContent("Replace Selected [ Material ]")))
+            {
+                switch (MAT_CART_INDEX)
+                {
+                    case 0: break;
+                    case 1: break;
+                }
+            }
+            GUILayout.Button(new GUIContent("Material Asset [ DataBase ]"));
+            GUILayout.BeginHorizontal();
+            GUILayout.Button(new GUIContent("Export File [ Folder ]"));
+            GUILayout.Button(new GUIContent(".."), GUILayout.Width(18));
+            GUILayout.EndHorizontal();
+        }
+        EditorGUILayout.EndVertical();
+        //GUILayout.Space(10);
+        //EditorGUILayout.EndHorizontal();
+    }
+    public static Material MAT_creator(int index, Color colorA)
+    {
+        Material m = null;
+        switch (index)
+        {
+            case 1: m = new Material(Shader.Find("Diffuse")); m.color = colorA; m.mainTexture = Mtexture_a; break;
+            case 2: m = new Material(Shader.Find("Transparent/Diffuse")); m.color = colorA; m.mainTexture = Mtexture_a; break;
+            case 3: m = MAT_checker(); break;
+        }
+        return m;
+    }
 
+    public static Material MAT_checker()
+    {
+        Material m = new Material(Shader.Find("Transparent/Diffuse"));
+        Texture2D t = new Texture2D(Checker_Size * 2, Checker_Size * 2, TextureFormat.ARGB32, false);
+        int size = Checker_Size;
+        Color ca = Color_a;
+        Color cb = Color_b;
 
-
+        for (int i = 0; i < size; i++)
+        {
+            t.SetPixel(i + 0, i + 0, ca);
+            t.SetPixel(i + size, i + 0, cb);
+            t.SetPixel(i + 0, i + size, cb);
+            t.SetPixel(i + size, i + size, ca);
+        }
+        t.Apply();
+        t.wrapMode = TextureWrapMode.Repeat;
+        t.filterMode = FilterMode.Point;
+        m.mainTexture = t;
+        return m;
+    }
+    #endregion
 
     #region EXTRA GUI
     public static Enum EnumToolbar(Enum selected)

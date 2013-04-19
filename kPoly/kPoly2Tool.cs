@@ -20,8 +20,8 @@ public class kPoly2Tool : EditorWindow
         instance = (kPoly2Tool)EditorWindow.GetWindow(typeof(kPoly2Tool), false, "Tools2");
         instance.Show();
         // instance.OnEnable();
-        instance.position = new Rect(200, 100, 250, 400);
-        instance.minSize = new Vector2(200, 200);
+        instance.position = new Rect(200, 100, 250, 420);
+        instance.minSize = new Vector2(200, 300);
         instance.maxSize = new Vector2(500, 600);
 
         return instance;
@@ -89,7 +89,7 @@ public class kPoly2Tool : EditorWindow
                     case 0: kPolyGUI.CREATE_objectSelect();  break;
                     case 1: break;
                     case 2: kPolyGUI.INFO_main(); break;
-                    case 3: break;
+                    case 3: kPolyGUI.MAT_main(); break;
                 }
 
                 break;
