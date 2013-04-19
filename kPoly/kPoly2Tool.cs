@@ -22,7 +22,7 @@ public class kPoly2Tool : EditorWindow
         // instance.OnEnable();
         instance.position = new Rect(200, 100, 250, 420);
         instance.minSize = new Vector2(200, 300);
-        instance.maxSize = new Vector2(500, 600);
+        instance.maxSize = new Vector2(1200, 900);
 
         return instance;
     }

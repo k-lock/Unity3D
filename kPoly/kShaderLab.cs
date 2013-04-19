@@ -95,7 +95,7 @@ class kShaderLab
                     case 0: sp = NORMAL[id]; break;
                     case 1: sp = "Transparent/" + ALPHA[id]; break;
                     case 2: sp = "Transparent/Cutout/" + ALPHACUT[id]; break;
-                    case 3: sp = "Self-Illuminated/" + ILLUMIN[id]; break;
+                    case 3: sp = "Self-Illumin/" + ILLUMIN[id]; break;
                     case 4: sp = "Reflective/" + REFLECT[id]; break;
                     case 5: sp = "Particles/" + PARTICLES[id]; break;
                 }
