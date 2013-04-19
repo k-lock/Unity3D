@@ -10,66 +10,114 @@ class kShaderLab
         "Built-in Shader Materials", 
         "Extra" 
     };
-    public static string[] FAMILY = new string[5] 
+    public static string[] FAMILY = new string[6] 
     { 
         "Normal", 
         "Transparent", 
         "Transparent Cutout", 
         "Self-Illuminated", 
-        "Reflective" 
+        "Reflective",
+        "Particles"
+        
     };
     public static string[] NORMAL = new string[9] 
     { 
-        "Vertex-Lit", 
+        "VertexLit", 
         "Diffuse", 
         "Specular", 
         "Bumped Diffuse", 
         "Bumped Specular", 
         "Parallax Diffuse", 
-        "Parallax Bumped Specular", 
+        "Parallax Specular", 
         "Decal",
         "Diffuse Detail"
     };
-    public static string[] ALPHA = new string[9] 
+    public static string[] ALPHA = new string[7] 
     {
-        "Vertex-Lit", 
+        "VertexLit", 
         "Diffuse",
         "Specular",
         "Bumped Diffuse",
         "Bumped Specular",
         "Parallax Diffuse",
-        "Parallax Bumped Specular",
-        "Decal",
-        "Diffuse Detail"};
-    public static string[] ALPHACUT = new string[5] 
+        "Parallax Specular"
+    };
+    public static string[] ALPHACUT = new string[6] 
     {
-        "Vertex-Lit",
+        "VertexLit",
         "Diffuse",
         "Specular",
         "Bumped Diffuse",
-        "Bumped Specular"
+        "Bumped Specular",
+        "Soft Edge Unlit"
     };
     public static string[] ILLUMIN = new string[7] 
     {   
-        "Vertex-Lit",
+        "VertexLit",
         "Diffuse",
         "Specular",
-        "Normal mapped Diffuse",
-        "Normal mapped Specular",
+        "Bumped Diffuse",
+        "Bumped Specular",
         "Parallax Diffuse",
         "Parallax Specular"
     };
     public static string[] REFLECT = new string[9] 
-    {   "Vertex-Lit",
+    {   "VertexLit",
         "Diffuse",
         "Specular",
-        "Bumped Diffuse",
-        "Bumped Specular",
         "Parallax Diffuse",
         "Parallax Specular",
-        "Normal Mapped Unlit",
-        "Normal mapped Vertex-lit"
+        "Bumped Diffuse",
+        "Bumped Specular",
+        "Bumped Unlit",
+        "Bumped VertexLit"
     };
+    public static string[] PARTICLES = new string[8] 
+    {   "Additive",
+        "Additive (Soft)",
+        "Alpha Blended",
+        "Alpha Blended Premultiply", 
+        "Multiply",
+        "Multiply (Double)",
+        "VertexLit Blended",
+        "~Additive~Multiply"
+    };
+    private static System.Collections.IDictionary shaderLib = new System.Collections.Hashtable();
+    public static Shader GetShader(int cat, int fam, int id)
+    {
+        string sp = "";
+        Shader s = null;
+        switch (cat)
+        {
+            case 0: // Build-In Materials
+                switch (fam)
+                {
+                    case 0: sp = NORMAL[id]; break;
+                    case 1: sp = "Transparent/" + ALPHA[id]; break;
+                    case 2: sp = "Transparent/Cutout/" + ALPHACUT[id]; break;
+                    case 3: sp = "Self-Illuminated/" + ILLUMIN[id]; break;
+                    case 4: sp = "Reflective/" + REFLECT[id]; break;
+                    case 5: sp = "Particles/" + PARTICLES[id]; break;
+                }
+                break;
+            case 1:
+                // Extra Materials
+                break;
+        }
+        if (sp != "")
+        {
+            if (shaderLib[sp] == null)
+            {
+                s = Shader.Find(sp);
+                shaderLib[sp] = s;
+            }
+            else
+            {
+                s = shaderLib[sp] as Shader;
+            }
+        }
+        return s;
+    }
     public static string[] GetShaderList(int index)
     {
         string[] s = null;
@@ -80,6 +128,7 @@ class kShaderLab
             case 2: s = ALPHACUT; break;
             case 3: s = ILLUMIN; break;
             case 4: s = REFLECT; break;
+            case 5: s = PARTICLES; break;
         }
         return s;
     }

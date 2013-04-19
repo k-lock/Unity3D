@@ -411,11 +411,11 @@ public class kPolyGUI
     //--------------------------------------------------------------------------------------------------------------------------------------//
     #region MATERIAL PANEL
 
-    
+
     private static int MAT_CART_INDEX = 0;
     private static int MAT_FAM_INDEX = 0;
     private static int MAT_TYPE_INDEX = 0;
-   
+
     private static Color Color_a = Color.white;
     private static Color Color_b = Color.black;
     private static int Checker_Size = 1;
@@ -425,19 +425,46 @@ public class kPolyGUI
     private static Shader Mshader = null;
 
     private static Shader[] shaders = null;
-
+    private static Vector2 sc1 = Vector2.zero;
+    private static Editor matEditor;
     public static void MAT_main()
     {
-        
-        GameObject  _selection  = S_OBJECT;
-        Material    _selectMat  = (S_MESHFILTER != null) ? S_MESHFILTER.renderer.sharedMaterial : null;
-       
+        /*GameObject _selection = S_OBJECT;
+        Material _selectMat = (S_MESHFILTER != null) ? S_MESHFILTER.renderer.sharedMaterial : null;
+        Shader s = (_selectMat != null) ? kShaderLab.GetShader(MAT_CART_INDEX, MAT_FAM_INDEX, MAT_TYPE_INDEX) : null;
+
         _meshName = (_selectMat != null) ? _selectMat.name : "kMaterial";
 
         bool GUI_TEMP = GUI.enabled;
         GUI.enabled = (_selection != null);
 
+
+        _selectMat = EditorGUILayout.ObjectField(_selectMat, typeof(Material)) as Material;
+        if (_selectMat != null)
+        {
+            if (matEditor == null)
+                matEditor = Editor.CreateEditor(_selectMat);
+
+            matEditor.OnPreviewGUI(GUILayoutUtility.GetRect(200, 300), EditorStyles.whiteLabel);
+
+        }
+    }
+    void lo()
+    {*/
+
+        GameObject _selection = S_OBJECT;
+        Material _selectMat = (S_MESHFILTER != null) ? S_MESHFILTER.renderer.sharedMaterial : null;
+        Shader s = (_selectMat != null) ? kShaderLab.GetShader(MAT_CART_INDEX, MAT_FAM_INDEX, MAT_TYPE_INDEX) : null;
+
+        _meshName = (_selectMat != null) ? _selectMat.name : "kMaterial";
+
+        bool GUI_TEMP = GUI.enabled;
+        GUI.enabled = (_selection != null);
+        GUILayout.BeginHorizontal();
+        GUILayout.Space(10);
+
         EditorGUILayout.BeginVertical(); //----------------------------------------------------------> Begin Vertical
+        EditorGUI.BeginChangeCheck();
         GUILayout.Space(2);
 
         // Material category
@@ -446,44 +473,94 @@ public class kPolyGUI
         FOLD_object = EditorGUILayout.Foldout(FOLD_object, "Shader Family ");
         if (FOLD_object)
         {
-            GUILayout.BeginHorizontal();
-            GUILayout.Space(10);
-                MAT_FAM_INDEX = GUILayout.SelectionGrid(MAT_FAM_INDEX, kShaderLab.FAMILY, 2, gridStyle(), GUILayout.MinWidth(250));
-            GUILayout.Space(10);
-            GUILayout.EndHorizontal();
+            MAT_FAM_INDEX = GUILayout.SelectionGrid(MAT_FAM_INDEX, kShaderLab.FAMILY, 2, gridStyle(), GUILayout.MinWidth(100));
         }
         // Material type
         FOLD_type = EditorGUILayout.Foldout(FOLD_type, "Shader Type ");
         if (FOLD_type)
         {
-            GUILayout.BeginHorizontal();
-            GUILayout.Space(10);
-            MAT_TYPE_INDEX = GUILayout.SelectionGrid(MAT_TYPE_INDEX, 
-                kShaderLab.GetShaderList(MAT_FAM_INDEX), 
-                2,
-                gridStyle());
-            GUILayout.Space(10);
-            GUILayout.EndHorizontal();
+
+            //sc1 = EditorGUILayout.BeginScrollView(sc1, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true), GUILayout.MaxHeight(250), GUILayout.MinHeight(20));
+            MAT_TYPE_INDEX = GUILayout.SelectionGrid(MAT_TYPE_INDEX, kShaderLab.GetShaderList(MAT_FAM_INDEX), 1, gridStyle());
+            //EditorGUILayout.EndScrollView();
         }
         // Material NAME
         FOLD_name = EditorGUILayout.Foldout(FOLD_name, "Material Name");
         if (FOLD_name)
         {
-            GUILayout.BeginHorizontal();
-            GUILayout.Space(10);
             _meshName = EditorGUILayout.TextField(_meshName, labelCSkin());
-            GUILayout.Space(10);
-            GUILayout.EndHorizontal();
         }
         // Material shader properties
         FOLD_para = EditorGUILayout.Foldout(FOLD_para, "Material Parameters");
         if (FOLD_para)
         {
-            GUILayout.BeginHorizontal();
-            GUILayout.Space(10);
-            _meshName = EditorGUILayout.TextField(_meshName, labelCSkin());
-            GUILayout.Space(10);
-            GUILayout.EndHorizontal();
+
+            if (s != null)
+            {
+                //Debug.Log(s.name);
+                //EditorGUILayout.LabelField("sName : " + s.name);
+                int n = ShaderUtil.GetPropertyCount(s);
+                for (int i = 0; i < n; i++)
+                {
+                    // foreach property in current selected 
+
+                    string label = ShaderUtil.GetPropertyDescription(s, i);
+                    string propertyName = ShaderUtil.GetPropertyName(s, i);
+
+                    //Debug.Log(ShaderUtil.GetPropertyType(s, i));
+                    switch (ShaderUtil.GetPropertyType(s, i))
+                    {
+                        case ShaderUtil.ShaderPropertyType.Range: // float ranges
+                            {
+                                GUILayout.BeginHorizontal();
+
+                                float v2 = ShaderUtil.GetRangeLimits(s, i, 1);
+                                float v3 = ShaderUtil.GetRangeLimits(s, i, 2);
+
+                                RangeProperty(propertyName, label, v2, v3);
+
+                                GUILayout.EndHorizontal();
+
+                                break;
+                            }
+                        case ShaderUtil.ShaderPropertyType.Float: // floats
+
+                            FloatProperty(propertyName, label);
+
+                            break;
+
+                        case ShaderUtil.ShaderPropertyType.Color: // colors
+                            {
+                                ColorProperty(propertyName, label, _selectMat);
+                                break;
+                            }
+                        case ShaderUtil.ShaderPropertyType.TexEnv: // textures
+                            {
+                                ShaderUtil.ShaderPropertyTexDim desiredTexdim = ShaderUtil.GetTexDim(s, i);
+                                TextureProperty(propertyName, label, desiredTexdim, _selectMat);
+
+                                //GUILayout.Space(6);
+                                break;
+                            }
+                        case ShaderUtil.ShaderPropertyType.Vector: // vectors
+                            {
+                                //    VectorProperty(propertyName, label);
+                                break;
+                            }
+                        default:
+                            {
+                                GUILayout.Label("ARGH" + label + " : " + ShaderUtil.GetPropertyType(s, i));
+                                break;
+                            }
+                    }
+                }
+            }
+
+        }
+        if (EditorGUI.EndChangeCheck())
+        {
+            Debug.Log("REPAINT GUI");
+            kPoly2Tool.instance.Repaint();
         }
         // Material generation
         FOLD_create = EditorGUILayout.Foldout(FOLD_create, "Material Creation");//, folderSkin());
@@ -506,7 +583,53 @@ public class kPolyGUI
         }
 
         EditorGUILayout.EndVertical(); //------------------------------------------------------------> End Vertical
+        GUILayout.Space(10);
+        GUILayout.EndHorizontal();
         GUI.enabled = GUI_TEMP;
+    }
+    private static void RangeProperty(string propertyName, string label, float v2, float v3)
+    {
+        GUILayout.BeginHorizontal();
+
+        GUILayout.Label(label + " RP " + propertyName);
+
+        GUILayout.Space(3);
+
+        // _colliderIndex = EditorGUILayout.PropertyField(  (_colliderIndex, _colliderLabels);
+
+        GUILayout.EndHorizontal();
+    }
+    private static void FloatProperty(string propertyName, string label)
+    {
+        GUILayout.BeginHorizontal();
+
+        GUILayout.Label(label + " FL " + propertyName);
+
+        GUILayout.Space(3);
+        EditorGUILayout.FloatField(0);
+        // _colliderIndex = EditorGUILayout.PropertyField(  (_colliderIndex, _colliderLabels);
+
+        GUILayout.EndHorizontal();
+    }
+    private static void ColorProperty(string propertyName, string label, Material mat)
+    {
+        GUILayout.BeginHorizontal();
+
+        GUILayout.Label(label, GUILayout.Width(165));
+        GUILayout.Space(3);
+        mat.color = Color_a = EditorGUILayout.ColorField(Color_a);
+
+        GUILayout.EndHorizontal();
+    }
+    private static void TextureProperty(string propertyName, string label, ShaderUtil.ShaderPropertyTexDim desiredTexdim, Material mat)
+    {
+        GUILayout.BeginHorizontal();
+
+        GUILayout.Label(label, GUILayout.Width(165));
+        GUILayout.Space(3);
+        mat.mainTexture = Mtexture_a = ((Texture2D)EditorGUILayout.ObjectField(Mtexture_a, typeof(Texture2D), true));
+
+        GUILayout.EndHorizontal();
     }
     public static void MAT_main_OLD()
     {
@@ -516,23 +639,23 @@ public class kPolyGUI
         Material _selectMat = (S_MESHFILTER != null) ? S_MESHFILTER.renderer.sharedMaterial : null;
         _meshName = (_selectMat != null) ? _selectMat.name : "kMaterial";
         GUI.enabled = (_selection != null);
-       // shaders = FIND_ALL_SHADERS();
+        // shaders = FIND_ALL_SHADERS();
         // EditorGUILayout.BeginHorizontal();
         // GUILayout.Space(10);
         EditorGUILayout.BeginVertical();
         GUILayout.Space(2);
 
         // OBJECT CART 
-//        MAT_CART_INDEX = EditorGUILayout.Popup(MAT_CART_INDEX, MAT_CART);//, folderSkin());
+        //        MAT_CART_INDEX = EditorGUILayout.Popup(MAT_CART_INDEX, MAT_CART);//, folderSkin());
 
         // OBJECT TYPE 
-        FOLD_object = EditorGUILayout.Foldout(FOLD_object, "Shader Types " +(shaders!=null ? shaders.Length:0));//, folderSkin());
+        FOLD_object = EditorGUILayout.Foldout(FOLD_object, "Shader Types " + (shaders != null ? shaders.Length : 0));//, folderSkin());
         if (FOLD_object)
         {
             int objectTemp = MAT_TYPE_INDEX;
             GUILayout.BeginHorizontal();
             GUILayout.Space(10);
-//            MAT_TYPE_INDEX = GUILayout.SelectionGrid(MAT_TYPE_INDEX, (MAT_CART_INDEX == 0 ? MAT_TYPE_a : MAT_TYPE_b), 2);
+            //            MAT_TYPE_INDEX = GUILayout.SelectionGrid(MAT_TYPE_INDEX, (MAT_CART_INDEX == 0 ? MAT_TYPE_a : MAT_TYPE_b), 2);
             GUILayout.Space(10);
             GUILayout.EndHorizontal();
             if (objectTemp != MAT_TYPE_INDEX)
@@ -723,8 +846,9 @@ public class kPolyGUI
     }
     private static GUIStyle gridStyle()
     {
-        GUIStyle cs = new GUIStyle(EditorStyles.miniButton);
-       // cs.fontSize = 9;
+        GUIStyle cs = new GUIStyle(GUI.skin.button);
+        // cs.fontSize = 9;
+        cs.contentOffset = Vector2.zero;
         return cs;
     }
     #endregion
@@ -755,6 +879,5 @@ public class kPolyGUI
         return (Enum)values.GetValue(selected_index);
     }
     #endregion
-    
-}
 
+}
