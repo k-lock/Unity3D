@@ -63,6 +63,7 @@ public class kPolyGUI
     private static bool FOLD_name = true;
     private static bool FOLD_object = true;
     private static bool FOLD_create = true;
+    private static bool FOLD_type = true;
     private static int MESH_PRIM_INDEX = 0;
     private static string[] MESH_PRIM = new string[2] { "Standard Primitive", "Unity Primitive" };
     private static int MESH_TYPE_INDEX = 1;
@@ -409,11 +410,12 @@ public class kPolyGUI
     //                                                                                                                                      //
     //--------------------------------------------------------------------------------------------------------------------------------------//
     #region MATERIAL PANEL
+
+    
     private static int MAT_CART_INDEX = 0;
-    private static string[] MAT_CART = new string[2] { "Standard Materials", "Extra" };
+    private static int MAT_FAM_INDEX = 0;
     private static int MAT_TYPE_INDEX = 0;
-    private static string[] MAT_TYPE_a = new string[3] { "Diffuse", "Diffuse Transparent", "Diffuse Bumped" };
-    private static string[] MAT_TYPE_b = new string[1] { "Checker" };
+   
     private static Color Color_a = Color.white;
     private static Color Color_b = Color.black;
     private static int Checker_Size = 1;
@@ -426,51 +428,111 @@ public class kPolyGUI
 
     public static void MAT_main()
     {
-        // Fetch all shader assets
-        if (shaders == null)
-        {
-            shaders = (Shader[])UnityEngine.Resources.FindObjectsOfTypeAll(typeof(Shader));
-            int n = shaders.Length;
-            System.Collections.Generic.List<Shader> ls = new System.Collections.Generic.List<Shader>();
+        
+        GameObject  _selection  = S_OBJECT;
+        Material    _selectMat  = (S_MESHFILTER != null) ? S_MESHFILTER.renderer.sharedMaterial : null;
+       
+        _meshName = (_selectMat != null) ? _selectMat.name : "kMaterial";
 
-            foreach( Shader s in shaders )
+        bool GUI_TEMP = GUI.enabled;
+        GUI.enabled = (_selection != null);
+
+        EditorGUILayout.BeginVertical(); //----------------------------------------------------------> Begin Vertical
+        GUILayout.Space(2);
+
+        // Material category
+        MAT_CART_INDEX = EditorGUILayout.Popup(MAT_CART_INDEX, kShaderLab.CATEGORY);
+        // Material family
+        FOLD_object = EditorGUILayout.Foldout(FOLD_object, "Shader Family ");
+        if (FOLD_object)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Space(10);
+                MAT_FAM_INDEX = GUILayout.SelectionGrid(MAT_FAM_INDEX, kShaderLab.FAMILY, 2, gridStyle(), GUILayout.MinWidth(250));
+            GUILayout.Space(10);
+            GUILayout.EndHorizontal();
+        }
+        // Material type
+        FOLD_type = EditorGUILayout.Foldout(FOLD_type, "Shader Type ");
+        if (FOLD_type)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Space(10);
+            MAT_TYPE_INDEX = GUILayout.SelectionGrid(MAT_TYPE_INDEX, 
+                kShaderLab.GetShaderList(MAT_FAM_INDEX), 
+                2,
+                gridStyle());
+            GUILayout.Space(10);
+            GUILayout.EndHorizontal();
+        }
+        // Material NAME
+        FOLD_name = EditorGUILayout.Foldout(FOLD_name, "Material Name");
+        if (FOLD_name)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Space(10);
+            _meshName = EditorGUILayout.TextField(_meshName, labelCSkin());
+            GUILayout.Space(10);
+            GUILayout.EndHorizontal();
+        }
+        // Material shader properties
+        FOLD_para = EditorGUILayout.Foldout(FOLD_para, "Material Parameters");
+        if (FOLD_para)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Space(10);
+            _meshName = EditorGUILayout.TextField(_meshName, labelCSkin());
+            GUILayout.Space(10);
+            GUILayout.EndHorizontal();
+        }
+        // Material generation
+        FOLD_create = EditorGUILayout.Foldout(FOLD_create, "Material Creation");//, folderSkin());
+        if (FOLD_create)
+        {
+            // Editor Button for start material creation
+            if (GUILayout.Button(new GUIContent("Replace Selected [ Material ]")))
             {
-                if (s != null && s.name != "" && !s.name.StartsWith("__") && !s.name.StartsWith("Hidden/"))
+                switch (MAT_CART_INDEX)
                 {
-                    ls.Add(s);
+                    case 0: break;
+                    case 1: break;
                 }
             }
-            MAT_TYPE_a = new string[ls.Count];
-            for (int i = 0; i < n; i++)
-            {
-                MAT_TYPE_a[i] = ls[i].name;
-            }
+            GUILayout.Button(new GUIContent("Material Asset [ DataBase ]"));
+            GUILayout.BeginHorizontal();
+            GUILayout.Button(new GUIContent("Export File [ Folder ]"));
+            GUILayout.Button(new GUIContent(".."), GUILayout.Width(18));
+            GUILayout.EndHorizontal();
         }
 
-
+        EditorGUILayout.EndVertical(); //------------------------------------------------------------> End Vertical
+        GUI.enabled = GUI_TEMP;
+    }
+    public static void MAT_main_OLD()
+    {
 
         bool GUI_TEMP = GUI.enabled;
         GameObject _selection = S_OBJECT;
         Material _selectMat = (S_MESHFILTER != null) ? S_MESHFILTER.renderer.sharedMaterial : null;
         _meshName = (_selectMat != null) ? _selectMat.name : "kMaterial";
         GUI.enabled = (_selection != null);
-
+       // shaders = FIND_ALL_SHADERS();
         // EditorGUILayout.BeginHorizontal();
         // GUILayout.Space(10);
         EditorGUILayout.BeginVertical();
         GUILayout.Space(2);
 
         // OBJECT CART 
-        MAT_CART_INDEX = EditorGUILayout.Popup(MAT_CART_INDEX, MAT_CART);//, folderSkin());
+//        MAT_CART_INDEX = EditorGUILayout.Popup(MAT_CART_INDEX, MAT_CART);//, folderSkin());
 
         // OBJECT TYPE 
-        FOLD_object = EditorGUILayout.Foldout(FOLD_object, "Shader Types");//, folderSkin());
+        FOLD_object = EditorGUILayout.Foldout(FOLD_object, "Shader Types " +(shaders!=null ? shaders.Length:0));//, folderSkin());
         if (FOLD_object)
         {
             int objectTemp = MAT_TYPE_INDEX;
             GUILayout.BeginHorizontal();
             GUILayout.Space(10);
-            MAT_TYPE_INDEX = GUILayout.SelectionGrid(MAT_TYPE_INDEX, (MAT_CART_INDEX == 0 ? MAT_TYPE_a : MAT_TYPE_b), 2);
+//            MAT_TYPE_INDEX = GUILayout.SelectionGrid(MAT_TYPE_INDEX, (MAT_CART_INDEX == 0 ? MAT_TYPE_a : MAT_TYPE_b), 2);
             GUILayout.Space(10);
             GUILayout.EndHorizontal();
             if (objectTemp != MAT_TYPE_INDEX)
@@ -659,6 +721,12 @@ public class kPolyGUI
         m.mainTexture = t;
         return m;
     }
+    private static GUIStyle gridStyle()
+    {
+        GUIStyle cs = new GUIStyle(EditorStyles.miniButton);
+       // cs.fontSize = 9;
+        return cs;
+    }
     #endregion
 
     #region EXTRA GUI
@@ -687,5 +755,6 @@ public class kPolyGUI
         return (Enum)values.GetValue(selected_index);
     }
     #endregion
+    
 }
 

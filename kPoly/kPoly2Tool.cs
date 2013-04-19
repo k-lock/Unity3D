@@ -35,6 +35,7 @@ public class kPoly2Tool : EditorWindow
         {
             instance = this;
         }
+        
     }
 
     private void Update()
