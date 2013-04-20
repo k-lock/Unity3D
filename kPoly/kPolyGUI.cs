@@ -34,6 +34,19 @@ public class kPolyGUI
             return (meshFilter != null ? meshFilter.sharedMesh : null);
         }
     }
+    public static Material S_MATERIAL
+    {
+        get
+        {
+            MeshFilter meshFilter = S_MESHFILTER;
+            return (meshFilter != null ? meshFilter.renderer : null) ? meshFilter.renderer.sharedMaterial : null;
+        }
+        set
+        {
+            MeshFilter meshFilter = S_MESHFILTER;
+            if (meshFilter != null ? meshFilter.renderer : null) meshFilter.renderer.sharedMaterial = value;
+        }
+    }
     #endregion
     //--------------------------------------------------------------------------------------------------------------------------------------//
     //                                                                                                                                      //
@@ -64,6 +77,7 @@ public class kPolyGUI
     private static bool FOLD_object = true;
     private static bool FOLD_create = true;
     private static bool FOLD_type = true;
+    private static bool FOLD_mSele = true;
     private static int MESH_PRIM_INDEX = 0;
     private static string[] MESH_PRIM = new string[2] { "Standard Primitive", "Unity Primitive" };
     private static int MESH_TYPE_INDEX = 1;
@@ -418,6 +432,7 @@ public class kPolyGUI
     //--------------------------------------------------------------------------------------------------------------------------------------//
     #region MATERIAL PANEL
 
+    private static int MAT_SELE_INDEX = -1;
     private static int MAT_CART_INDEX = 0;
     private static int MAT_FAM_INDEX = 0;
     private static int MAT_TYPE_INDEX = 0;
@@ -445,6 +460,7 @@ public class kPolyGUI
         int CART_temp = MAT_CART_INDEX;
         int FAM_temp = MAT_FAM_INDEX;
         int TYP_temp = MAT_TYPE_INDEX;
+
         bool GUI_TEMP = GUI.enabled;
         GUI.enabled = (_selection != null);
         GUILayout.BeginHorizontal();
@@ -454,12 +470,20 @@ public class kPolyGUI
         EditorGUI.BeginChangeCheck();
         GUILayout.Space(2);
 
-        // Material category
-        MAT_CART_INDEX = EditorGUILayout.Popup(MAT_CART_INDEX, kShaderLab.CATEGORY);
-        // Material family
+        // Material selection operation
+        FOLD_mSele = EditorGUILayout.Foldout(FOLD_mSele, "Material Operation ");
+        if (FOLD_mSele)
+        {
+            MAT_SELE_INDEX = GUILayout.Toolbar(MAT_SELE_INDEX, new string[] { "Get", "Set", "2file", "2data" });
+        }
+
         FOLD_object = EditorGUILayout.Foldout(FOLD_object, "Shader Family ");
         if (FOLD_object)
         {
+            // Material category
+            MAT_CART_INDEX = EditorGUILayout.Popup(MAT_CART_INDEX, kShaderLab.CATEGORY);
+            GUILayout.Space(2);
+            // Material family
             MAT_FAM_INDEX = GUILayout.SelectionGrid(MAT_FAM_INDEX, kShaderLab.FAMILY, 2, gridStyle(), GUILayout.MinWidth(100));
         }
         // Material type
@@ -512,7 +536,7 @@ public class kPolyGUI
                             }
                         case ShaderUtil.ShaderPropertyType.Float: // floats
                             Debug.Log(label);
-                            FloatProperty(propertyName, label);
+                            FloatProperty(propertyName, label, _sMaterial);
 
                             break;
 
@@ -552,7 +576,21 @@ public class kPolyGUI
                 FAM_temp != MAT_FAM_INDEX ||
                 TYP_temp != MAT_TYPE_INDEX)
             {
-                ResetEditorValues();
+                if (MAT_SELE_INDEX != -1) ResetEditorValues();
+            }
+            if (MAT_SELE_INDEX != -1)
+            {
+                switch (MAT_SELE_INDEX)
+                {
+                    case 0: 
+                        _sMaterial = S_MATERIAL; 
+
+                        break;
+                    case 1:  break;
+                    case 2: break;
+                    case 3: break;
+                }
+                MAT_SELE_INDEX = -1;
             }
             kPoly2Tool.instance.Repaint();
         }
@@ -565,7 +603,7 @@ public class kPolyGUI
             {
                 switch (MAT_CART_INDEX)
                 {
-                    case 0:  break;
+                    case 0: break;
                     case 1: break;
                 }
                 Selection.activeGameObject.renderer.material = _sMaterial;
@@ -604,14 +642,14 @@ public class kPolyGUI
 
         GUILayout.EndHorizontal();
     }
-    private static void FloatProperty(string propertyName, string label)
+    private static void FloatProperty(string propertyName, string label, Material mat)
     {
         GUILayout.BeginHorizontal();
 
         GUILayout.Label(label + " |FP " + propertyName, GUILayout.Width(_LABEL_WIDTH));
-
+       
         GUILayout.Space(3);
-        EditorGUILayout.FloatField(0);
+        mat.SetFloat(propertyName, EditorGUILayout.FloatField(mat.GetFloat(propertyName)));
         // _colliderIndex = EditorGUILayout.PropertyField(  (_colliderIndex, _colliderLabels);
 
         GUILayout.EndHorizontal();
@@ -626,11 +664,12 @@ public class kPolyGUI
         {
             case "_Color":
             case "_TintColor":
+            case "_EmisColor":
                 Color_a = EditorGUILayout.ColorField(Color_a);
                 mat.SetColor(label, Color_a);
                 break;
             case "_SpecColor":
-           
+
                 Color_b = EditorGUILayout.ColorField(Color_b);
                 mat.SetColor(label, Color_b);
                 break;
@@ -659,6 +698,7 @@ public class kPolyGUI
             case "_BumpMap":
             case "_DecalTex":
             case "_Detail":
+            case "_Illum":
                 Mtexture_b = ((Texture2D)EditorGUILayout.ObjectField(Mtexture_b, typeof(Texture2D), true));
                 mat.SetTexture(propertyName, Mtexture_b);
                 break;
