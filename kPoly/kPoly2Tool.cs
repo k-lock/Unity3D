@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
-
+using klock.kEditPoly.panels;
+using klock.kEditPoly.helper;
 
 public class kPoly2Tool : EditorWindow
 {
@@ -83,14 +84,15 @@ public class kPoly2Tool : EditorWindow
             case EventType.ExecuteCommand:
             case EventType.ValidateCommand:
 
-                kPolyGUI.MAIN_TOOLBAR();
+                //kPolyGUI.MAIN_TOOLBAR();
+                KP_mainTool.DRAW_BAR();
 
                 switch (MAIN_MENU_ID)
                 {
-                    case 0: kPolyGUI.CREATE_objectSelect();  break;
+                    case 0: KP_create.DRAW_PANEL(); break;
                     case 1: break;
-                    case 2: kPolyGUI.INFO_main(); break;
-                    case 3: kPolyGUI.MAT_main(); break;
+                    case 2: KP_info.DRAW_PANEL(); break;
+                    case 3: KP_material.DRAW_PANEL(); break;
                 }
 
                 break;
