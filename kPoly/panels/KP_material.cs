@@ -11,14 +11,46 @@ namespace klock.kEditPoly.panels
 {
     public class KP_material
     {
+        private static List<Material> MA_LIST = new List<Material>(4) 
+        { 
+            new Material(kShaderLab.GetShader(0,0,1)), 
+            new Material(kShaderLab.GetShader(0,0,1)), 
+            new Material(kShaderLab.GetShader(0,0,1)), 
+            new Material(kShaderLab.GetShader(0,0,1)), 
+            new Material(kShaderLab.GetShader(0,0,1))
+        };
+        private static List<MaterialEditor> ME_LIST = null;
+        /* new List<MaterialEditor>(4) 
+        { 
+            new MaterialEditor (), 
+            new MaterialEditor (), 
+            new MaterialEditor (),
+            new MaterialEditor (),
+            new MaterialEditor ()
+        };*/
+        private static float _LABEL_WIDTH = 200f;
+
         public static void DRAW_PANEL()
         {
             bool GUI_TEMP = GUI.enabled;
             int CART_temp = KP.MAT_CART_INDEX;
             int FAM_temp = KP.MAT_FAM_INDEX;
             int TYP_temp = KP.MAT_TYPE_INDEX;
+            if (ME_LIST == null)
+            {
+                ME_LIST = new List<MaterialEditor>(4);
+                Material m = new Material( Shader.Find("Diffuse") );
+                MaterialEditor me;
+                for (int i = 0, n = 5; i < n; i++)
+                {
+                    me = Editor.CreateEditor(m) as MaterialEditor;
+               
+                    me.SetTexture("_mainTexture", kLibary.LoadBitmap("create",25,25));
+                    ME_LIST.Add( me);
+                }
+            }
             //GUI.enabled = (_selection != null);
-
+            // GUILayoutOption glo = {  };
             EditorGUILayout.BeginVertical(); //----------------------------------------------------------> Begin Vertical
             EditorGUI.BeginChangeCheck();
             GUILayout.Space(2);
@@ -28,6 +60,21 @@ namespace klock.kEditPoly.panels
             {
                 KP.MAT_SELE_INDEX = GUILayout.Toolbar(KP.MAT_SELE_INDEX, new string[] { "Get", "Set", "2file", "2data" });
                 //KP.MAT_SELE_INDEX = GUILayout.Toolbar(KP.MAT_SELE_INDEX, new string[] { "MAT I", "MAT II", "MAT III" });
+                EditorGUILayout.BeginHorizontal();
+
+                for (int i = 0, n = 4; i < n; i++)
+                {
+                    GUILayout.BeginVertical();
+                    GUILayout.Box(new GUIContent("Slot " + i), GUILayout.ExpandWidth(true), GUILayout.Height(22));
+                   // Debug.Log(ME_LIST[i]);
+                    MaterialEditor med = ME_LIST[i];
+
+                    if (med && Event.current.type == EventType.layout) med.OnPreviewGUI(GUILayoutUtility.GetRect(45, 45), EditorStyles.whiteLabel);
+                    GUILayout.EndVertical();
+                    GUILayout.Space(2);
+                }
+
+                EditorGUILayout.EndHorizontal();
             }
             KP.FOLD_object = EditorGUILayout.Foldout(KP.FOLD_object, "Shader Family ");
             if (KP.FOLD_object)
@@ -195,7 +242,7 @@ namespace klock.kEditPoly.panels
             }
             GUILayout.EndHorizontal();
         }
-        private static float _LABEL_WIDTH = 200f;
+
         private static void TextureProperty(string propertyName, string label, ShaderUtil.ShaderPropertyTexDim desiredTexdim)
         {
             GUILayout.BeginHorizontal();
