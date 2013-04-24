@@ -24,8 +24,8 @@ namespace klock.kEditPoly.prefs
             _height = 1;
             _depth = 1;
 
-            _uSegments = 1;
-            _vSegments = 1;
+            _uSegments = 3;
+            _vSegments = 3;
             _zSegments = 1;
 
             _pivotIndex = 0;
@@ -72,14 +72,14 @@ namespace klock.kEditPoly.prefs
         public static string _meshName = "kPoly";
 
         public static float
-            _width = 1,
-            _height = 1,
+            _width = 3,
+            _height = 3,
             _depth = 1,
             openingAngle = 0f;
 
         public static int
-            _uSegments = 1,
-            _vSegments = 1,
+            _uSegments = 3,
+            _vSegments = 3,
             _zSegments = 1;
 
         public static int 
