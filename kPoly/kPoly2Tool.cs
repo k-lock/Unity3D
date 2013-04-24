@@ -115,6 +115,7 @@ namespace klock.kEditPoly
             /*       break;
            }*/
         }
+        
         public static void SceneEvent(bool state)
         {
             if (state)
