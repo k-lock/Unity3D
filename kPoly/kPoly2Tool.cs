@@ -41,17 +41,18 @@ namespace klock.kEditPoly
             {
                 instance = this;
             }
-            _onSceneGUI_ = new SceneView.OnSceneFunc(OnSceneGUI);
+
         }
 
         private void Update()
         {
-            if (KP_edit._editorMode != MODE.None)
+            if (KP_edit._editorMode != MODE.None && KP_edit._freeze)
             {
-                if (KP_edit._freeze && Selection.activeGameObject != KP_edit._selection)
+                if (Selection.activeGameObject != KP_edit._selection)
                 {
                     Selection.activeGameObject = KP_edit._selection;
                 }
+               
             }
         }
 
@@ -67,6 +68,17 @@ namespace klock.kEditPoly
 
         public void OnSceneGUI(SceneView sceneView)
         {
+            UpdateHandles();
+            
+            if (Event.current.type == EventType.KeyUp) KP_edit.ANY_KEY = false;
+            if (Event.current.type == EventType.KeyDown) KP_edit.ANY_KEY = true;
+            Debug.Log(KP_edit.ANY_KEY);
+
+        }
+        public static void UpdateHandles()
+        {
+            
+
             if (KP_edit._editorMode != MODE.None && KP_edit._freeze)
             {
                 KP_edit.Draw_Handles();
@@ -75,12 +87,12 @@ namespace klock.kEditPoly
         private void OnDisable()
         {
             instance = null;
-            _onSceneGUI_ = null;
+            // _onSceneGUI_ = null;
             KP_material.ME_LIST = null;
         }
         private void OnDestroy()
         {
-            _onSceneGUI_ = null;
+            // _onSceneGUI_ = null;
             instance = null;
         }
         #endregion
@@ -107,7 +119,7 @@ namespace klock.kEditPoly
             switch (MAIN_MENU_ID)
             {
                 case 0: KP_create.DRAW_PANEL(); break;
-                case 1: KP_edit.DRAW_PANEL(); KP_edit.CHECK_USER_INPUT(); break;
+                case 1: KP_edit.DRAW_PANEL(); break;
                 case 2: KP_info.DRAW_PANEL(); break;
                 case 3: KP_material.DRAW_PANEL(); break;
             }
@@ -115,17 +127,24 @@ namespace klock.kEditPoly
             /*       break;
            }*/
         }
-        
+
         public static void SceneEvent(bool state)
         {
             if (state)
             {
-                SceneView.onSceneGUIDelegate += _onSceneGUI_;
+                if (_onSceneGUI_ == null)
+                {
+                    _onSceneGUI_ = new SceneView.OnSceneFunc(instance.OnSceneGUI);
+                    SceneView.onSceneGUIDelegate += _onSceneGUI_;
+                }
             }
             else
             {
                 SceneView.onSceneGUIDelegate -= _onSceneGUI_;
+                _onSceneGUI_ = null;
+
             }
+            SceneView.RepaintAll();
         }
     }//class
 }//namespace
