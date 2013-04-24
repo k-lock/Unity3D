@@ -15,9 +15,9 @@ namespace klock.kEditPoly.panels
 {
     public class KP_info
     {
-        private static bool _SHOW_TRIAS = true;
-        private static bool _SHOW_NEIBS = false;
-        private static bool _SHOW_DHANS = false;
+        public static bool _SHOW_TRIAS = true;
+        public static bool _SHOW_NEIBS = false;
+        public static bool _SHOW_DHANS = false;
 
         public static void DRAW_PANEL()
         {

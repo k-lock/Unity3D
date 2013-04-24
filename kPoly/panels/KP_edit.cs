@@ -45,7 +45,7 @@ namespace klock.kEditPoly.panels
             GUI.enabled = (_selection != null && _selectMesh != null);
             //-------------------------------------------------------------------
             //  SELECTION
-            FOLD_selection = EditorGUILayout.Foldout(FOLD_selection, "Selection ");// + ((_selection != null) ? "[ " + _selection.name + " ]" : ""));
+            FOLD_selection = EditorGUILayout.Foldout(FOLD_selection, "Selection " + ANY_KEY);// + ((_selection != null) ? "[ " + _selection.name + " ]" : ""));
             if (FOLD_selection)
             {
                 bool pressed = false;
@@ -165,6 +165,7 @@ namespace klock.kEditPoly.panels
 
         public static void Draw_Handles()
         {
+           
             _selection = kSelect.OBJECT;
             Mesh _selectMesh = kSelect.MESH;
             if (_selectMesh == null || _selection == null)
@@ -246,7 +247,7 @@ namespace klock.kEditPoly.panels
 
                         Handles.DrawPolyLine(new Vector3[4] { v1, v2, v3, v1 });
 
-
+                       
                         Handles.ScaleValueHandle(0, dv, Quaternion.identity, cubeSize, Handles.DotCap, 0);
                         if (curPointIndex.Contains(i))
                         {
@@ -263,7 +264,7 @@ namespace klock.kEditPoly.panels
                                 setDirty = true;
                             }
                         }
-
+                       
                         controlIDAfterHandle = GUIUtility.GetControlID(someHashCode, FocusType.Native);
                         isEventUsedByHandle = !isEventUsedBeforeHandle && (Event.current.type == EventType.used);
 
@@ -305,11 +306,15 @@ namespace klock.kEditPoly.panels
                 _selectMesh.vertices = verts;
                 _selectMesh.RecalculateNormals();
                 _selectMesh.RecalculateBounds();
+                _selection.GetComponent<MeshCollider>().sharedMesh = null;
                 _selection.GetComponent<MeshCollider>().sharedMesh = _selectMesh;
             }
+          
         }
+
         private static void POINT_SELECTION(int i)
         {
+            
             if (!ANY_KEY && curPointIndex.Count > 0) curPointIndex.Clear();
             if (!curPointIndex.Contains(i))
             {
@@ -319,16 +324,7 @@ namespace klock.kEditPoly.panels
             else
                 curPointIndex.Remove(i);
         }
-        public static void CHECK_USER_INPUT()
-        {
-            Event e = Event.current;
-            ANY_KEY = false;
-            if (e.control && e.isKey)
-            {
-                ANY_KEY = true;
-                e.Use();
-            }
-        }
+
     }
     public class PLANAR_HELPER
     {
