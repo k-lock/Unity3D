@@ -199,8 +199,7 @@ namespace klock.kEditPoly.panels
                     }
                     break;
                 case MODE.E_Line:
-
-
+                   
 
                     break;
             }
