@@ -4,6 +4,8 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
+using klock.kEditPoly.panels;
+
 namespace klock.kEditPoly.helper
 {
     public class kSelect
@@ -12,7 +14,7 @@ namespace klock.kEditPoly.helper
         {
             get
             {
-                return Selection.activeGameObject;
+                return (KP_edit._freeze)?KP_edit._selection:Selection.activeGameObject;
             }
         }
         public static MeshFilter MESHFILTER
