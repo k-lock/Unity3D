@@ -836,10 +836,11 @@ public class TriPoint
 public enum MODE
 {
     None,
-    E_Point,
-    E_Line,
-    E_Quad,
-    E_All,
+    Point,
+    Line,
+    Quad,
+    Tri,
+    All
 
 }
 #endregion
