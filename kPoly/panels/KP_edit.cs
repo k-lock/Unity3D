@@ -222,6 +222,20 @@ namespace klock.kEditPoly.panels
                         {
                             if (curPointIndex.Count == 1)
                             {
+                                /*switch (Tools.current)
+                                {
+                                    case Tool.Move:
+                                        
+                                        break;
+                                    case Tool.Rotate:
+                                    //    verts[i] = root.InverseTransformPoint(v1 * Handles.RotationHandle(Quaternion.identity, v1));
+                                        Handles.RotationHandle(Quaternion.identity, v1);
+                                        break;
+                                    case Tool.Scale:
+                                        break;
+                                    
+                               
+                                }*/
                                 verts[i] = root.InverseTransformPoint(Handles.PositionHandle(v1, Quaternion.identity));
                                 if (v1 != verts[i] && !setDirty) setDirty = true;
                             }
@@ -238,6 +252,7 @@ namespace klock.kEditPoly.panels
                                     if ((dv = dv / curPointIndex.Count) != Vector3.zero)
                                     {
                                         mv = Handles.PositionHandle(dv, Quaternion.identity);
+                                        
                                         if (mv != dv && !setDirty)
                                         {
                                             Vector3 d = mv - dv;
@@ -318,7 +333,6 @@ namespace klock.kEditPoly.panels
                             {
                                 if (!isDrawn)
                                 {
-
                                     Vector3 dv2 = Vector3.zero;
                                     foreach (int id in curPointIndex)
                                     {
@@ -369,12 +383,16 @@ namespace klock.kEditPoly.panels
                         dav += v1;
                     }
                     dav = dav / verts.Length;
-                    cubeSize = HandleUtility.GetHandleSize(dav) * .8f;
-                    Handles.ScaleValueHandle(0, dav, Quaternion.identity, cubeSize, Handles.CubeCap, 0);
-                    Vector3 mdav = root.InverseTransformPoint(Handles.PositionHandle(dav, Quaternion.identity));
+     
+                    cubeSize = HandleUtility.GetHandleSize(dav) * .1f;
+                    Handles.color = new Color(Color.red.r, Color.red.g, Color.red.b, .85f);
+                    Handles.Button(dav, Quaternion.identity, cubeSize, cubeSize, Handles.CubeCap);
+
+                    Vector3 mdav = Handles.PositionHandle(dav, Quaternion.identity);
+                    
                     if (mdav != dav && !setDirty)
                     {
-                        Vector3 d = mdav - dav;
+                       Vector3 d = mdav - dav;
                         for (int i = 0; i < verts.Length; i++)
                         {
                             verts[i] += d;
@@ -382,27 +400,23 @@ namespace klock.kEditPoly.panels
                         setDirty = true;
                     }
 
-
                     break;
             }
-
+           
 
             if (setDirty)
             {
                 _selectMesh.vertices = verts;
                 _selectMesh.RecalculateNormals();
                 _selectMesh.RecalculateBounds();
+
                 _selection.GetComponent<MeshCollider>().sharedMesh = null;
                 _selection.GetComponent<MeshCollider>().sharedMesh = _selectMesh;
             }
-
         }
 
         private static void POINT_SELECTION(int i)
         {
-
-
-
             if (!ANY_KEY && curPointIndex.Count > 0) curPointIndex.Clear();
             if (!curPointIndex.Contains(i))
             {
@@ -412,7 +426,6 @@ namespace klock.kEditPoly.panels
             else
                 curPointIndex.Remove(i);
         }
-
     }
     public class PLANAR_HELPER
     {
