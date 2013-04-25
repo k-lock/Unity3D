@@ -80,7 +80,7 @@ namespace klock.kEditPoly.panels
                 }
                 GUI.color = Color.white;
                 GUI.color = (_editorMode == MODE.All) ? new Color(0, .5f, 1, .7f) : Color.white;
-                if (GUILayout.Button(new GUIContent("Complete")))
+                if (GUILayout.Button(new GUIContent("All")))
                 {
                     _editorMode = (_editorMode == MODE.All) ? MODE.None : MODE.All;
                     pressed = true;
@@ -177,6 +177,9 @@ namespace klock.kEditPoly.panels
 
             Undo.SetSnapshotTarget(_selectMesh, "MeshEdit");
 
+            Vector3 trans = Vector3.zero;
+            Vector3 eulerAngles = Vector3.zero;
+            Vector3 scale = new Vector3(1, 1, 1);
             verts = _selectMesh.vertices;
             Transform root = _selection.transform;
             float cubeSize = .3f;
@@ -198,79 +201,7 @@ namespace klock.kEditPoly.panels
             {
 
                 case MODE.Point:
-
-                    for (int i = 0; i < verts.Length; i++)
-                    {
-                        Vector3 v1 = root.TransformPoint(verts[i]);
-
-                        controlIDBeforeHandle = GUIUtility.GetControlID(someHashCode, FocusType.Passive);
-                        isEventUsedBeforeHandle = (Event.current.type == EventType.used);
-
-                        if (curPointIndex.Contains(i))
-                            Handles.color = new Color(Color.red.r, Color.red.g, Color.red.b, .85f);
-                        else
-                            Handles.color = new Color(Color.green.r, Color.green.g, Color.green.b, .85f);
-
-                        cubeSize = HandleUtility.GetHandleSize(v1) * .1f;
-
-                        if (Handles.Button(v1, Quaternion.identity, cubeSize, cubeSize, Handles.CubeCap))
-                        {
-                            POINT_SELECTION(i);
-                        }
-
-                        if (curPointIndex.Contains(i))
-                        {
-                            if (curPointIndex.Count == 1)
-                            {
-                                /*switch (Tools.current)
-                                {
-                                    case Tool.Move:
-                                        
-                                        break;
-                                    case Tool.Rotate:
-                                    //    verts[i] = root.InverseTransformPoint(v1 * Handles.RotationHandle(Quaternion.identity, v1));
-                                        Handles.RotationHandle(Quaternion.identity, v1);
-                                        break;
-                                    case Tool.Scale:
-                                        break;
-                                    
-                               
-                                }*/
-                                verts[i] = root.InverseTransformPoint(Handles.PositionHandle(v1, Quaternion.identity));
-                                if (v1 != verts[i] && !setDirty) setDirty = true;
-                            }
-                            else
-                            {
-                                if (!isDrawn)
-                                {
-                                    isDrawn = true;
-                                    Vector3 dv = Vector3.zero;
-                                    Vector3 mv = Vector3.zero;
-
-                                    foreach (int id in curPointIndex) dv += root.TransformPoint(verts[id]);
-
-                                    if ((dv = dv / curPointIndex.Count) != Vector3.zero)
-                                    {
-                                        mv = Handles.PositionHandle(dv, Quaternion.identity);
-                                        
-                                        if (mv != dv && !setDirty)
-                                        {
-                                            Vector3 d = mv - dv;
-                                            foreach (int id in curPointIndex) verts[id] += d;
-                                            setDirty = true;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        /*   controlIDAfterHandle = GUIUtility.GetControlID(someHashCode, FocusType.Native);
-                           isEventUsedByHandle = !isEventUsedBeforeHandle && (Event.current.type == EventType.used);
-
-                           if ((controlIDBeforeHandle < GUIUtility.hotControl && GUIUtility.hotControl < controlIDAfterHandle) || isEventUsedByHandle)
-                           {
-                              POINT_SELECTION(i);
-                           }*/
-                    }
+                    setDirty = ModifiVerticies_points();
                     break;
                 case MODE.Line:
 
@@ -375,34 +306,10 @@ namespace klock.kEditPoly.panels
                     }
                     break;
                 case MODE.All:
-
-                    Vector3 dav = Vector3.zero;
-                    for (int i = 0; i < verts.Length; i++)
-                    {
-                        Vector3 v1 = root.TransformPoint(verts[i]);
-                        dav += v1;
-                    }
-                    dav = dav / verts.Length;
-     
-                    cubeSize = HandleUtility.GetHandleSize(dav) * .1f;
-                    Handles.color = new Color(Color.red.r, Color.red.g, Color.red.b, .85f);
-                    Handles.Button(dav, Quaternion.identity, cubeSize, cubeSize, Handles.CubeCap);
-
-                    Vector3 mdav = Handles.PositionHandle(dav, Quaternion.identity);
-                    
-                    if (mdav != dav && !setDirty)
-                    {
-                       Vector3 d = mdav - dav;
-                        for (int i = 0; i < verts.Length; i++)
-                        {
-                            verts[i] += d;
-                        }
-                        setDirty = true;
-                    }
-
+                    setDirty = ModifiVerticies_all();
                     break;
             }
-           
+
 
             if (setDirty)
             {
@@ -412,11 +319,131 @@ namespace klock.kEditPoly.panels
 
                 _selection.GetComponent<MeshCollider>().sharedMesh = null;
                 _selection.GetComponent<MeshCollider>().sharedMesh = _selectMesh;
+
+                kPoly2Tool.instance.Repaint();
+                SceneView.RepaintAll();
             }
         }
+        private static bool ModifiVerticies_points()
+        {
+            bool setDirty = false,
+                isDrawn = false;
+            Vector3 dhp = Vector3.zero;
+            Vector3 scale = new Vector3(1, 1, 1);
+            Vector3 mpos = Vector3.zero;
+            Quaternion mrot = Quaternion.identity;
+            Transform root = _selection.transform;
 
+            for (int i = 0; i < verts.Length; i++)
+            {
+                Vector3 v1 = root.TransformPoint(verts[i]);
+
+                if (curPointIndex.Contains(i))
+                    Handles.color = new Color(Color.red.r, Color.red.g, Color.red.b, .85f);
+                else
+                    Handles.color = new Color(Color.green.r, Color.green.g, Color.green.b, .85f);
+
+                float cubeSize = HandleUtility.GetHandleSize(v1) * .1f;
+
+                if (Handles.Button(v1, Quaternion.identity, cubeSize, cubeSize, Handles.CubeCap))
+                {
+                    POINT_SELECTION(i);
+                }
+
+             /*   if (curPointIndex.Contains(i))
+                {
+                    Vector3 dv = Vector3.zero;
+                    Vector3 mv = Vector3.zero;
+
+                    foreach (int id in curPointIndex) dv += root.TransformPoint(verts[id]);
+
+                    if ((dv = dv / curPointIndex.Count) != Vector3.zero)
+                    {
+                        mv = Handles.PositionHandle(dv, Quaternion.identity);
+                        if (mv != dv && !setDirty)
+                        {
+                            Vector3 d = mv - dv;
+                            foreach (int id in curPointIndex) verts[id] += d;
+                            setDirty = true;
+                        }
+                    }
+                }*/
+                if (curPointIndex.Contains(i) && !isDrawn)
+                {
+                    foreach (int id in curPointIndex) dhp += root.TransformPoint(verts[id]);
+                    if ((mpos= dhp = dhp / curPointIndex.Count) != Vector3.zero)
+                    {
+                        switch (Tools.current)
+                        {
+                            case Tool.Move:
+                                mpos = Handles.PositionHandle(mpos, mrot);
+                                break;
+                            case Tool.Rotate:
+                                mrot = Handles.RotationHandle(mrot, dhp);
+                                break;
+                            case Tool.Scale:
+                                scale = Handles.ScaleHandle(scale, dhp, mrot, 1);
+                                break;
+                        }
+                        isDrawn = true;
+                        if (mpos != dhp || mrot != Quaternion.identity || scale != new Vector3(1,1,1))//&& !setDirty)
+                        {
+                            Vector3 d = mpos - dhp;
+                            if (mrot != Quaternion.identity || scale != new Vector3(1, 1, 1)) d = Vector3.zero;
+                            Matrix4x4 m = Matrix4x4.TRS(d, mrot, scale);
+                            foreach (int id in curPointIndex) verts[id] = m.MultiplyPoint3x4(verts[id]);
+                            setDirty = true;
+                        }
+                    }
+                }
+            }
+            return setDirty;
+        }
+        private static bool ModifiVerticies_all()
+        {
+            bool setDirty = false;
+            Vector3 dhp = Vector3.zero;
+            Vector3 scale = new Vector3(1, 1, 1);
+            Vector3 mpos = Vector3.zero;
+            Quaternion mrot = Quaternion.identity;
+
+            foreach (Vector3 v in verts)
+            {
+                dhp += _selection.transform.TransformPoint(v);
+            }
+            mpos = dhp = dhp / verts.Length;
+
+            float cubeSize = HandleUtility.GetHandleSize(dhp) * .1f;
+            Handles.color = new Color(Color.red.r, Color.red.g, Color.red.b, .85f);
+            Handles.Button(dhp, Quaternion.identity, cubeSize, cubeSize, Handles.CubeCap);
+            switch (Tools.current)
+            {
+                case Tool.Move:
+                    mpos = Handles.PositionHandle(dhp, mrot);
+                    break;
+                case Tool.Rotate:
+                    mrot = Handles.RotationHandle(mrot, dhp);
+                    break;
+                case Tool.Scale:
+                    scale = Handles.ScaleHandle(scale, dhp, mrot, 1);
+                    break;
+            }
+            if (!setDirty)
+            {
+                Vector3 d = mpos - dhp;
+                Matrix4x4 m = Matrix4x4.TRS(d, mrot, scale);
+                for (int i = 0; i < verts.Length; i++)
+                {
+                    verts[i] = m.MultiplyPoint3x4(verts[i]);
+                }
+                setDirty = true;
+            }
+            return setDirty;
+        }
         private static void POINT_SELECTION(int i)
         {
+            
+            
             if (!ANY_KEY && curPointIndex.Count > 0) curPointIndex.Clear();
             if (!curPointIndex.Contains(i))
             {
@@ -435,3 +462,16 @@ namespace klock.kEditPoly.panels
             z_Axis = false;
     }
 }
+/*  switch (Tools.current)
+  {
+      case Tool.Move:
+          verts[i] += d;
+          break;
+      case Tool.Rotate:
+          verts[i] = msav * verts[i];
+          break;
+      case Tool.Scale:
+          Debug.Log(verts[i]);
+          //verts[i] = verts[i] + mdav;
+          break;
+  }*/
