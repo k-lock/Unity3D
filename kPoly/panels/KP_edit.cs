@@ -159,19 +159,23 @@ namespace klock.kEditPoly.panels
                 GUI.color = Color.white;
                 GUILayout.EndHorizontal();
             }
+            //   EditorGUILayout.LabelField("Active Object : " + _selection.name + " Mesh : " + _selectMesh.name);
             EditorGUILayout.EndVertical();
+
             EditorGUILayout.EndHorizontal();
         }
 
         public static void Draw_Handles()
         {
-           
+
             _selection = kSelect.OBJECT;
             Mesh _selectMesh = kSelect.MESH;
             if (_selectMesh == null || _selection == null)
             {
                 return;
             }
+
+            Undo.SetSnapshotTarget(_selectMesh, "MeshEdit");
 
             verts = _selectMesh.vertices;
             Transform root = _selection.transform;
@@ -180,7 +184,8 @@ namespace klock.kEditPoly.panels
                 controlIDAfterHandle = -1;
             bool isEventUsedByHandle = false,
                 isEventUsedBeforeHandle = false,
-                setDirty = false;
+                setDirty = false,
+                isDrawn = false;
 
             // Point Mode 
             for (int i = 0; i < verts.Length; i++)
@@ -205,21 +210,51 @@ namespace klock.kEditPoly.panels
                             Handles.color = new Color(Color.red.r, Color.red.g, Color.red.b, .85f);
                         else
                             Handles.color = new Color(Color.green.r, Color.green.g, Color.green.b, .85f);
-                        cubeSize = HandleUtility.GetHandleSize(v1) * .3f;
-                        Handles.ScaleValueHandle(0, v1, Quaternion.identity, cubeSize, Handles.CubeCap, 0);
-                        if (curPointIndex.Contains(i))
-                        {
-                            verts[i] = root.InverseTransformPoint(Handles.PositionHandle(v1, Quaternion.identity));
-                            if (v1 != verts[i] && !setDirty) setDirty = true;
-                        }
 
-                        controlIDAfterHandle = GUIUtility.GetControlID(someHashCode, FocusType.Native);
-                        isEventUsedByHandle = !isEventUsedBeforeHandle && (Event.current.type == EventType.used);
+                        cubeSize = HandleUtility.GetHandleSize(v1) * .1f;
 
-                        if ((controlIDBeforeHandle < GUIUtility.hotControl && GUIUtility.hotControl < controlIDAfterHandle) || isEventUsedByHandle)
+                        if (Handles.Button(v1, Quaternion.identity, cubeSize, cubeSize, Handles.CubeCap))
                         {
                             POINT_SELECTION(i);
                         }
+
+                        if (curPointIndex.Contains(i))
+                        {
+                            if (curPointIndex.Count == 1)
+                            {
+                                verts[i] = root.InverseTransformPoint(Handles.PositionHandle(v1, Quaternion.identity));
+                                if (v1 != verts[i] && !setDirty) setDirty = true;
+                            }
+                            else
+                            {
+                                if (!isDrawn)
+                                {
+                                    isDrawn = true;
+                                    Vector3 dv = Vector3.zero;
+                                    Vector3 mv = Vector3.zero;
+
+                                    foreach (int id in curPointIndex) dv += root.TransformPoint(verts[id]);
+
+                                    if ((dv = dv / curPointIndex.Count) != Vector3.zero)
+                                    {
+                                        mv = Handles.PositionHandle(dv, Quaternion.identity);
+                                        if (mv != dv && !setDirty)
+                                        {
+                                            Vector3 d = mv - dv;
+                                            foreach (int id in curPointIndex) verts[id] += d;
+                                            setDirty = true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        /*   controlIDAfterHandle = GUIUtility.GetControlID(someHashCode, FocusType.Native);
+                           isEventUsedByHandle = !isEventUsedBeforeHandle && (Event.current.type == EventType.used);
+
+                           if ((controlIDBeforeHandle < GUIUtility.hotControl && GUIUtility.hotControl < controlIDAfterHandle) || isEventUsedByHandle)
+                           {
+                              POINT_SELECTION(i);
+                           }*/
                     }
                     break;
                 case MODE.Line:
@@ -228,11 +263,17 @@ namespace klock.kEditPoly.panels
                     break;
                 case MODE.Tri:
 
-                    for (int i = 0; i < verts.Length; i++)
+                    int[] tris = _selectMesh.triangles;
+                    int n = tris.Length / 3;
+
+                    for (int i = 0; i < n; i++)
                     {
-                        Vector3 v1 = root.TransformPoint(verts[_selectMesh.triangles[i * 3]]);
-                        Vector3 v2 = root.TransformPoint(verts[_selectMesh.triangles[i * 3 + 1]]);
-                        Vector3 v3 = root.TransformPoint(verts[_selectMesh.triangles[i * 3 + 2]]);
+
+                        //   Debug.Log(n + " " + i * 3 + " " + verts[tris[i * 3]] + "| " + (i * 3 + 1) + " " + verts[tris[i * 3+1]] + "| " + (i * 3 + 2)+ " "+ verts[tris[i * 3+2]] + "| " );
+
+                        Vector3 v1 = root.TransformPoint(verts[tris[i * 3]]);
+                        Vector3 v2 = root.TransformPoint(verts[tris[i * 3 + 1]]);
+                        Vector3 v3 = root.TransformPoint(verts[tris[i * 3 + 2]]);
                         Vector3 dv = (v1 + v2 + v3) / 3;
 
                         controlIDBeforeHandle = GUIUtility.GetControlID(someHashCode, FocusType.Passive);
@@ -243,35 +284,80 @@ namespace klock.kEditPoly.panels
                         else
                             Handles.color = new Color(Color.green.r, Color.green.g, Color.green.b, .85f);
 
-                        cubeSize = HandleUtility.GetHandleSize(v1) * .3f;
+                        cubeSize = HandleUtility.GetHandleSize(v1) * .1f;
 
                         Handles.DrawPolyLine(new Vector3[4] { v1, v2, v3, v1 });
 
-                       
-                        Handles.ScaleValueHandle(0, dv, Quaternion.identity, cubeSize, Handles.DotCap, 0);
-                        if (curPointIndex.Contains(i))
-                        {
-
-                            Vector3 dm = Handles.PositionHandle(dv, Quaternion.identity);
-                            if (dm != dv && !isEventUsedBeforeHandle)
-                            {
-
-                                Vector3 d = dm - dv;
-                                verts[_selectMesh.triangles[i * 3]] += d;
-                                verts[_selectMesh.triangles[i * 3 + 1]] += d;
-                                verts[_selectMesh.triangles[i * 3 + 2]] += d;
-
-                                setDirty = true;
-                            }
-                        }
-                       
-                        controlIDAfterHandle = GUIUtility.GetControlID(someHashCode, FocusType.Native);
-                        isEventUsedByHandle = !isEventUsedBeforeHandle && (Event.current.type == EventType.used);
-
-                        if ((controlIDBeforeHandle < GUIUtility.hotControl && GUIUtility.hotControl < controlIDAfterHandle) || isEventUsedByHandle)
+                        /* Handles.Label(v1+new Vector3(0,1), new GUIContent("" + verts[tris[i * 3 + 0]]));
+                         Handles.Label(v2 + new Vector3(0, 1), new GUIContent("" + verts[tris[i * 3 + 1]]));
+                         Handles.Label(v3 + new Vector3(0, 1), new GUIContent("" + verts[tris[i * 3 + 2]]));
+                        */
+                        if (Handles.Button(dv, Quaternion.identity, cubeSize, cubeSize, Handles.CubeCap))
                         {
                             POINT_SELECTION(i);
                         }
+
+                        if (curPointIndex.Contains(i))
+                        {
+
+                            if (curPointIndex.Count == 1)
+                            {
+                                Vector3 dm = Handles.PositionHandle(dv, Quaternion.identity);
+                                if (dm != dv && !isEventUsedBeforeHandle)
+                                {
+
+                                    Vector3 d = dm - dv;
+                                    verts[tris[i * 3]] += d;
+                                    verts[tris[i * 3 + 1]] += d;
+                                    verts[tris[i * 3 + 2]] += d;
+
+                                    setDirty = true;
+                                }
+                            }
+                            else
+                            {
+                                if (!isDrawn)
+                                {
+
+                                    Vector3 dv2 = Vector3.zero;
+                                    foreach (int id in curPointIndex)
+                                    {
+                                        Vector3 t1 = root.TransformPoint(verts[tris[id * 3]]);
+                                        Vector3 t2 = root.TransformPoint(verts[tris[id * 3 + 1]]);
+                                        Vector3 t3 = root.TransformPoint(verts[tris[id * 3 + 2]]);
+                                        Vector3 dt = (t1 + t2 + t3) / 3;
+                                        dv2 += dt;
+                                    }
+
+                                    dv2 = dv2 / curPointIndex.Count;
+
+                                    if (dv2 != Vector3.zero)
+                                    {
+                                        Vector3 mv = Handles.PositionHandle(dv2, Quaternion.identity);
+                                        if (mv != dv2 && !setDirty)
+                                        {
+                                            Vector3 d = mv - dv2;
+                                            foreach (int id in curPointIndex)
+                                            {
+                                                verts[tris[id * 3]] += d;
+                                                verts[tris[id * 3 + 1]] += d;
+                                                verts[tris[id * 3 + 2]] += d;
+                                            }
+                                            setDirty = true;
+                                        }
+                                    }
+                                    isDrawn = true;
+                                }
+                            }
+                        }
+
+                        /* controlIDAfterHandle = GUIUtility.GetControlID(someHashCode, FocusType.Native);
+                         isEventUsedByHandle = !isEventUsedBeforeHandle && (Event.current.type == EventType.used);
+
+                         if ((controlIDBeforeHandle < GUIUtility.hotControl && GUIUtility.hotControl < controlIDAfterHandle) || isEventUsedByHandle)
+                         {
+                             POINT_SELECTION(i);
+                         }*/
                     }
                     break;
                 case MODE.All:
@@ -309,12 +395,14 @@ namespace klock.kEditPoly.panels
                 _selection.GetComponent<MeshCollider>().sharedMesh = null;
                 _selection.GetComponent<MeshCollider>().sharedMesh = _selectMesh;
             }
-          
+
         }
 
         private static void POINT_SELECTION(int i)
         {
-            
+
+
+
             if (!ANY_KEY && curPointIndex.Count > 0) curPointIndex.Clear();
             if (!curPointIndex.Contains(i))
             {
