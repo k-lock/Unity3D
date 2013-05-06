@@ -44,6 +44,10 @@ namespace klock.kEditPoly.panels
                 GUI.enabled = KP.MESH_TYPE_INDEX != -1;
                 KP._meshName = EditorGUILayout.TextField(KP._meshName, KP_Style.tf_input_center());
                 GUI.enabled = GUI_TEMP;
+                if (GUILayout.Button("ID", GUILayout.Width(20))) 
+                { 
+                    KP._meshName = "kPoly " + UnityEngine.Random.Range(1, 99); 
+                }
                 GUILayout.Space(10);
                 GUILayout.EndHorizontal();
             }
