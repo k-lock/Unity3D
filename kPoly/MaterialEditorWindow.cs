@@ -6,6 +6,7 @@ using klock.kEditPoly.helper;
 class MaterialEditorWindow : EditorWindow
 {
     static MaterialEditorWindow instance;
+    static string FOLDER_path = "";
 
     bool FOLD_slot = true;
     bool FOLD_sett = true;
@@ -15,6 +16,12 @@ class MaterialEditorWindow : EditorWindow
     List<GUIContent> lCon = null;
     int SlotSize = 50;
     int SlotIndex = -1;
+    MaterialEditor me = null;
+
+    int ShaderCart = 0;
+    int ShaderType = 1;
+
+
 
     [MenuItem("Window/Material Editor Test")]
     static void ShowWindow()
@@ -29,6 +36,13 @@ class MaterialEditorWindow : EditorWindow
     void OnEnable()
     {
         OnInspectorUpdate();
+    }
+    void OnDisable()
+    {
+        lMat = null;
+        lTex = null;
+        lCon = null;
+        DestroyImmediate(me);
     }
     void OnInspectorUpdate()
     {
@@ -48,24 +62,26 @@ class MaterialEditorWindow : EditorWindow
     {
         GUILayout.BeginHorizontal();
         if (GUILayout.Button("Asset")) Create_Export(0);
-       // if (GUILayout.Button("File")) Create_Export(1);
-       // if (GUILayout.Button("...")) Create_Export(2);
+        // if (GUILayout.Button("File")) Create_Export(1);
+        if (GUILayout.Button("...",GUILayout.Width(20))) Create_Export(2);
         GUILayout.EndHorizontal();
     }
-    private static string FOLDER_path = "Assets/";
+
     void Create_Export(int index)
     {
-        if (SlotIndex == -1 && index <2) return;
+        if (SlotIndex == -1 && index < 2) return;
         switch (index)
         {
             case 0:
             case 1:
-                AssetDatabase.CreateAsset(Instantiate( lMat[SlotIndex] ), FOLDER_path + lMat[SlotIndex].name + ".mat");
+                Create_Asset();
                 break;
             case 2:
+                FOLDER_path = EditorUtility.OpenFolderPanel("Choose a Directory", "", "");
                 break;
         }
     }
+
     void Draw_Mat_Settings()
     {
         EditorGUI.BeginChangeCheck();
@@ -78,11 +94,35 @@ class MaterialEditorWindow : EditorWindow
 
         GUILayout.BeginHorizontal();
         EditorGUILayout.PrefixLabel("Shader");
-        EditorGUILayout.LabelField(am.shader.name);
+        // EditorGUILayout.LabelField(am.shader.name);
+        // am.shader = EditorGUILayout.ObjectField(am.shader, typeof(Shader)) as Shader;
+        ShaderCart = EditorGUILayout.Popup(ShaderCart, kShaderLab.FAMILY);
+        ShaderType = EditorGUILayout.Popup(ShaderType, kShaderLab.GetShaderList(ShaderCart));
+        am.shader = kShaderLab.GetShader(0, ShaderCart, ShaderType);
+
         GUILayout.EndHorizontal();
 
-        Shader s = lMat[SlotIndex].shader;
-        if (s != null)
+        //float controlSize = 64;
+        // EditorGUIUtility.LookLikeControls(Screen.width - controlSize - 20);
+
+        Shader s = am.shader;
+        if (me == null || me.target != am)
+        {
+            me = Editor.CreateEditor(am) as MaterialEditor;
+        }
+
+        me.OnInspectorGUI();
+
+        if (EditorGUI.EndChangeCheck())
+        {
+            Debug.Log("ME CHANGED" + me.target + " " + am);
+            UpdateMaterialPreview();
+        }
+
+    }
+    void DrawExtraTools()
+    {
+        /* if (s != null)
         {
             //Debug.Log(s.name);
             //EditorGUILayout.LabelField("sName : " + s.name);
@@ -121,14 +161,16 @@ class MaterialEditorWindow : EditorWindow
                     case ShaderUtil.ShaderPropertyType.TexEnv: // textures
                         {
                             ShaderUtil.ShaderPropertyTexDim desiredTexdim = ShaderUtil.GetTexDim(s, i);
+
                             TextureProperty(propertyName, label, desiredTexdim, am);
+                            
                             //GUILayout.Space(6);
                             break;
                         }
                     case ShaderUtil.ShaderPropertyType.Vector: // vectors
                         {
                             //Debug.Log(label);
-                           // VectorProperty(propertyName, label, am);
+                            // VectorProperty(propertyName, label, am);
                             break;
                         }
                     default:
@@ -142,9 +184,9 @@ class MaterialEditorWindow : EditorWindow
         if (EditorGUI.EndChangeCheck())
         {
             // Debug.Log("EndChangeCheck == true ");
-            lMat[SlotIndex] = am;
-            UpdateMaterialPreview();
-        }
+            //lMat[SlotIndex] = am;
+            //UpdateMaterialPreview();
+        }*/
     }
     private static void RangeProperty(string propertyName, string label, float v2, float v3, Material m)
     {
@@ -158,7 +200,7 @@ class MaterialEditorWindow : EditorWindow
     {
         GUILayout.BeginHorizontal();
         EditorGUILayout.PrefixLabel(label);
-        m.SetVector(propertyName, EditorGUILayout.Vector4Field("",m.GetVector(propertyName)));
+        m.SetVector(propertyName, EditorGUILayout.Vector4Field("", m.GetVector(propertyName)));
         GUILayout.EndHorizontal();
     }
     private static void FloatProperty(string propertyName, string label, Material m)
@@ -179,8 +221,20 @@ class MaterialEditorWindow : EditorWindow
     {
         GUILayout.BeginHorizontal();
         EditorGUILayout.PrefixLabel(label);
-        m.SetTexture(propertyName, EditorGUILayout.ObjectField(m.GetTexture(propertyName), typeof(Texture), true) as Texture);
+        switch (desiredTexdim)
+        {
+            case ShaderUtil.ShaderPropertyTexDim.TexDim2D:
+                m.SetTexture(propertyName, EditorGUILayout.ObjectField(m.GetTexture(propertyName), typeof(Texture), true, GUILayout.Height(35)) as Texture);
+                break;
+            case ShaderUtil.ShaderPropertyTexDim.TexDimCUBE:
+                m.SetTexture(propertyName, EditorGUILayout.ObjectField(m.GetTexture(propertyName), typeof(Cubemap), true, GUILayout.Height(35)) as Cubemap);
+                break;
+        }
         GUILayout.EndHorizontal();
+
+        m.SetTextureOffset(propertyName, EditorGUILayout.Vector2Field("TextureOffset", m.GetTextureOffset(propertyName)));
+        m.SetTextureScale(propertyName, EditorGUILayout.Vector2Field("TextureScale", m.GetTextureScale(propertyName)));
+
     }
     void Draw_Mat_Selection()
     {
@@ -231,7 +285,6 @@ class MaterialEditorWindow : EditorWindow
         lMat[SlotIndex] = new Material(kShaderLab.GetShader(0, 0, 1));
         UpdateMaterialPreview();
     }
-    static MaterialEditor me = null;
     void GET_SELECTION()
     {
         if (SlotIndex == -1) return;
@@ -248,6 +301,7 @@ class MaterialEditorWindow : EditorWindow
     }
     void UpdateMaterialPreview()
     {
+        if (lMat[SlotIndex] == null) return;
         me = Editor.CreateEditor(lMat[SlotIndex]) as MaterialEditor;
         Texture2D t = me.RenderStaticPreview("", null, SlotSize, SlotSize) as Texture2D;
         lTex[SlotIndex] = t;
@@ -257,12 +311,35 @@ class MaterialEditorWindow : EditorWindow
     {
         Debug.Log(" InitLists() -----------------------------");
 
-        lMat = new List<Material>(4) {  new Material(kShaderLab.GetShader(0, 0, 1)), new Material(kShaderLab.GetShader(0, 0, 1)), new Material(kShaderLab.GetShader(0, 0, 1)), new Material(kShaderLab.GetShader(0, 0, 1)) };
+        lMat = new List<Material>(4) { new Material(kShaderLab.GetShader(0, 0, 1)), new Material(kShaderLab.GetShader(0, 0, 1)), new Material(kShaderLab.GetShader(0, 0, 1)), new Material(kShaderLab.GetShader(0, 0, 1)) };
         MaterialEditor me = Editor.CreateEditor(lMat[0]) as MaterialEditor;
         Texture2D t = me.RenderStaticPreview("", null, SlotSize, SlotSize) as Texture2D;
         lTex = new List<Texture2D>(4) { t, t, t, t };
         GUIContent g = new GUIContent(t as Texture);
         lCon = new List<GUIContent>(4) { g, g, g, g };
+    }
+    void Create_Asset()
+    {
+        bool doCreate = true;
+        string assetName = lMat[SlotIndex].name;
+        string path = Application.dataPath + "/" + FOLDER_path + assetName + ".mat";
+        System.IO.FileInfo fileInfo = new System.IO.FileInfo(path);
+        if (fileInfo.Exists)
+        {
+            doCreate = EditorUtility.DisplayDialog("Material "+assetName + " already exists.",
+                                                    "Do you want to overwrite the old one?",
+                                                    "Apply", "Cancel");
+        }
+        if (doCreate)
+        {
+            if (new System.IO.DirectoryInfo("Assets/" + FOLDER_path).Exists == false)
+            {
+                Debug.LogError("can't create asset, path not found");
+                return;
+            }
+            path = "Assets/" + FOLDER_path + assetName + ".mat";
+            AssetDatabase.CreateAsset(Instantiate(lMat[SlotIndex]), path);
+        }
     }
 }
 /*
