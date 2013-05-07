@@ -41,7 +41,6 @@ namespace klock.kEditPoly
             {
                 instance = this;
             }
-
         }
 
         private void Update()
@@ -52,7 +51,6 @@ namespace klock.kEditPoly
                 {
                     Selection.activeGameObject = KP_edit._selection;
                 }
-               
             }
         }
 
@@ -68,17 +66,31 @@ namespace klock.kEditPoly
 
         public void OnSceneGUI(SceneView sceneView)
         {
+
+          //  Debug.Log(Event.current.type);
+
+
+            if (KP_edit.TOOL_INDEX != -1)
+            {
+                switch (KP_edit.TOOL_INDEX)
+                {
+                    case 1: 
+                        SGUIelements.Tool_weld(); 
+                        break;
+                    case 2 :
+                        SGUIelements.Tool_connect();
+                        break;
+                }
+            }
             UpdateHandles();
             
             if (Event.current.type == EventType.KeyUp) KP_edit.ANY_KEY = false;
             if (Event.current.type == EventType.KeyDown) KP_edit.ANY_KEY = true;
-            Debug.Log(KP_edit.ANY_KEY);
+            if (!KP_edit.ANY_KEY && KP_edit.curPointIndex.Count > 0 && Event.current.type == EventType.mouseDown) KP_edit.curPointIndex.Clear(); 
 
         }
         public static void UpdateHandles()
         {
-            
-
             if (KP_edit._editorMode != MODE.None && KP_edit._freeze)
             {
                 KP_edit.Draw_Handles();
@@ -145,6 +157,7 @@ namespace klock.kEditPoly
 
             }
             SceneView.RepaintAll();
+           
         }
     }//class
 }//namespace
