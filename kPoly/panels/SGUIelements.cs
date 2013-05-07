@@ -88,6 +88,7 @@ namespace klock.kEditPoly.panels
             if (GUILayout.Button("Apply", GUILayout.Width(140)))
             {
                 _toolPreview = true;
+                KP_edit.ModifiVerticies_edgeConnect();
             }
             GUI.EndGroup();
             Handles.EndGUI();
