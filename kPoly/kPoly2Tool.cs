@@ -79,6 +79,7 @@ namespace klock.kEditPoly
                         break;
                     case 2 :
                         SGUIelements.Tool_connect();
+                        KP_edit.EdgeConnect_Preview();
                         break;
                 }
             }
