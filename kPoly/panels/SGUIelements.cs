@@ -42,7 +42,7 @@ namespace klock.kEditPoly.panels
             GUI.BeginGroup(new Rect(Screen.width - size.width - 10, Screen.height - size.height - 50, size.width, size.height));
             GUI.Box(size, toolName);
 
-            _toolRadius =  Mathf.Clamp(EditorGUILayout.FloatField("Collaps Radius ", _toolRadius),0,10);
+            _toolRadius = Mathf.Clamp(EditorGUILayout.FloatField("Collaps Radius ", _toolRadius), 0, 10);
             if (GUILayout.Button("Apply", GUILayout.Width(140)))
             {
                 _toolPreview = true;
@@ -75,10 +75,18 @@ namespace klock.kEditPoly.panels
             GUI.BeginGroup(new Rect(Screen.width - size.width - 10, Screen.height - size.height - 50, size.width, size.height));
             GUI.Box(size, toolName);
 
-            _connex = Mathf.Clamp( EditorGUILayout.IntField("Connections", _connex) , 1, 10 );
-            GUI.enabled = (_connex > 1);
-            _conPad =  Mathf.Clamp(EditorGUILayout.FloatField("Con Padding", _conPad),0,5);
-            GUI.enabled = guiTemp;
+            _connex = Mathf.Clamp(EditorGUILayout.IntField("Connections", _connex), 1, 10);
+            // GUI.enabled = (_connex > 1);
+            float tcp = _conPad;
+            _conPad = Mathf.Clamp(EditorGUILayout.FloatField("Con Padding", _conPad), -1, 1);
+            if (_conPad != tcp)
+            {
+                /* 
+                 KP_edit.nVerts[0] = KP_edit.nVerts[0] + new Vector3(0, 0, SGUIelements._conPad);
+                 KP_edit.nVerts[1] = KP_edit.nVerts[1] + new Vector3(0, 0, SGUIelements._conPad);
+                 */
+            }
+            //  GUI.enabled = guiTemp;
             GUI.color = (_conPre) ? Color.grey : Color.white;
             if (GUILayout.Button("Preview", GUILayout.Width(140)))
             {
