@@ -68,7 +68,36 @@ namespace klock.geometry
             }
             return hit.triangleIndex;
         }
-        /** Calculate the triangle index neighbour list.
+        public static int[] TriangleIndicies(int p1, int p2, int[] tlist)
+        {
+
+            List<int> clist = new List<int>(tlist);
+            List<int> dlist = new List<int>();
+            for (int i = 0, n = clist.Count; i < n; i += 3)
+            {
+                bool i0 = (clist[i] == p1 || clist[i] == p2);
+                bool i1 = (clist[i + 1] == p1 || clist[i + 1] == p2);
+                bool i2 = (clist[i + 2] == p1 || clist[i + 2] == p2);
+                
+                if (i0 || i1 || i2) dlist.Add(i);
+            }
+            /* Debug.Log("________________________________");
+             foreach (int i in clist)
+             {
+                 Debug.Log("->" + i);
+             }*/
+            /* List<int> dlist = clist.FindAll (x => x == p1 || x == p2);
+             Debug.Log("________________________________" + p1 +" / " + p2);
+             for (int i = 0, n = dlist.Count; i < n;i++ )
+             {
+                 if( clist[i] == p1
+             }
+  */
+            //Debug.Log("________________________________");
+            return dlist.ToArray();
+        }
+
+        /** Calculate the triangle index neighbour list. (Using Helper Class Tripoint) 
          * 
          * 	@returns TriPoint[] - A list containg the data to draw quads.*/
         public static TriPoint[] Neigbours(Mesh m)
@@ -757,7 +786,7 @@ namespace klock.geometry
         #region MAKE PLANAR
         public static Mesh Planar(Mesh m, bool x = false, bool y = false, bool z = false)
         {
-            Debug.Log("Flatten Mesh : "+ m.name);
+            Debug.Log("Flatten Mesh : " + m.name);
             Vector3[] verts = m.vertices;
             float dx = 0,
                     dy = 0,
@@ -771,7 +800,7 @@ namespace klock.geometry
             dx = dx / m.vertexCount;
             dy = dy / m.vertexCount;
             dz = dz / m.vertexCount;
-           // Debug.Log("Flatten Mesh : " + ((x) ? dx : -1) + " " + ((y) ? dy : -1) + " " + ((z) ? dz : -1));
+            // Debug.Log("Flatten Mesh : " + ((x) ? dx : -1) + " " + ((y) ? dy : -1) + " " + ((z) ? dz : -1));
             for (int i = 0; i < m.vertexCount; i++)
             {
                 //Debug.Log("vert "+ i + " Before : " +  m.vertices[i].x + " "+  m.vertices[i].y + " "+  m.vertices[i].z);
@@ -780,12 +809,12 @@ namespace klock.geometry
                     (y) ? dy : verts[i].y,
                     (z) ? dz : verts[i].z);
                 //Debug.Log("vert "+ i + "after : " +  m.vertices[i].x + " "+  m.vertices[i].y + " "+  m.vertices[i].z);
-                
-            }
-          //  if (updateMesh)
-         //   {
 
-         //   }
+            }
+            //  if (updateMesh)
+            //   {
+
+            //   }
             m.vertices = verts;
             return m;
         }
