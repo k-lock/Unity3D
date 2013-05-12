@@ -68,6 +68,8 @@ namespace klock.geometry
             }
             return hit.triangleIndex;
         }
+        #endregion
+        #region MeshFinder
         public static int[] TriangleIndicies(int p1, int p2, int[] tlist)
         {
 
@@ -78,7 +80,7 @@ namespace klock.geometry
                 bool i0 = (clist[i] == p1 || clist[i] == p2);
                 bool i1 = (clist[i + 1] == p1 || clist[i + 1] == p2);
                 bool i2 = (clist[i + 2] == p1 || clist[i + 2] == p2);
-                
+
                 if (i0 || i1 || i2) dlist.Add(i);
             }
             /* Debug.Log("________________________________");
@@ -126,6 +128,22 @@ namespace klock.geometry
                 neigbourList[p1] = tp;
             }
             return neigbourList;
+        }
+        public static int EdgeIndex(int p1, int p2, klock.kEditPoly.panels.KP_edit.Edge[] edges)
+        {
+            int r = -1;
+            for (int i = 0, n = edges.Length; i < n; i++)
+            {
+                bool i1 = edges[i].vertexIndex[0] == p1 || edges[i].vertexIndex[0] == p2;
+                bool i2 = edges[i].vertexIndex[1] == p1 || edges[i].vertexIndex[1] == p2;
+
+                if (i1 && i2) 
+                { 
+                    r = i;  
+                    break; 
+                }
+            }
+            return r;
         }
         #endregion
         #region MESH INIT
