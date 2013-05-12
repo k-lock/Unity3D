@@ -87,7 +87,12 @@ namespace klock.kEditPoly
             
             if (Event.current.type == EventType.KeyUp) KP_edit.ANY_KEY = false;
             if (Event.current.type == EventType.KeyDown) KP_edit.ANY_KEY = true;
-            if (!KP_edit.ANY_KEY && KP_edit.curPointIndex.Count > 0 && Event.current.type == EventType.mouseDown) KP_edit.curPointIndex.Clear(); 
+
+            if (!KP_edit.ANY_KEY && KP_edit.curPointIndex.Count > 0 && Event.current.type == EventType.mouseDown)
+            {
+                if (!KP_edit._dragCreate) KP_edit.curPointIndex.Clear();
+                if (KP_edit._dragCreate) KP_edit._dragCreate = false;
+            }
 
         }
         public static void UpdateHandles()
