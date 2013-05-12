@@ -27,12 +27,11 @@ namespace klock.kEditPoly.panels
          */
 
         public static float _toolRadius = .5f;
-        private static float _mintoolRadius = .015f;
+        //private static float _mintoolRadius = .015f;
 
         public static void Tool_weld()
         {
             Rect size = new Rect(0, 0, 150, 80);
-            float sizeButton = 30;
             string toolName = " Welding Tool";// +KP_edit._editorMode + "s";
 
             Handles.BeginGUI();
@@ -65,7 +64,7 @@ namespace klock.kEditPoly.panels
         {
             bool guiTemp = GUI.enabled;
             Rect size = new Rect(0, 0, 150, 120);
-            float sizeButton = 30;
+           
             string toolName = "Edge Connect Tool";// +KP_edit._editorMode + "s";
 
             Handles.BeginGUI();
@@ -96,7 +95,7 @@ namespace klock.kEditPoly.panels
             if (GUILayout.Button("Apply", GUILayout.Width(140)))
             {
                 _toolPreview = true;
-                KP_edit.ModifiVerticies_edgeConnect();
+                KP_edit.EdgeConnect_Preview();
             }
             GUI.EndGroup();
             Handles.EndGUI();
