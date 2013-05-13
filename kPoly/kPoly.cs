@@ -885,8 +885,9 @@ public enum MODE
     None,
     Point,
     Line,
-    Quad,
     Tri,
+    Border,
+    Quad,
     All
 
 }
