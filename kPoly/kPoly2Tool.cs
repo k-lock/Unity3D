@@ -79,7 +79,7 @@ namespace klock.kEditPoly
                         break;
                     case 2 :
                         SGUIelements.Tool_connect();
-                        KP_edit.EdgeConnect_Preview();
+                 //       kPoly.EdgeConnect_Preview( _selectMesh, curPointIndex, edges, SGUIelements._connex, SGUIelements._conPad, true);
                         break;
                 }
             }
