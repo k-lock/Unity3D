@@ -24,8 +24,8 @@ namespace klock.kEditPoly.prefs
             _height = 1;
             _depth = 1;
 
-            _uSegments = 3;
-            _vSegments = 3;
+            _uSegments = 2;
+            _vSegments = 2;
             _zSegments = 1;
 
             _pivotIndex = 0;
@@ -78,8 +78,8 @@ namespace klock.kEditPoly.prefs
             openingAngle = 0f;
 
         public static int
-            _uSegments = 3,
-            _vSegments = 3,
+            _uSegments = 2,
+            _vSegments = 2,
             _zSegments = 1;
 
         public static int 
