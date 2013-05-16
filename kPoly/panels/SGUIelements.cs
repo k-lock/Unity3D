@@ -11,7 +11,6 @@ using UnityEditor;
 using UnityEngine;
 
 using klock.kEditPoly.helper;
-using klock.geometry;
 
 namespace klock.kEditPoly.panels
 {
