@@ -179,19 +179,29 @@ namespace klock.kEditPoly.panels
                                 foreach (int id in curPointIndex)
                                 {
                                     Face f = faces[id];
-                                    saveList.AddRange(new List<int>(f.vertexIndex));
+                                    //saveList.AddRange(new List<int>(f.vertexIndex));
 
-                                    //foreach( int id2 in f.vertexIndex)Debug.Log("Add to Remove " + id2);
+                                  /*  //
+                                    saveList.AddRange(new List<int>(kPoly.TriangleIndex(f.vertexIndex[0], f.vertexIndex[1], f.vertexIndex[2], _selectMesh.triangles)));
+                                    saveList.AddRange(new List<int>(kPoly.TriangleIndex(f.vertexIndex[0], f.vertexIndex[2], f.vertexIndex[3], _selectMesh.triangles)));
+                                   
+                                   foreach (int id2 in saveList) Debug.Log("Add to Remove " + id2 + " "+_selectMesh.triangles[id2] + " " + _selectMesh.triangles[id2 + 1] + " " + _selectMesh.triangles[id2+2]);
+                                    */
+                                    foreach (int id2 in f.triIndex) Debug.Log("Add to Remove " + id2);
+                                    List<int> tlist = new List<int>(_selectMesh.triangles);
+                                    tlist.RemoveRange(f.triIndex[0]*3, 3);
+                                    tlist.RemoveRange((f.triIndex[1]-1)*3, 3);
+                                  //  tlist.RemoveRange(saveList[1]>3?saveList[1]-3:0, 3);
+                                    
+                                    _selectMesh.triangles = tlist.ToArray();
                                 }
-                                kPoly.VerticesRemove(_selectMesh, saveList[0], saveList);
-
-
+                            
                                 break;
                         }
                         curPointIndex.Clear();
                         edges = null;
                         faces = null;
-                        verts = null;
+                        //verts = null;
                     }
                 }
                 if (GUILayout.Button(new GUIContent("Break"), EditorStyles.toolbarButton)) kPoly.VerticesBreak(_selectMesh, curPointIndex.ToArray());
@@ -383,7 +393,7 @@ namespace klock.kEditPoly.panels
                     Handles.Label(_selection.transform.TransformPoint(d), id + " " + " \n" +
                         //    tlist[edges[id].faceIndex[0] * 3] + " " + tlist[edges[id].faceIndex[1] * 3]+ " \n" +
                         edges[id].faceIndex[0] + " " + edges[id].faceIndex[1] + " \n"
-                        //   +  edges[id].faceIndex[0] % 3 + " " + edges[id].faceIndex[1] % 3
+                          // +  edges[id].faceIndex[0] % 3 + " " + edges[id].faceIndex[1] % 3
                     , style);
 
                     id++;
@@ -402,7 +412,11 @@ namespace klock.kEditPoly.panels
                 {
 
                     Vector3[] vs = new Vector3[4];
-                    for (int id = 0, n2 = 4; id < n2; id++) vs[id] = root.TransformPoint(vlist[faces[i].vertexIndex[id]]);
+                    for (int id = 0, n2 = 4; id < n2; id++)
+                    {
+                     //   Debug.Log(faces[i].vertexIndex[id]);
+                        vs[id] = root.TransformPoint(vlist[faces[i].vertexIndex[id]]);
+                    }
                     Handles.DrawPolyLine(vs);
                 }
                 if (Handles.Button(root.TransformPoint(faces[i].middle), Quaternion.identity, cubeSize, cubeSize, Handles.CubeCap))
