@@ -19,7 +19,7 @@ namespace klock.kEditPoly.panels
             new Material(kShaderLab.GetShader(0,0,1)), 
             new Material(kShaderLab.GetShader(0,0,1))
         };
-        private static List<MaterialEditor> ME_LIST = null;
+        public static List<MaterialEditor> ME_LIST = null;
         /* new List<MaterialEditor>(4) 
         { 
             new MaterialEditor (), 

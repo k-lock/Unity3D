@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using klock.kEditPoly.prefs;
 using klock.kEditPoly.style;
-using klock.geometry;
 
 namespace klock.kEditPoly.panels
 {
@@ -218,7 +217,7 @@ namespace klock.kEditPoly.panels
             // Editor value for the mesh face direction FACING.XZ
             GUILayout.Label("Facing ");
             GUILayout.Space(10);
-            KP._faceIndex = EditorGUILayout.Popup(KP._faceIndex, klock.geometry.kPoly.FACING);
+            KP._faceIndex = EditorGUILayout.Popup(KP._faceIndex, kPoly.FACING);
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
             // Editor value for triangle winding order
