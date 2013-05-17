@@ -1,10 +1,6 @@
 ﻿using UnityEngine;
 using UnityEditor;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using klock.kEditPoly.panels;
-using klock.kEditPoly.helper;
 
 namespace klock.kEditPoly
 {
@@ -66,10 +62,21 @@ namespace klock.kEditPoly
 
         public void OnSceneGUI(SceneView sceneView)
         {
+            if (KP_edit._selection == null) return;
+            /*Renderer renderer = KP_edit._selection.renderer;
+            if (renderer)
+                EditorUtility.SetSelectedWireframeHidden(renderer, KP_edit._editorMode != MODE.None && KP.hideWireframe);
 
-          //  Debug.Log(Event.current.type);
+            if (renderer && renderer.sharedMaterial == null)
+            {
+                renderer.sharedMaterial = (Material)AssetDatabase.LoadAssetAtPath("Assets\\klock\\kPoly\\ExampleMaterial.mat", typeof(Material));
+            }*/
 
+            // If we are normal, exit now
+            if (KP_edit._editorMode == MODE.None)
+                return;
 
+            // Draw SceneGUI Tool elements
             if (KP_edit.TOOL_INDEX != -1)
             {
                 switch (KP_edit.TOOL_INDEX)
@@ -83,6 +90,33 @@ namespace klock.kEditPoly
                         break;
                 }
             }
+
+            // This prevents us from selecting other objects in the scene
+            //int controlID = GUIUtility.GetControlID(FocusType.Passive);
+            //HandleUtility.AddDefaultControl(controlID);
+            
+           /* // Hide and show wireframe if we press control and W
+            if (Event.current.control)
+            {
+                if (kInputs.KeyDown(KeyCode.W))
+                {
+                    Event.current.Use();
+                    KP.hideWireframe = !KP.hideWireframe;
+                    SceneView.RepaintAll();
+                }
+            }*/
+            // If we are holding alt, allow normal controls to happen
+            if (Event.current.alt)
+                return;
+            // If we are deleting, call methode and return
+            if (kInputs.DeleteKeyDown)
+            {
+                KP_edit.VerticesRemover();
+                return;
+            }
+                
+
+
             UpdateHandles();
             
             if (Event.current.type == EventType.KeyUp) KP_edit.ANY_KEY = false;
