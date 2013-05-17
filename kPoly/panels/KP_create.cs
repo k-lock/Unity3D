@@ -1,9 +1,5 @@
 ﻿using UnityEditor;
 using UnityEngine;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using klock.kEditPoly.prefs;
 using klock.kEditPoly.style;
 
 namespace klock.kEditPoly.panels

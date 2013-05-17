@@ -5,13 +5,10 @@
 //--------------------------------------------------------------------------------------------------------------------------------------//
 using UnityEditor;
 using UnityEngine;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 
 
 using klock.kEditPoly.helper;
-using klock;
 
 namespace klock.kEditPoly.panels
 {
@@ -146,63 +143,9 @@ namespace klock.kEditPoly.panels
             if (FOLD_verts)
             {
                 GUILayout.BeginHorizontal();
-                if (GUILayout.Button(new GUIContent("Remove"), EditorStyles.toolbarButton))
+                if (GUILayout.Button(new GUIContent("Remove"), EditorStyles.toolbarButton)  )
                 {
-                    if (curPointIndex.Count > 0)
-                    {
-                        curPointIndex.Sort();
-                        curPointIndex.Reverse();
-                    }
-                    if (curPointIndex.Count != 0)
-                    {
-                        List<int> saveList = null;
-                        switch (_editorMode)
-                        {
-                            case MODE.Point: kPoly.VerticesRemove(_selectMesh, curPointIndex[0], curPointIndex); break;
-                            case MODE.Triangle: kPoly.TriangleRemove(_selectMesh, curPointIndex[0], curPointIndex); break;
-                            case MODE.Edge:
-                                saveList = new List<int>();
-                                foreach (int id in curPointIndex)
-                                {
-                                    saveList = new List<int>();
-                                    Edge e = edges[id];
-                                    int d1 = e.vertexIndex[0];
-                                    int d2 = e.vertexIndex[1];
-
-                                    saveList.AddRange(new List<int>() { d1, d2 });
-                                }
-
-                                kPoly.VerticesRemove(_selectMesh, saveList[0], saveList);
-                                break;
-                            case MODE.Quad:
-                                saveList = new List<int>();
-                                foreach (int id in curPointIndex)
-                                {
-                                    Face f = faces[id];
-                                    //saveList.AddRange(new List<int>(f.vertexIndex));
-
-                                    /*  //
-                                      saveList.AddRange(new List<int>(kPoly.TriangleIndex(f.vertexIndex[0], f.vertexIndex[1], f.vertexIndex[2], _selectMesh.triangles)));
-                                      saveList.AddRange(new List<int>(kPoly.TriangleIndex(f.vertexIndex[0], f.vertexIndex[2], f.vertexIndex[3], _selectMesh.triangles)));
-                                   
-                                     foreach (int id2 in saveList) Debug.Log("Add to Remove " + id2 + " "+_selectMesh.triangles[id2] + " " + _selectMesh.triangles[id2 + 1] + " " + _selectMesh.triangles[id2+2]);
-                                      */
-                                    foreach (int id2 in f.triIndex) Debug.Log("Add to Remove " + id2);
-                                    List<int> tlist = new List<int>(_selectMesh.triangles);
-                                    tlist.RemoveRange(f.triIndex[0] * 3, 3);
-                                    tlist.RemoveRange((f.triIndex[1] - 1) * 3, 3);
-                                    //  tlist.RemoveRange(saveList[1]>3?saveList[1]-3:0, 3);
-
-                                    _selectMesh.triangles = tlist.ToArray();
-                                }
-
-                                break;
-                        }
-                        curPointIndex.Clear();
-                        edges = null;
-                        faces = null;
-                        //verts = null;
-                    }
+                    VerticesRemover();
                 }
                 if (GUILayout.Button(new GUIContent("Break"), EditorStyles.toolbarButton)) kPoly.VerticesBreak(_selectMesh, curPointIndex.ToArray());
                 if (GUILayout.Button(new GUIContent("Turn"), EditorStyles.toolbarButton)) kPoly.TriangleTurn(_selectMesh, curPointIndex);
@@ -619,7 +562,9 @@ namespace klock.kEditPoly.panels
         private static bool ModifiVerticies_edges()// -------------------------------------------- TRANSFORM edges
         {
             if (_selectMesh == null ||
-                _selectMesh.vertexCount != kSelect.MESH.vertexCount)
+                _selectMesh.vertexCount != kSelect.MESH.vertexCount || 
+                edges == null
+                )
             {
                 _selectMesh = kSelect.MESH;
                 edges = null;
@@ -771,7 +716,23 @@ namespace klock.kEditPoly.panels
 
             return setDirty;
         }
-
+        public static void VerticesRemover()
+        {
+           _selectMesh =  VerticesRemover( ((_selectMesh != null )? _selectMesh : kSelect.MESH), curPointIndex, _editorMode, edges, faces);
+            curPointIndex.Clear();
+            switch (_editorMode)
+            {
+                case MODE.Edge: edges = null; edges = kPoly.BuildEdges(_selectMesh.vertexCount, _selectMesh.triangles); break;
+            }
+                
+            faces = null;
+            //verts = null;
+        }
+        private static Mesh VerticesRemover(Mesh _selectMesh, List<int> curPointIndex, MODE _editorMode, Edge[] edges = null, Face[] faces = null)
+        {
+           return kPoly.VerticesRemover(_selectMesh, curPointIndex, _editorMode, edges, faces);
+        }
+        
         private static bool ModifiVerticies_points(bool now = false)// -------------------------------------------- TRANSFORM verticies
         {
             bool setDirty = false,

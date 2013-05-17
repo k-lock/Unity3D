@@ -4,13 +4,9 @@
 //                                                                                                                                      //
 //--------------------------------------------------------------------------------------------------------------------------------------//
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-using klock.kEditPoly.helper;
 
 namespace klock.kEditPoly.panels
 {

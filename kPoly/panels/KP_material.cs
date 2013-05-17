@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using klock.kEditPoly.helper;
-using klock.kEditPoly.prefs;
 using klock.kEditPoly.style;
 
 namespace klock.kEditPoly.panels
