@@ -3,7 +3,7 @@ using UnityEngine;
 
 using klock.kEditPoly.panels;
 
-namespace klock.kEditPoly.helper
+namespace klock.kEditPoly
 {
     public class kSelect
     {
@@ -11,7 +11,7 @@ namespace klock.kEditPoly.helper
         {
             get
             {
-                return (KP_edit._freeze)?KP_edit._selection:Selection.activeGameObject;
+                return (KP_edit.FREEZE)?KP_edit.selection:Selection.activeGameObject;
             }
         }
         public static MeshFilter MESHFILTER
