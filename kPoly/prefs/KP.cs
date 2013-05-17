@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEditor;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace klock.kEditPoly.prefs
+namespace klock.kEditPoly
 {
     public class KP
     {
@@ -117,5 +113,6 @@ namespace klock.kEditPoly.prefs
         public static Material _sMaterial = null;
         public static string[] _mSLOTS = null;
         //------------------------------------------------------------------------- STATS
+        public static bool hideWireframe = false;
     }
 }
