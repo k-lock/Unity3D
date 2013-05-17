@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using klock.kEditPoly.panels;
-
+using klock.kEditPoly;
 namespace klock.kEditPoly
 {
     public class kPoly2Tool : EditorWindow
@@ -41,13 +41,13 @@ namespace klock.kEditPoly
 
         private void Update()
         {
-            if (KP_edit._editorMode != MODE.None && KP_edit._freeze)
-            {
-                if (Selection.activeGameObject != KP_edit._selection)
-                {
-                    Selection.activeGameObject = KP_edit._selection;
-                }
-            }
+            /*  if (KP_edit._editorMode != MODE.None && KP_edit._freeze)
+              {
+                  if (Selection.activeGameObject != KP_edit._selection)
+                  {
+                      Selection.activeGameObject = KP_edit._selection;
+                  }
+              }*/
         }
 
         private void OnGUI()
@@ -57,12 +57,19 @@ namespace klock.kEditPoly
 
         private void OnSelectionChange()
         {
-            Repaint();
+
+            if (KP_edit.E_MODE == MODE.None && KP_edit.selection == null)
+            {
+                KP_edit.selection = kSelect.OBJECT;
+                Repaint();
+                SceneView.RepaintAll();
+            }
+
         }
 
         public void OnSceneGUI(SceneView sceneView)
         {
-            if (KP_edit._selection == null) return;
+            if (KP_edit.selection == null) return;
             /*Renderer renderer = KP_edit._selection.renderer;
             if (renderer)
                 EditorUtility.SetSelectedWireframeHidden(renderer, KP_edit._editorMode != MODE.None && KP.hideWireframe);
@@ -73,7 +80,7 @@ namespace klock.kEditPoly
             }*/
 
             // If we are normal, exit now
-            if (KP_edit._editorMode == MODE.None)
+            if (KP_edit.E_MODE == MODE.None)
                 return;
 
             // Draw SceneGUI Tool elements
@@ -81,30 +88,30 @@ namespace klock.kEditPoly
             {
                 switch (KP_edit.TOOL_INDEX)
                 {
-                    case 1: 
-                        SGUIelements.Tool_weld(); 
+                    case 1:
+                        SGUIelements.Tool_weld();
                         break;
-                    case 2 :
+                    case 2:
                         SGUIelements.Tool_connect();
-                 //       kPoly.EdgeConnect_Preview( _selectMesh, curPointIndex, edges, SGUIelements._connex, SGUIelements._conPad, true);
+                        //       kPoly.EdgeConnect_Preview( _selectMesh, curPointIndex, edges, SGUIelements._connex, SGUIelements._conPad, true);
                         break;
                 }
             }
 
             // This prevents us from selecting other objects in the scene
-            //int controlID = GUIUtility.GetControlID(FocusType.Passive);
-            //HandleUtility.AddDefaultControl(controlID);
-            
-           /* // Hide and show wireframe if we press control and W
-            if (Event.current.control)
-            {
-                if (kInputs.KeyDown(KeyCode.W))
-                {
-                    Event.current.Use();
-                    KP.hideWireframe = !KP.hideWireframe;
-                    SceneView.RepaintAll();
-                }
-            }*/
+            int controlID = GUIUtility.GetControlID(FocusType.Passive);
+            HandleUtility.AddDefaultControl(controlID);
+
+            /* // Hide and show wireframe if we press control and W
+             if (Event.current.control)
+             {
+                 if (kInputs.KeyDown(KeyCode.W))
+                 {
+                     Event.current.Use();
+                     KP.hideWireframe = !KP.hideWireframe;
+                     SceneView.RepaintAll();
+                 }
+             }*/
             // If we are holding alt, allow normal controls to happen
             if (Event.current.alt)
                 return;
@@ -114,28 +121,34 @@ namespace klock.kEditPoly
                 KP_edit.VerticesRemover();
                 return;
             }
+
+
+            if (KP_edit.FREEZE)
+            {
+                bool c = false;
+                if (kInputs.KeyDown(KeyCode.F1)) { KP_edit.E_MODE = MODE.Point; c = true; }
+                if (kInputs.KeyDown(KeyCode.F2)) { KP_edit.E_MODE = MODE.Edge; c = true; }
+                if (kInputs.KeyDown(KeyCode.F3)) { KP_edit.E_MODE = MODE.Triangle; c = true; }
+                if (kInputs.KeyDown(KeyCode.F4)) { KP_edit.E_MODE = MODE.Quad; c = true; }
+                if (kInputs.KeyDown(KeyCode.F5)) { KP_edit.E_MODE = MODE.All; c = true; }
+                if (c) { instance.Repaint(); return; }
                 
+                KP_edit.Draw_Handles();
+                SceneView.currentDrawingSceneView.Repaint();
+            }
 
 
-            UpdateHandles();
-            
             if (Event.current.type == EventType.KeyUp) KP_edit.ANY_KEY = false;
             if (Event.current.type == EventType.KeyDown) KP_edit.ANY_KEY = true;
 
-            if (!KP_edit.ANY_KEY && KP_edit.curPointIndex.Count > 0 && Event.current.type == EventType.mouseDown)
+            if (!KP_edit.ANY_KEY && KP_edit.curPointIndex.Count > 0 && kInputs.LeftMouseDown)
             {
-                if (!KP_edit._dragCreate) KP_edit.curPointIndex.Clear();
-                if (KP_edit._dragCreate) KP_edit._dragCreate = false;
+                if (!KP_edit.DRAG_CREATE) KP_edit.curPointIndex.Clear();
+                if (KP_edit.DRAG_CREATE) KP_edit.DRAG_CREATE = false;
             }
 
         }
-        public static void UpdateHandles()
-        {
-            if (KP_edit._editorMode != MODE.None && KP_edit._freeze)
-            {
-                KP_edit.Draw_Handles();
-            }
-        }
+
         private void OnDisable()
         {
             instance = null;
@@ -197,7 +210,7 @@ namespace klock.kEditPoly
 
             }
             SceneView.RepaintAll();
-           
+
         }
     }//class
 }//namespace
