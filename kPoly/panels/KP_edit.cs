@@ -181,21 +181,21 @@ namespace klock.kEditPoly.panels
                                     Face f = faces[id];
                                     //saveList.AddRange(new List<int>(f.vertexIndex));
 
-                                  /*  //
-                                    saveList.AddRange(new List<int>(kPoly.TriangleIndex(f.vertexIndex[0], f.vertexIndex[1], f.vertexIndex[2], _selectMesh.triangles)));
-                                    saveList.AddRange(new List<int>(kPoly.TriangleIndex(f.vertexIndex[0], f.vertexIndex[2], f.vertexIndex[3], _selectMesh.triangles)));
+                                    /*  //
+                                      saveList.AddRange(new List<int>(kPoly.TriangleIndex(f.vertexIndex[0], f.vertexIndex[1], f.vertexIndex[2], _selectMesh.triangles)));
+                                      saveList.AddRange(new List<int>(kPoly.TriangleIndex(f.vertexIndex[0], f.vertexIndex[2], f.vertexIndex[3], _selectMesh.triangles)));
                                    
-                                   foreach (int id2 in saveList) Debug.Log("Add to Remove " + id2 + " "+_selectMesh.triangles[id2] + " " + _selectMesh.triangles[id2 + 1] + " " + _selectMesh.triangles[id2+2]);
-                                    */
+                                     foreach (int id2 in saveList) Debug.Log("Add to Remove " + id2 + " "+_selectMesh.triangles[id2] + " " + _selectMesh.triangles[id2 + 1] + " " + _selectMesh.triangles[id2+2]);
+                                      */
                                     foreach (int id2 in f.triIndex) Debug.Log("Add to Remove " + id2);
                                     List<int> tlist = new List<int>(_selectMesh.triangles);
-                                    tlist.RemoveRange(f.triIndex[0]*3, 3);
-                                    tlist.RemoveRange((f.triIndex[1]-1)*3, 3);
-                                  //  tlist.RemoveRange(saveList[1]>3?saveList[1]-3:0, 3);
-                                    
+                                    tlist.RemoveRange(f.triIndex[0] * 3, 3);
+                                    tlist.RemoveRange((f.triIndex[1] - 1) * 3, 3);
+                                    //  tlist.RemoveRange(saveList[1]>3?saveList[1]-3:0, 3);
+
                                     _selectMesh.triangles = tlist.ToArray();
                                 }
-                            
+
                                 break;
                         }
                         curPointIndex.Clear();
@@ -237,7 +237,7 @@ namespace klock.kEditPoly.panels
                     if (GUILayout.Button(new GUIContent("Connect"), EditorStyles.toolbarButton))
                     {
                         kPoly.EdgeConnect_Preview(_selectMesh, curPointIndex, edges);
-                            //_selectMesh, curPointIndex, edges, SGUIelements._connex, SGUIelements._conPad, true);
+                        //_selectMesh, curPointIndex, edges, SGUIelements._connex, SGUIelements._conPad, true);
                         // ModifiVerticies_edgeConnect();
                     }
                     GUI.color = (TOOL_INDEX == 2) ? new Color(0, .5f, 1, .7f) : Color.white;
@@ -267,7 +267,7 @@ namespace klock.kEditPoly.panels
                 {
                     if (_selection != null && _selectMesh != null)
                     {
-                        kPoly.VerticesFlatten(_selectMesh, curPointIndex , _editorMode, planarHelp, edges, faces );
+                        kPoly.VerticesFlatten(_selectMesh, curPointIndex, _editorMode, planarHelp, edges, faces);
                         curPointIndex.Clear();
                     }
                 }
@@ -288,6 +288,8 @@ namespace klock.kEditPoly.panels
             //   EditorGUILayout.LabelField("Active Object : " + _selection.name + " Mesh : " + _selectMesh.name);
 
             GUILayout.BeginHorizontal();
+            if (GUILayout.Button(new GUIContent("Clear Verts"), EditorStyles.toolbarButton)) verts = null;
+      //      if (GUILayout.Button(new GUIContent("Clear Tris"), EditorStyles.toolbarButton)) tris = null;
             if (GUILayout.Button(new GUIContent("Clear Edges"), EditorStyles.toolbarButton)) edges = null;
             if (GUILayout.Button(new GUIContent("Clear Faces"), EditorStyles.toolbarButton)) faces = null;
             GUILayout.EndHorizontal();
@@ -379,24 +381,38 @@ namespace klock.kEditPoly.panels
 
             if (KP_info._SHOW_TRIAS)
             {
-                int id = 0;
-                foreach (Edge e in edges)
+                /* int id = 0;
+                 foreach (Edge e in edges)
+                 {
+                     if (tlist[edges[id].faceIndex[0]] != tlist[edges[id].faceIndex[1]] )
+                     {
+                         GUIStyle style = new GUIStyle();
+                         Debug.Log(id );
+                        // if (tlist[edges[id].faceIndex[0]] == tlist[edges[id].faceIndex[1]])
+                        //     style.normal.textColor = Color.blue;
+                        // else
+                             style.normal.textColor = Color.white;
+
+                         Vector3 d = (vlist[edges[id].vertexIndex[0]] + vlist[edges[id].vertexIndex[1]]) / 2;
+                         Handles.Label(_selection.transform.TransformPoint(d), id + " " + " \n" +
+                             //    tlist[edges[id].faceIndex[0] * 3] + " " + tlist[edges[id].faceIndex[1] * 3]+ " \n" +
+                             edges[id].faceIndex[0] + " " + edges[id].faceIndex[1] + " \n"
+                             // +  edges[id].faceIndex[0] % 3 + " " + edges[id].faceIndex[1] % 3
+                         , style);
+                     }
+                     id++;
+                 }*/
+                for (int i = 0, n = faces.Length; i < n; i++)
                 {
+                    Face f = faces[i];
                     GUIStyle style = new GUIStyle();
+                    style.normal.textColor = Color.white;
 
-                    if (tlist[edges[id].faceIndex[0]] == tlist[edges[id].faceIndex[1]])
-                        style.normal.textColor = Color.blue;
-                    else
-                        style.normal.textColor = Color.white;
-
-                    Vector3 d = (vlist[edges[id].vertexIndex[0]] + vlist[edges[id].vertexIndex[1]]) / 2;
-                    Handles.Label(_selection.transform.TransformPoint(d), id + " " + " \n" +
-                        //    tlist[edges[id].faceIndex[0] * 3] + " " + tlist[edges[id].faceIndex[1] * 3]+ " \n" +
-                        edges[id].faceIndex[0] + " " + edges[id].faceIndex[1] + " \n"
-                          // +  edges[id].faceIndex[0] % 3 + " " + edges[id].faceIndex[1] % 3
+                    Handles.Label(_selection.transform.TransformPoint(f.middle), i + " " + " \n" +
+                        f.triIndex[0] + " " + f.triIndex[1] //+ " \n"
+                        // +  edges[id].faceIndex[0] % 3 + " " + edges[id].faceIndex[1] % 3
                     , style);
 
-                    id++;
                 }
             }
             for (int i = 0, n = faces.Length; i < n; i++)
@@ -414,7 +430,7 @@ namespace klock.kEditPoly.panels
                     Vector3[] vs = new Vector3[4];
                     for (int id = 0, n2 = 4; id < n2; id++)
                     {
-                     //   Debug.Log(faces[i].vertexIndex[id]);
+                        //   Debug.Log(faces[i].vertexIndex[id]);
                         vs[id] = root.TransformPoint(vlist[faces[i].vertexIndex[id]]);
                     }
                     Handles.DrawPolyLine(vs);
@@ -749,7 +765,7 @@ namespace klock.kEditPoly.panels
 
 
                     setDirty = true;
-                //    isDrawn = true;
+                    //    isDrawn = true;
                 }
             }
 
@@ -911,7 +927,7 @@ namespace klock.kEditPoly.panels
                             //      VERT_remove(toolVerts[0]);
                             /*       _selectMesh.vertices = verti.ToArray();
                                    _selectMesh.RecalculateBounds();*/
-                            Debug.Log("---------------------------------------------------------------");
+                        //    Debug.Log("---------------------------------------------------------------");
 
                             _selectMesh.triangles = ntris.ToArray();
                             curPointIndex.Clear();
@@ -986,21 +1002,21 @@ namespace klock.kEditPoly.panels
         {
             kPoly.EdgeConnect_Preview(_selectMesh, curPointIndex, edges);
         }
-        
-       /* private static int GetEdge(int v1, int v2)
-        {
-            int index = 0;
-            foreach (Edge e in edges)
-            {
-                if (e.vertexIndex[0] == v1 && e.vertexIndex[1] == v2 ||
-                    e.vertexIndex[1] == v1 && e.vertexIndex[0] == v2)
-                {
-                    return index;
-                }
-                index++;
-            }
-            return -1;
-        }*/
+
+        /* private static int GetEdge(int v1, int v2)
+         {
+             int index = 0;
+             foreach (Edge e in edges)
+             {
+                 if (e.vertexIndex[0] == v1 && e.vertexIndex[1] == v2 ||
+                     e.vertexIndex[1] == v1 && e.vertexIndex[0] == v2)
+                 {
+                     return index;
+                 }
+                 index++;
+             }
+             return -1;
+         }*/
         /*     int tc = tlist.Count;
              int qc = (tc/2)/3;
 
@@ -1106,7 +1122,7 @@ namespace klock.kEditPoly.panels
 
                      }
                     */
-   
+
     }//kP_edit end
 
 

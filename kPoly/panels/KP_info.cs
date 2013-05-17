@@ -35,7 +35,7 @@ namespace klock.kEditPoly.panels
             EditorGUILayout.LabelField("Mesh Name : " + (_selection != null && _selectMesh != null ? _selectMesh.name : "none"));
             EditorGUI.indentLevel = 1;
             EditorGUILayout.LabelField("Vertecies : " + (_selection != null && _selectMesh != null ? _selectMesh.vertexCount + " " : "0"));
-            EditorGUILayout.LabelField("Triangles : " + (_selection != null && _selectMesh != null ? (_selectMesh.vertexCount / 3) + " " : "0"));
+            EditorGUILayout.LabelField("Triangles : " + (_selection != null && _selectMesh != null ? (_selectMesh.triangles.Length / 3) + " " : "0"));
             EditorGUILayout.LabelField("Faces : " + (_selection != null && _selectMesh != null ? (_selectMesh.vertexCount / 6) + " " : "0"));
             EditorGUILayout.LabelField("SubMeshes : " + (_selection != null && _selectMesh != null ? _selectMesh.subMeshCount : 0));
             EditorGUILayout.Space();
