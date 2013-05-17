@@ -2,7 +2,6 @@
 using UnityEditor;
 using UnityEngine;
 using klock.kEditPoly.helper;
-using klock.kEditPoly.style;
 
 namespace klock.kEditPoly.panels
 {

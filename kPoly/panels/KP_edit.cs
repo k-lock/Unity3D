@@ -15,37 +15,29 @@ namespace klock.kEditPoly.panels
     public class KP_edit
     {
 
-        static bool FOLD_selection = true;
-        //    static bool FOLD_object = true;
-        static bool FOLD_verts = true;
-        static bool FOLD_geome = true;
-        public static GameObject _selection = null;
-        public static bool _freeze = false;
+        static bool _F_selection = true;
+        static bool _F_vertices = true;
+        static bool _F_geometry = true;
+
+        public static GameObject selection = null;
+        static Mesh _selectMesh = null;
+
+        public static bool FREEZE = false;
         public static bool ANY_KEY = false;
-        public static bool _dragCreate = false;
+        public static bool DRAG_CREATE = false;
 
-        public static PLANAR_HELPER planarHelp = new PLANAR_HELPER();
-        public static MODE _editorMode = MODE.None;
+        public static PLANAR_HELPER P_HELPER = new PLANAR_HELPER();
+        public static MODE E_MODE = MODE.None;
 
-        //  static int triIndex = -1;
-        public static List<int> curPointIndex = new List<int>();
-
-        static Vector3[] verts;
-        public static int TOOL_INDEX = -1;
-
+        static Vector3[] _verts;
         public static Face[] faces = null;
         public static Edge[] edges = null;
-        static Mesh _selectMesh = null;
-        static List<int> toolVerts = new List<int>();
+        
+        public static List<int> curPointIndex = new List<int>();
+        static List<int> _toolVerts = new List<int>();
+        public static int TOOL_INDEX = -1;
 
-        private static GUIStyle selection_Style = null;
-        private static void Selection_Style()
-        {
-            selection_Style = new GUIStyle();
-            selection_Style.normal.background = EditorGUIUtility.whiteTexture;
-            //   selection_Style.active.background = GUI.skin.box.active.background;
-            selection_Style.contentOffset = new Vector2(7, 0);
-        }
+
         public static void DRAW_PANEL()
         {
             EditorGUILayout.BeginHorizontal();
@@ -54,54 +46,54 @@ namespace klock.kEditPoly.panels
             GUILayout.Space(5);
 
             Color editorGUIback = new Color(.76f, .76f, .76f);
-            if (selection_Style == null) Selection_Style();
-            if (_selection == null) _selection = kSelect.OBJECT;
-            Mesh _selectMesh = kSelect.MESH;
+            if (KP_Style.selection_Style == null) KP_Style.Selection_Style();
+           // if (selection == null) selection = kSelect.OBJECT;
+            //Mesh _selectMesh = kSelect.MESH;
             //MODE modeTemp = _editorMode;
-            GUI.enabled = (_selection != null && _selectMesh != null);
+            GUI.enabled = (selection != null);
             //-------------------------------------------------------------------
             //  SELECTION
             float bw = 50,
                     bh = 30;
-            FOLD_selection = EditorGUILayout.Foldout(FOLD_selection, "Selection " + _editorMode.ToString());// + ((_selection != null) ? "[ " + _selection.name + " ]" : ""));
-            if (FOLD_selection)
+            _F_selection = EditorGUILayout.Foldout(_F_selection, "Selection " + E_MODE.ToString());// + ((_selection != null) ? "[ " + _selection.name + " ]" : ""));
+            if (_F_selection)
             {
                 bool pressed = false;
                 EditorGUILayout.BeginVertical();
                 GUILayout.Space(2);
                 GUILayout.BeginHorizontal();
-                GUI.color = (_editorMode == MODE.Point) ? Color.yellow : editorGUIback;
-                if (GUILayout.Button(new GUIContent(kLibary.LoadBitmap("points", 25, 25)), selection_Style, GUILayout.Width(bw), GUILayout.Height(bh)))
+                GUI.color = (E_MODE == MODE.Point) ? Color.yellow : editorGUIback;
+                if (GUILayout.Button(new GUIContent(kLibary.LoadBitmap("points", 25, 25)), KP_Style.selection_Style, GUILayout.Width(bw), GUILayout.Height(bh)))
                 {
-                    _editorMode = (_editorMode == MODE.Point) ? MODE.None : MODE.Point;
+                    E_MODE = (E_MODE == MODE.Point) ? MODE.None : MODE.Point;
                     pressed = true;
                 }
                 GUI.color = Color.white;
-                GUI.color = (_editorMode == MODE.Edge) ? Color.yellow : editorGUIback;
-                if (GUILayout.Button(new GUIContent(kLibary.LoadBitmap("edge", 25, 25)), selection_Style, GUILayout.Width(bw), GUILayout.Height(bh)))
+                GUI.color = (E_MODE == MODE.Edge) ? Color.yellow : editorGUIback;
+                if (GUILayout.Button(new GUIContent(kLibary.LoadBitmap("edge", 25, 25)), KP_Style.selection_Style, GUILayout.Width(bw), GUILayout.Height(bh)))
                 {
-                    _editorMode = (_editorMode == MODE.Edge) ? MODE.None : MODE.Edge;
+                    E_MODE = (E_MODE == MODE.Edge) ? MODE.None : MODE.Edge;
                     pressed = true;
                 }
                 GUI.color = Color.white;
-                GUI.color = (_editorMode == MODE.Triangle) ? Color.yellow : editorGUIback;
-                if (GUILayout.Button(new GUIContent(kLibary.LoadBitmap("tri", 25, 25)), selection_Style, GUILayout.Width(bw), GUILayout.Height(bh)))
+                GUI.color = (E_MODE == MODE.Triangle) ? Color.yellow : editorGUIback;
+                if (GUILayout.Button(new GUIContent(kLibary.LoadBitmap("tri", 25, 25)), KP_Style.selection_Style, GUILayout.Width(bw), GUILayout.Height(bh)))
                 {
-                    _editorMode = (_editorMode == MODE.Triangle) ? MODE.None : MODE.Triangle;
+                    E_MODE = (E_MODE == MODE.Triangle) ? MODE.None : MODE.Triangle;
                     pressed = true;
                 }
                 GUI.color = Color.white;
-                GUI.color = (_editorMode == MODE.Quad) ? Color.yellow : editorGUIback;
-                if (GUILayout.Button(new GUIContent(kLibary.LoadBitmap("quad", 25, 25)), selection_Style, GUILayout.Width(bw), GUILayout.Height(bh)))
+                GUI.color = (E_MODE == MODE.Quad) ? Color.yellow : editorGUIback;
+                if (GUILayout.Button(new GUIContent(kLibary.LoadBitmap("quad", 25, 25)), KP_Style.selection_Style, GUILayout.Width(bw), GUILayout.Height(bh)))
                 {
-                    _editorMode = (_editorMode == MODE.Quad) ? MODE.None : MODE.Quad;
+                    E_MODE = (E_MODE == MODE.Quad) ? MODE.None : MODE.Quad;
                     pressed = true;
                 }
                 GUI.color = Color.white;
-                GUI.color = (_editorMode == MODE.All) ? Color.yellow : editorGUIback;
-                if (GUILayout.Button(new GUIContent(kLibary.LoadBitmap("sub", 25, 25)), selection_Style, GUILayout.Width(bw), GUILayout.Height(bh)))
+                GUI.color = (E_MODE == MODE.All) ? Color.yellow : editorGUIback;
+                if (GUILayout.Button(new GUIContent(kLibary.LoadBitmap("sub", 25, 25)), KP_Style.selection_Style, GUILayout.Width(bw), GUILayout.Height(bh)))
                 {
-                    _editorMode = (_editorMode == MODE.All) ? MODE.None : MODE.All;
+                    E_MODE = (E_MODE == MODE.All) ? MODE.None : MODE.All;
                     pressed = true;
                 }
                 GUI.color = Color.white;
@@ -111,24 +103,27 @@ namespace klock.kEditPoly.panels
                 {
                     // if (_selection != null )
                     // {
-                    _selection = kSelect.OBJECT;
-                    _freeze = (_editorMode != MODE.None) ? true : false;
+                    selection = kSelect.OBJECT;
+                    FREEZE = (E_MODE != MODE.None) ? true : false;
 
-                    if (_editorMode != MODE.None)
+                    if (E_MODE != MODE.None)
                     {
-                        _selection.hideFlags |= HideFlags.NotEditable;
+                        selection.hideFlags |= HideFlags.NotEditable;
                         kPoly2Tool.SceneEvent(true);
+                        _selectMesh = kSelect.MESH;
                     }
                     else
                     {
-                        _selection.hideFlags = 0;
+                        selection.hideFlags = 0;
                         kPoly2Tool.SceneEvent(false);
+                        _selectMesh = null;
                     }
                     curPointIndex.Clear();
                     TOOL_INDEX = -1;
                     // if (toolVerts.Count > 0) 
                     //       toolVerts.Clear();
                     //  }
+                    SceneView.currentDrawingSceneView.Repaint();
                 }
 
                 //EditorGUILayout.BeginHorizontal();
@@ -136,11 +131,11 @@ namespace klock.kEditPoly.panels
                 // EditorGUILayout.LabelField(" " + (_editorMode != MODE.None && curPointIndex.Count > 0 ? curPointIndex[0] + " " : ""), GUILayout.ExpandWidth(true));
                 //EditorGUILayout.EndHorizontal();
             }
-
+            GUI.enabled = (E_MODE != MODE.None);
             //-------------------------------------------------------------------
             //  VERTS 
-            FOLD_verts = EditorGUILayout.Foldout(FOLD_verts, "Edit Vertices");
-            if (FOLD_verts)
+            _F_vertices = EditorGUILayout.Foldout(_F_vertices, "Edit Vertices");
+            if (_F_vertices)
             {
                 GUILayout.BeginHorizontal();
                 if (GUILayout.Button(new GUIContent("Remove"), EditorStyles.toolbarButton)  )
@@ -175,7 +170,7 @@ namespace klock.kEditPoly.panels
                     SceneView.currentDrawingSceneView.Repaint();
                 }
                 GUI.color = Color.white;
-                if (_editorMode == MODE.Edge)
+                if (E_MODE == MODE.Edge)
                 {
                     if (GUILayout.Button(new GUIContent("Connect"), EditorStyles.toolbarButton))
                     {
@@ -200,30 +195,30 @@ namespace klock.kEditPoly.panels
             }
             //-------------------------------------------------------------------
             //  GEOMETRY
-            FOLD_geome = EditorGUILayout.Foldout(FOLD_geome, "Edit Geometry");
-            if (FOLD_geome)
+            _F_geometry = EditorGUILayout.Foldout(_F_geometry, "Edit Geometry");
+            if (_F_geometry)
             {
                 //EditorGUILayout.Toggle(false, "Preserve UVs");
                 GUILayout.BeginHorizontal();
 
                 if (GUILayout.Button(new GUIContent("Make Planar"), EditorStyles.toolbarButton))
                 {
-                    if (_selection != null && _selectMesh != null)
+                    if (selection != null && _selectMesh != null)
                     {
-                        kPoly.VerticesFlatten(_selectMesh, curPointIndex, _editorMode, planarHelp, edges, faces);
+                        kPoly.VerticesFlatten(_selectMesh, curPointIndex, E_MODE, P_HELPER, edges, faces);
                         curPointIndex.Clear();
                     }
                 }
                 GUILayout.Space(5);
                 GUI.color = Color.white;
-                GUI.color = (planarHelp.x_Axis) ? Color.grey : Color.white;
-                if (GUILayout.Button(new GUIContent("X"), EditorStyles.toolbarButton)) { planarHelp.x_Axis = !planarHelp.x_Axis; }
+                GUI.color = (P_HELPER.x_Axis) ? Color.grey : Color.white;
+                if (GUILayout.Button(new GUIContent("X"), EditorStyles.toolbarButton)) { P_HELPER.x_Axis = !P_HELPER.x_Axis; }
                 GUI.color = Color.white;
-                GUI.color = (planarHelp.y_Axis) ? Color.grey : Color.white;
-                if (GUILayout.Button(new GUIContent("Y"), EditorStyles.toolbarButton)) { planarHelp.y_Axis = !planarHelp.y_Axis; }
+                GUI.color = (P_HELPER.y_Axis) ? Color.grey : Color.white;
+                if (GUILayout.Button(new GUIContent("Y"), EditorStyles.toolbarButton)) { P_HELPER.y_Axis = !P_HELPER.y_Axis; }
                 GUI.color = Color.white;
-                GUI.color = (planarHelp.z_Axis) ? Color.grey : Color.white;
-                if (GUILayout.Button(new GUIContent("Z"), EditorStyles.toolbarButton)) { planarHelp.z_Axis = !planarHelp.z_Axis; }
+                GUI.color = (P_HELPER.z_Axis) ? Color.grey : Color.white;
+                if (GUILayout.Button(new GUIContent("Z"), EditorStyles.toolbarButton)) { P_HELPER.z_Axis = !P_HELPER.z_Axis; }
                 GUI.color = Color.white;
 
                 GUILayout.EndHorizontal();
@@ -231,7 +226,7 @@ namespace klock.kEditPoly.panels
             //   EditorGUILayout.LabelField("Active Object : " + _selection.name + " Mesh : " + _selectMesh.name);
 
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button(new GUIContent("Clear Verts"), EditorStyles.toolbarButton)) verts = null;
+            if (GUILayout.Button(new GUIContent("Clear Verts"), EditorStyles.toolbarButton)) _verts = null;
       //      if (GUILayout.Button(new GUIContent("Clear Tris"), EditorStyles.toolbarButton)) tris = null;
             if (GUILayout.Button(new GUIContent("Clear Edges"), EditorStyles.toolbarButton)) edges = null;
             if (GUILayout.Button(new GUIContent("Clear Faces"), EditorStyles.toolbarButton)) faces = null;
@@ -243,17 +238,17 @@ namespace klock.kEditPoly.panels
 
         public static void Draw_Handles()
         {
-            _selection = kSelect.OBJECT;
+            selection = kSelect.OBJECT;
             Mesh _selectMesh = kSelect.MESH;
-            if (_selectMesh == null || _selection == null)
+            if (_selectMesh == null || selection == null)
             {
                 return;
             }
 
             Undo.SetSnapshotTarget(_selectMesh, "MeshEdit");
 
-            verts = _selectMesh.vertices;
-            Transform root = _selection.transform;
+            _verts = _selectMesh.vertices;
+            Transform root = selection.transform;
 
             /*     int controlIDBeforeHandle = -1,
                      controlIDAfterHandle = -1;
@@ -265,13 +260,13 @@ namespace klock.kEditPoly.panels
 
             // Vert Labels
             if (KP_info._SHOW_TRIAS)
-                for (int i = 0; i < verts.Length; i++)
+                for (int i = 0; i < _verts.Length; i++)
                 {
-                    Vector3 v1 = root.TransformPoint(verts[i]);
+                    Vector3 v1 = root.TransformPoint(_verts[i]);
                     Handles.Label(v1, new GUIContent("" + i));
                 }
             //     int someHashCode = kPoly2Tool.instance.GetHashCode();
-            switch (_editorMode)
+            switch (E_MODE)
             {
                 case MODE.Point: setDirty = ModifiVerticies_points(); break;
                 case MODE.Edge: setDirty = ModifiVerticies_edges(); break;
@@ -281,19 +276,19 @@ namespace klock.kEditPoly.panels
             }
 
 
-            if (setDirty && _selection != null)
+            if (setDirty && selection != null)
             {
                 Undo.IncrementCurrentEventIndex();
 
-                _selectMesh.vertices = verts;
+                _selectMesh.vertices = _verts;
 
                 _selectMesh.RecalculateNormals();
                 _selectMesh.RecalculateBounds();
 
                 Undo.IncrementCurrentEventIndex();
 
-                _selection.GetComponent<MeshCollider>().sharedMesh = null;
-                _selection.GetComponent<MeshCollider>().sharedMesh = _selectMesh;
+                selection.GetComponent<MeshCollider>().sharedMesh = null;
+                selection.GetComponent<MeshCollider>().sharedMesh = _selectMesh;
 
                 kPoly2Tool.instance.Repaint();
                 SceneView.RepaintAll();
@@ -317,7 +312,7 @@ namespace klock.kEditPoly.panels
             Vector3 scale = new Vector3(1, 1, 1);
             Vector3 mpos = Vector3.zero;
             Quaternion mrot = Quaternion.identity;
-            Transform root = _selection.transform;
+            Transform root = selection.transform;
             //int eIndex = 0;
             List<Vector3> vlist = new List<Vector3>(_selectMesh.vertices);
             List<int> tlist = new List<int>(_selectMesh.triangles);
@@ -351,7 +346,7 @@ namespace klock.kEditPoly.panels
                     GUIStyle style = new GUIStyle();
                     style.normal.textColor = Color.white;
 
-                    Handles.Label(_selection.transform.TransformPoint(f.middle), i + " " + " \n" +
+                    Handles.Label(selection.transform.TransformPoint(f.middle), i + " " + " \n" +
                         f.triIndex[0] + " " + f.triIndex[1] //+ " \n"
                         // +  edges[id].faceIndex[0] % 3 + " " + edges[id].faceIndex[1] % 3
                     , style);
@@ -418,12 +413,12 @@ namespace klock.kEditPoly.panels
                         int d3 = f.vertexIndex[2];
                         int d4 = f.vertexIndex[3];
 
-                        verts[d1] = m.MultiplyPoint3x4(_selectMesh.vertices[d1]);
-                        verts[d2] = m.MultiplyPoint3x4(_selectMesh.vertices[d2]);
-                        verts[d3] = m.MultiplyPoint3x4(_selectMesh.vertices[d3]);
-                        verts[d4] = m.MultiplyPoint3x4(_selectMesh.vertices[d4]);
+                        _verts[d1] = m.MultiplyPoint3x4(_selectMesh.vertices[d1]);
+                        _verts[d2] = m.MultiplyPoint3x4(_selectMesh.vertices[d2]);
+                        _verts[d3] = m.MultiplyPoint3x4(_selectMesh.vertices[d3]);
+                        _verts[d4] = m.MultiplyPoint3x4(_selectMesh.vertices[d4]);
 
-                        f.middle = (verts[d1] + verts[d2] + verts[d3] + verts[d4]) / 4;
+                        f.middle = (_verts[d1] + _verts[d2] + _verts[d3] + _verts[d4]) / 4;
 
                     }
 
@@ -433,7 +428,7 @@ namespace klock.kEditPoly.panels
                         int d2 = f.vertexIndex[1];
                         int d3 = f.vertexIndex[2];
                         int d4 = f.vertexIndex[3];
-                        f.middle = (verts[d1] + verts[d2] + verts[d3] + verts[d4]) / 4;
+                        f.middle = (_verts[d1] + _verts[d2] + _verts[d3] + _verts[d4]) / 4;
                     }
 
                     setDirty = true;
@@ -455,7 +450,7 @@ namespace klock.kEditPoly.panels
             Vector3 scale = new Vector3(1, 1, 1);
             Vector3 mpos = Vector3.zero;
             Quaternion mrot = Quaternion.identity;
-            Transform root = _selection.transform;
+            Transform root = selection.transform;
 
             //     int someHashCode = kPoly2Tool.instance.GetHashCode();
             int[] tris = _selectMesh.triangles;
@@ -467,9 +462,9 @@ namespace klock.kEditPoly.panels
 
                 //     Debug.Log(n + " " + i * 3 + " " + verts[tris[i * 3]] + "| " + (i * 3 + 1) + " " + verts[tris[i * 3+1]] + "| " + (i * 3 + 2)+ " "+ verts[tris[i * 3+2]] + "| " );
 
-                Vector3 v1 = root.TransformPoint(verts[tris[i * 3]]);
-                Vector3 v2 = root.TransformPoint(verts[tris[i * 3 + 1]]);
-                Vector3 v3 = root.TransformPoint(verts[tris[i * 3 + 2]]);
+                Vector3 v1 = root.TransformPoint(_verts[tris[i * 3]]);
+                Vector3 v2 = root.TransformPoint(_verts[tris[i * 3 + 1]]);
+                Vector3 v3 = root.TransformPoint(_verts[tris[i * 3 + 2]]);
                 Vector3 dv = (v1 + v2 + v3) / 3;
 
                 //          int controlIDBeforeHandle = GUIUtility.GetControlID(someHashCode, FocusType.Passive);
@@ -513,9 +508,9 @@ namespace klock.kEditPoly.panels
                 int d2 = tris[id * 3 + 1];
                 int d3 = tris[id * 3 + 2];
 
-                Vector3 pd1 = verts[d1];
-                Vector3 pd2 = verts[d2];
-                Vector3 pd3 = verts[d3];
+                Vector3 pd1 = _verts[d1];
+                Vector3 pd2 = _verts[d2];
+                Vector3 pd3 = _verts[d3];
 
                 dhp += root.TransformPoint((pd1 + pd2 + pd3) / 3);
 
@@ -546,9 +541,9 @@ namespace klock.kEditPoly.panels
                         int d2 = tris[id * 3 + 1];
                         int d3 = tris[id * 3 + 2];
 
-                        verts[d1] = m.MultiplyPoint3x4(_selectMesh.vertices[d1]);
-                        verts[d2] = m.MultiplyPoint3x4(_selectMesh.vertices[d2]);
-                        verts[d3] = m.MultiplyPoint3x4(_selectMesh.vertices[d3]);
+                        _verts[d1] = m.MultiplyPoint3x4(_selectMesh.vertices[d1]);
+                        _verts[d2] = m.MultiplyPoint3x4(_selectMesh.vertices[d2]);
+                        _verts[d3] = m.MultiplyPoint3x4(_selectMesh.vertices[d3]);
 
                     }
                     setDirty = true;
@@ -576,7 +571,7 @@ namespace klock.kEditPoly.panels
             Vector3 scale = new Vector3(1, 1, 1);
             Vector3 mpos = Vector3.zero;
             Quaternion mrot = Quaternion.identity;
-            Transform root = _selection.transform;
+            Transform root = selection.transform;
             if (edges == null) edges = kPoly.BuildEdges(_selectMesh.vertexCount, _selectMesh.triangles);
             int eIndex = 0;
             List<Vector3> nverts = new List<Vector3>(_selectMesh.vertices);
@@ -622,8 +617,8 @@ namespace klock.kEditPoly.panels
             {
                 int d1 = edges[id].vertexIndex[0];
                 int d2 = edges[id].vertexIndex[1];
-                Vector3 pd1 = verts[d1];
-                Vector3 pd2 = verts[d2];
+                Vector3 pd1 = _verts[d1];
+                Vector3 pd2 = _verts[d2];
 
                 dhp += root.TransformPoint((pd1 + pd2) / 2);
 
@@ -655,17 +650,18 @@ namespace klock.kEditPoly.panels
 
                             int d1 = edges[id].vertexIndex[0];
                             int d2 = edges[id].vertexIndex[1];
-                            verts[d1] = m.MultiplyPoint3x4(_selectMesh.vertices[d1]);
-                            verts[d2] = m.MultiplyPoint3x4(_selectMesh.vertices[d2]);
+                            _verts[d1] = m.MultiplyPoint3x4(_selectMesh.vertices[d1]);
+                            _verts[d2] = m.MultiplyPoint3x4(_selectMesh.vertices[d2]);
                         }
-                        _dragCreate = false;
+                        DRAG_CREATE = false;
+                        setDirty = true;
                     }
                     else
                     {
                         /// create two new verts
                         /// create edge
 
-                        if (!_dragCreate)
+                        if (!DRAG_CREATE)
                         {
 
                             int io1 = edges[curPointIndex[0]].vertexIndex[0];
@@ -690,7 +686,7 @@ namespace klock.kEditPoly.panels
 
                             /// get the index of new created edge
                             /// set curPoint id -> the new one
-                            _dragCreate = true;
+                            DRAG_CREATE = true;
 
                             int nei = kPoly.EdgeIndex(in1, in2, edges);
                             //   edges[curPointIndex[0]].faceIndex[0];
@@ -709,7 +705,7 @@ namespace klock.kEditPoly.panels
                     }
 
 
-                    setDirty = true;
+                    //
                     //    isDrawn = true;
                 }
             }
@@ -718,9 +714,9 @@ namespace klock.kEditPoly.panels
         }
         public static void VerticesRemover()
         {
-           _selectMesh =  VerticesRemover( ((_selectMesh != null )? _selectMesh : kSelect.MESH), curPointIndex, _editorMode, edges, faces);
+           _selectMesh =  VerticesRemover( ((_selectMesh != null )? _selectMesh : kSelect.MESH), curPointIndex, E_MODE, edges, faces);
             curPointIndex.Clear();
-            switch (_editorMode)
+            switch (E_MODE)
             {
                 case MODE.Edge: edges = null; edges = kPoly.BuildEdges(_selectMesh.vertexCount, _selectMesh.triangles); break;
             }
@@ -741,11 +737,11 @@ namespace klock.kEditPoly.panels
             Vector3 scale = new Vector3(1, 1, 1);
             Vector3 mpos = Vector3.zero;
             Quaternion mrot = Quaternion.identity;
-            Transform root = _selection.transform;
+            Transform root = selection.transform;
 
-            for (int i = 0; i < verts.Length; i++)
+            for (int i = 0; i < _verts.Length; i++)
             {
-                Vector3 v1 = root.TransformPoint(verts[i]);
+                Vector3 v1 = root.TransformPoint(_verts[i]);
 
                 if (curPointIndex.Contains(i))
                     Handles.color = new Color(Color.red.r, Color.red.g, Color.red.b, .85f);
@@ -781,7 +777,7 @@ namespace klock.kEditPoly.panels
                    }*/
                 if (curPointIndex.Contains(i) && !isDrawn)
                 {
-                    foreach (int id in curPointIndex) dhp += root.TransformPoint(verts[id]);
+                    foreach (int id in curPointIndex) dhp += root.TransformPoint(_verts[id]);
                     if ((mpos = dhp = dhp / curPointIndex.Count) != Vector3.zero)
                     {
                         switch (Tools.current)
@@ -802,7 +798,7 @@ namespace klock.kEditPoly.panels
                             Vector3 d = mpos - dhp;
                             if (mrot != Quaternion.identity || scale != new Vector3(1, 1, 1)) d = Vector3.zero;
                             Matrix4x4 m = Matrix4x4.TRS(d, mrot, scale);
-                            foreach (int id in curPointIndex) verts[id] = m.MultiplyPoint3x4(verts[id]);
+                            foreach (int id in curPointIndex) _verts[id] = m.MultiplyPoint3x4(_verts[id]);
 
                             setDirty = true;
                         }
@@ -811,29 +807,29 @@ namespace klock.kEditPoly.panels
             }
 
 
-            if (_selection != null && TOOL_INDEX != -1 && curPointIndex.Count > 0 && !setDirty)
+            if (selection != null && TOOL_INDEX != -1 && curPointIndex.Count > 0 && !setDirty)
             {
                 //  int[] tris = _selectMesh.triangles;
                 int sp = curPointIndex[0];
-                Vector3 tv = root.TransformPoint(verts[sp]);
-                toolVerts = new List<int>();
+                Vector3 tv = root.TransformPoint(_verts[sp]);
+                _toolVerts = new List<int>();
                 isDrawn = false;
                 // Find verts intersects
-                for (int i = 0; i < verts.Length; i++)
+                for (int i = 0; i < _verts.Length; i++)
                 {
-                    Vector3 tiv = root.TransformPoint(verts[i]);
+                    Vector3 tiv = root.TransformPoint(_verts[i]);
                     float dist = Vector3.Distance(tv, tiv);
                     if (dist < SGUIelements._toolRadius && dist > 0.00000000001f)
                     {
                         //Debug.Log("Add Vert : " + i + " sp  " + sp);
-                        toolVerts.Add(i);
+                        _toolVerts.Add(i);
                     }
                 }
                 //---------------------------------------------------------------DRAW HANDLES
-                if (toolVerts.Count < 1)
+                if (_toolVerts.Count < 1)
                 {
                     Handles.color = new Color(Color.red.r, Color.red.g, Color.red.b, .85f);
-                    toolVerts = null;
+                    _toolVerts = null;
                 }
                 else
                     Handles.color = new Color(Color.green.r, Color.green.g, Color.green.b, .85f);
@@ -846,7 +842,7 @@ namespace klock.kEditPoly.panels
                 {
                     bool change = false;
                     // If found verts in circle | 
-                    if (toolVerts != null && toolVerts.Count != 0 && isDrawn == false)
+                    if (_toolVerts != null && _toolVerts.Count != 0 && isDrawn == false)
                     {
                         if (_selectMesh == null) _selectMesh = kSelect.MESH;
 
@@ -857,7 +853,7 @@ namespace klock.kEditPoly.panels
 
                         if (isDrawn == false)
                         {
-                            foreach (int cp in toolVerts)
+                            foreach (int cp in _toolVerts)
                             {
                                 for (int i = 0, n = tris.Count; i < n; i += 3)
                                 {
@@ -913,11 +909,11 @@ namespace klock.kEditPoly.panels
             Vector3 mpos = Vector3.zero;
             Quaternion mrot = Quaternion.identity;
 
-            foreach (Vector3 v in verts)
+            foreach (Vector3 v in _verts)
             {
-                dhp += _selection.transform.TransformPoint(v);
+                dhp += selection.transform.TransformPoint(v);
             }
-            mpos = dhp = dhp / verts.Length;
+            mpos = dhp = dhp / _verts.Length;
 
             float cubeSize = HandleUtility.GetHandleSize(dhp) * .04f;
             Handles.color = new Color(Color.red.r, Color.red.g, Color.red.b, .85f);
@@ -938,9 +934,9 @@ namespace klock.kEditPoly.panels
             {
                 Vector3 d = mpos - dhp;
                 Matrix4x4 m = Matrix4x4.TRS(d, mrot, scale);
-                for (int i = 0; i < verts.Length; i++)
+                for (int i = 0; i < _verts.Length; i++)
                 {
-                    verts[i] = m.MultiplyPoint3x4(verts[i]);
+                    _verts[i] = m.MultiplyPoint3x4(_verts[i]);
                 }
                 setDirty = true;
             }
