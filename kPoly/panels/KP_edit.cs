@@ -32,7 +32,7 @@ namespace klock.kEditPoly.panels
         static Vector3[] _verts;
         public static Face[] faces = null;
         public static Edge[] edges = null;
-        
+
         public static List<int> curPointIndex = new List<int>();
         static List<int> _toolVerts = new List<int>();
         public static int TOOL_INDEX = -1;
@@ -47,7 +47,7 @@ namespace klock.kEditPoly.panels
 
             Color editorGUIback = new Color(.76f, .76f, .76f);
             if (KP_Style.selection_Style == null) KP_Style.Selection_Style();
-           // if (selection == null) selection = kSelect.OBJECT;
+            // if (selection == null) selection = kSelect.OBJECT;
             //Mesh _selectMesh = kSelect.MESH;
             //MODE modeTemp = _editorMode;
             GUI.enabled = (selection != null);
@@ -104,7 +104,7 @@ namespace klock.kEditPoly.panels
                     // if (_selection != null )
                     // {
                     selection = kSelect.OBJECT;
-                    FREEZE = (E_MODE != MODE.None) ? true : false;
+                    FREEZE = (E_MODE != MODE.None && selection != null) ? true : false;
 
                     if (E_MODE != MODE.None)
                     {
@@ -138,7 +138,7 @@ namespace klock.kEditPoly.panels
             if (_F_vertices)
             {
                 GUILayout.BeginHorizontal();
-                if (GUILayout.Button(new GUIContent("Remove"), EditorStyles.toolbarButton)  )
+                if (GUILayout.Button(new GUIContent("Remove"), EditorStyles.toolbarButton))
                 {
                     VerticesRemover();
                 }
@@ -174,7 +174,7 @@ namespace klock.kEditPoly.panels
                 {
                     if (GUILayout.Button(new GUIContent("Connect"), EditorStyles.toolbarButton))
                     {
-                        kPoly.EdgeConnect_Preview(_selectMesh, curPointIndex, edges);
+                        kPoly.EdgeConnect_Preview(_selectMesh, curPointIndex, edges, SGUIelements._connex, SGUIelements._conPad, true);
                         //_selectMesh, curPointIndex, edges, SGUIelements._connex, SGUIelements._conPad, true);
                         // ModifiVerticies_edgeConnect();
                     }
@@ -187,6 +187,7 @@ namespace klock.kEditPoly.panels
                             TOOL_INDEX = -1;
 
                         SceneView.currentDrawingSceneView.Repaint();
+                       
                     }
                     GUI.color = Color.white;
                 }
@@ -227,7 +228,7 @@ namespace klock.kEditPoly.panels
 
             GUILayout.BeginHorizontal();
             if (GUILayout.Button(new GUIContent("Clear Verts"), EditorStyles.toolbarButton)) _verts = null;
-      //      if (GUILayout.Button(new GUIContent("Clear Tris"), EditorStyles.toolbarButton)) tris = null;
+            //      if (GUILayout.Button(new GUIContent("Clear Tris"), EditorStyles.toolbarButton)) tris = null;
             if (GUILayout.Button(new GUIContent("Clear Edges"), EditorStyles.toolbarButton)) edges = null;
             if (GUILayout.Button(new GUIContent("Clear Faces"), EditorStyles.toolbarButton)) faces = null;
             GUILayout.EndHorizontal();
@@ -242,6 +243,7 @@ namespace klock.kEditPoly.panels
             Mesh _selectMesh = kSelect.MESH;
             if (_selectMesh == null || selection == null)
             {
+                FREEZE = false;
                 return;
             }
 
@@ -557,7 +559,7 @@ namespace klock.kEditPoly.panels
         private static bool ModifiVerticies_edges()// -------------------------------------------- TRANSFORM edges
         {
             if (_selectMesh == null ||
-                _selectMesh.vertexCount != kSelect.MESH.vertexCount || 
+                _selectMesh.vertexCount != kSelect.MESH.vertexCount ||
                 edges == null
                 )
             {
@@ -582,7 +584,8 @@ namespace klock.kEditPoly.panels
 
                 int t1 = edge.vertexIndex[0];
                 int t2 = edge.vertexIndex[1];
-                if (t1 < 0 || t2 < 0 || t1 > edges.Length || t2 > edges.Length)
+                if (_selectMesh.vertices.Length < t2 || _selectMesh.vertices.Length < t1 ||
+                t1 < 0 || t2 < 0 || t1 > edges.Length - 1 || t2 > edges.Length - 1 )
                 {
                     edges = null;
                     edges = kPoly.BuildEdges(_selectMesh.vertexCount, _selectMesh.triangles);
@@ -591,8 +594,6 @@ namespace klock.kEditPoly.panels
                 Vector3 p1 = _selectMesh.vertices[t1];
                 Vector3 p2 = _selectMesh.vertices[t2];
                 Vector3 dv = root.TransformPoint((p1 + p2) / 2);
-
-
 
                 float cubeSize = HandleUtility.GetHandleSize(dv) * .04f;
                 if (curPointIndex.Contains(eIndex))//&& curPointIndex.Contains(t2))
@@ -714,21 +715,21 @@ namespace klock.kEditPoly.panels
         }
         public static void VerticesRemover()
         {
-           _selectMesh =  VerticesRemover( ((_selectMesh != null )? _selectMesh : kSelect.MESH), curPointIndex, E_MODE, edges, faces);
+            _selectMesh = VerticesRemover(((_selectMesh != null) ? _selectMesh : kSelect.MESH), curPointIndex, E_MODE, edges, faces);
             curPointIndex.Clear();
             switch (E_MODE)
             {
                 case MODE.Edge: edges = null; edges = kPoly.BuildEdges(_selectMesh.vertexCount, _selectMesh.triangles); break;
             }
-                
+
             faces = null;
             //verts = null;
         }
         private static Mesh VerticesRemover(Mesh _selectMesh, List<int> curPointIndex, MODE _editorMode, Edge[] edges = null, Face[] faces = null)
         {
-           return kPoly.VerticesRemover(_selectMesh, curPointIndex, _editorMode, edges, faces);
+            return kPoly.VerticesRemover(_selectMesh, curPointIndex, _editorMode, edges, faces);
         }
-        
+
         private static bool ModifiVerticies_points(bool now = false)// -------------------------------------------- TRANSFORM verticies
         {
             bool setDirty = false,
@@ -884,7 +885,7 @@ namespace klock.kEditPoly.panels
                             //      VERT_remove(toolVerts[0]);
                             /*       _selectMesh.vertices = verti.ToArray();
                                    _selectMesh.RecalculateBounds();*/
-                        //    Debug.Log("---------------------------------------------------------------");
+                            //    Debug.Log("---------------------------------------------------------------");
 
                             _selectMesh.triangles = ntris.ToArray();
                             curPointIndex.Clear();
@@ -955,9 +956,10 @@ namespace klock.kEditPoly.panels
             else
                 curPointIndex.Remove(i);
         }
-        public static void EdgeConnect_Preview()
+        public static void EdgeConnect_Preview(bool change = false)
         {
-            kPoly.EdgeConnect_Preview(_selectMesh, curPointIndex, edges);
+            kPoly.EdgeConnect_Preview(_selectMesh, curPointIndex, edges, SGUIelements._connex, SGUIelements._conPad, change);
+           
         }
 
         /* private static int GetEdge(int v1, int v2)
