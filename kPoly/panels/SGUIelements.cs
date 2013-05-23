@@ -89,8 +89,9 @@ namespace klock.kEditPoly.panels
             GUI.color = Color.white;
             if (GUILayout.Button("Apply", GUILayout.Width(140)))
             {
+                KP_edit.TOOL_INDEX = -1;
                 _toolPreview = true;
-                KP_edit.EdgeConnect_Preview();
+                KP_edit.EdgeConnect_Preview(true);
             }
             GUI.EndGroup();
             Handles.EndGUI();
