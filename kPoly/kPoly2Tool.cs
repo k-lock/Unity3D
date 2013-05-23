@@ -93,7 +93,7 @@ namespace klock.kEditPoly
                         break;
                     case 2:
                         SGUIelements.Tool_connect();
-                        //       kPoly.EdgeConnect_Preview( _selectMesh, curPointIndex, edges, SGUIelements._connex, SGUIelements._conPad, true);
+                        KP_edit.EdgeConnect_Preview( );
                         break;
                 }
             }
@@ -132,9 +132,10 @@ namespace klock.kEditPoly
                 if (kInputs.KeyDown(KeyCode.F4)) { KP_edit.E_MODE = MODE.Quad; c = true; }
                 if (kInputs.KeyDown(KeyCode.F5)) { KP_edit.E_MODE = MODE.All; c = true; }
                 if (c) { instance.Repaint(); return; }
-                
+
                 KP_edit.Draw_Handles();
                 SceneView.currentDrawingSceneView.Repaint();
+
             }
 
 
