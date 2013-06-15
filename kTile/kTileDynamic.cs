@@ -40,7 +40,7 @@ public class kTileDynamic : MonoBehaviour
 //	public 		bool 		reverse	= false;
 	
 	#region UNITY
-//	#if UNITY_EDITOR
+	#if UNITY_EDITOR
 	
 	public void Awake ()
 	{
@@ -61,11 +61,12 @@ public class kTileDynamic : MonoBehaviour
 	
 	void OnDisable ()
 	{
-		//GetComponent<MeshFilter> ().mesh = mesh = null;
-		//DestroyImmediate (mesh);
+		GetComponent<MeshFilter> ().mesh = mesh = null;
+		DestroyImmediate (mesh);
+
 	}
 
-//	#endif
+	#endif
 	#endregion
 	public void MESH_refresh ()
 	{
@@ -141,13 +142,6 @@ public class kTileDynamic : MonoBehaviour
 	}
 
 	#region Animation 
-	
-	public void SetFrame( int frameNr )
-	{
-		_currentFrame = frameNr;
-		MESH_refresh();
-	
-	}
 	
 	//int i = 0;
 	public void Frame_check()
@@ -228,7 +222,7 @@ public class kTileDynamic : MonoBehaviour
 						
 					//}
 					if( _currentFrame < 0)_currentFrame = 0;
-					if( _currentFrame > _lastFrame)_currentFrame = _lastFrame;
+					if( _currentFrame > _lastFrame-1)_currentFrame = _lastFrame;
 				}
 			}
 		}
@@ -253,6 +247,7 @@ public class kTileDynamic : MonoBehaviour
 	public Rect FrameRect
 	{
 		get{
+           // Debug.Log(_currentFrame + " " + _lastFrame);
 			Rect r = _frameRects[ _currentFrame ];
 			return r;
 		}		

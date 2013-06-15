@@ -5,14 +5,19 @@ ____________________________________
   
 Extended TileBase Extension 
 Description : Animation/Sprite Sheets/ TextureAtlas
-		
+
+Updates: 
+------------------------------------
+ 14-06-2013
+  
+ recreate class structure
+ 
 */
 using UnityEngine;
 using System.Collections;
 
 public class TileAnim : TileBase
 {
-
     public int _currentFrame = 0;
     public int _lastFrame = 0;
     public float _frameTick = 0.1f;
@@ -33,6 +38,8 @@ public class TileAnim : TileBase
     {
         if (playAnimation && Application.isPlaying)
             Frame_check();
+        if (facing == FACING.BB)
+            FaceDirection();
     }
 
     //#endif
@@ -41,6 +48,9 @@ public class TileAnim : TileBase
     protected override Rect UV_rect()
     {
         uvRect = FrameRect;
+
+        _width = (uvRect.width / 100);
+        _height = (uvRect.height / 100);
 
         return uvRect;
     }
@@ -68,9 +78,7 @@ public class TileAnim : TileBase
         if (_currentFrame < 0)
             return;
 
-        //	MESH_setup(FrameRect);
-        MeshUpdate();
-
+        MESH_setup(FrameRect);
     }
     /** Calculate the Animation frame.*/
     private void Frame_calc()
@@ -81,27 +89,22 @@ public class TileAnim : TileBase
             if (_frameTime < 1.0f)
             {
                 _frameTime += _frameTick / 10;
-
             }
             else
             {
-
                 if (_currentFrame == _lastFrame)
                 {
                     // Animation Ends
                     if (looping)
                     {
                         _currentFrame = -1;
-
                     }
                     else
                     {
                         // stop animation
                         playAnimation = false;
                     }
-
                     return;
-
                 }
                 else
                 {
@@ -138,7 +141,8 @@ public class TileAnim : TileBase
     {
         get
         {
-            Rect r = _frameRects[_currentFrame];
+            int f = (_currentFrame > _frameRects.Length ? _lastFrame : _currentFrame < 0 ? 0 : _currentFrame);
+            Rect r = _frameRects[f];
             return r;
         }
     }
