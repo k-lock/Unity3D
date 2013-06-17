@@ -21,12 +21,15 @@ public class TileBase : MonoBehaviour
     public Rect uvRect = new Rect(0, 0, 50, 50);
     public float _width = 1;
     public float _height = 1;
+    
     public TextAnchor _pivot = TextAnchor.LowerLeft;
     public FACING facing = FACING.XY;
+    
     protected Vector3[] verts = new Vector3[4];
     protected Vector2[] uvs = new Vector2[4];
     protected int[] trias = new int[6];
     protected Color[] colors = new Color[4];
+    
     [HideInInspector]
     protected Mesh mesh = null;
     [HideInInspector]

@@ -20,7 +20,8 @@ public class TileBaseEditor : Editor
         TileBase t = target as TileBase;
         TileBase.FACING faceTemp = t.facing;
         DrawDefaultInspector();
-    
+      //  t.transform.GetComponent<MeshRenderer>().sharedMaterial = EditorGUILayout.ObjectField(t.transform.GetComponent<MeshRenderer>().sharedMaterial, typeof(Material)) as Material;
+     
         if (GUI.changed)
         {
             t._width = Mathf.Clamp(t._width, 0, 999);
@@ -29,7 +30,9 @@ public class TileBaseEditor : Editor
             if (faceTemp != t.facing) t.transform.localEulerAngles = new Vector3(0,0,0);
 
             t.MESH_refresh();
+
         }
+      //  t.transform.GetComponent<MeshRenderer>().sharedMaterial = EditorGUI.ObjectField(new Rect(0, 200, 200, 25), t.transform.GetComponent<MeshRenderer>().sharedMaterial, typeof(Material));
     }
 
 }
