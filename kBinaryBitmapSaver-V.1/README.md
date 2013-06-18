@@ -10,7 +10,7 @@ The extension of the export data array file can be customized within the Export
 Extension window.
 
  * http://k-lock.de/klock/sources/bsaver/Manual_english.pdf
- * http://k-lock.de/klock/sources/kbitmap.html
+ * http://k-lock.de/sources/kbitmap.html
 
  Update:
 
