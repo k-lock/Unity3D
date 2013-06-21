@@ -24,4 +24,4 @@ Manual
  
 Update:
 
-  * 04/12/2012 - Resetting the menu item in windows tab
+  * 04/12/2012 - Replacing the menu item in windows tab
