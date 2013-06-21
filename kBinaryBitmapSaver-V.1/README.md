@@ -9,9 +9,19 @@ The process of the texture import can adjusted in the Texture Importer window.
 The extension of the export data array file can be customized within the Export
 Extension window.
 
- * http://k-lock.de/klock/sources/bsaver/Manual_english.pdf
+ Website
+ 
  * http://k-lock.de/sources/kbitmap.html
 
+ Unity Asset Store
+ 
+ * http://u3d.as/content/paul-knab/k-binary-bitmap-saver
+ 
+ Manual
+
+ * http://k-lock.de/klock/sources/bsaver/Manual_english.pdf
+
+ 
  Update:
 
-  * 04/12/2012 - Renesting the menuitem in windows tab
+  * 04/12/2012 - Resetting the menu item in windows tab
