@@ -8,14 +8,14 @@ children of the source GameObject or in a new parent object.
 The editor contains customizable kGUI elements, which
 can be adjust in the Settings window.
 
- Website
+Website
  
  * http://k-lock.de/sources/kmultiply.html
  
- Unity Asset Store
+Unity Asset Store
  
  * http://u3d.as/content/paul-knab/k-multiply-editor
 
-  Manual
+Manual
 
   * http://k-lock.de/klock/sources/kme/kMultiplayEditor-Manual-V1.pdf
