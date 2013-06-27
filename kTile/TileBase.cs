@@ -37,9 +37,7 @@ public class TileBase : MonoBehaviour
     [HideInInspector]
     protected MeshRenderer meshRenderer;
 
-
     //#if UNITY_EDITOR
-
     protected virtual void Awake()
     {
         //	if( mesh != null) mesh = null;
@@ -53,11 +51,11 @@ public class TileBase : MonoBehaviour
     {
         MESH_refresh();
     }
-    protected virtual void OnDisable()
+   /* protected virtual void OnDisable()
     {
-        //GetComponent<MeshFilter> ().mesh = mesh = null;
-        //DestroyImmediate (mesh);
-    }
+        GetComponent<MeshFilter> ().mesh = mesh = null;
+        DestroyImmediate (mesh);
+    }*/
     //#endif
     /** Main method to setup the Texture Coordinate Rectangle.
      * 	@params Rectangle UVrect - The rect for displaying Texture. */
@@ -124,10 +122,6 @@ public class TileBase : MonoBehaviour
             mesh.name = "kMesh";
             //mesh.hideFlags = HideFlags.HideAndDontSave;
         }
-        /*if (mat == null) {
-            GetComponent<MeshRenderer> ().sharedMaterial = mat = new Material (Shader.Find ("Transparent/Diffuse"));
-        }*/
-        //meshFilter.mesh = mesh;
     }
     #region HELPER
     /** Setup the align mode for the mesh.*/
