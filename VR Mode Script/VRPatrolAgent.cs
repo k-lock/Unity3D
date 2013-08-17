@@ -48,7 +48,7 @@ public class VRPatrolAgent : MonoBehaviour, IkFOV
 
    public void AlertFindPathTo(VRPatrolAgent pg)
     {
-        Debug.Log("AlertFindPathTo " + pg.name + " " +pg.fov.index + " " + fov.index);
+     //   Debug.Log("AlertFindPathTo " + pg.name + " " +pg.fov.index + " " + fov.index);
      //   if (pg.fov.index == fov.index)
      //   {
            pg.findAlertLocation = true;
@@ -121,6 +121,7 @@ public class VRPatrolAgent : MonoBehaviour, IkFOV
         Ray ray = new Ray(agent.transform.position, lookAtPos - agent.transform.position + new Vector3(0, .5f, 0));
         RaycastHit hit;
 
+        
 
         if (Physics.Raycast(ray, out hit))
         {
@@ -134,6 +135,7 @@ public class VRPatrolAgent : MonoBehaviour, IkFOV
                 _alertMode = true;
 
                 SetAlertFocus();
+                CutPlayerLife();
 
                 if (tileHMM == null)
                 {
@@ -186,7 +188,10 @@ public class VRPatrolAgent : MonoBehaviour, IkFOV
 
             fov.GetComponent<MeshRenderer>().material.color = fov.color1;
 
-            Destroy(tileHMM.gameObject);
+            if (tileHMM != null)
+            {
+                Destroy(tileHMM.gameObject);
+            }
         }
     }
     IEnumerator Start()
@@ -200,6 +205,7 @@ public class VRPatrolAgent : MonoBehaviour, IkFOV
         fov.index = index;
         fov.listener = this;
         fov.mask = ~((1 << 8));
+        
 
         agent = instance.GetComponent<NavMeshAgent>();
         agent.speed = 0;
@@ -237,6 +243,8 @@ public class VRPatrolAgent : MonoBehaviour, IkFOV
             if (GetComponent<VRPatrolAgent>() != null)
             {
                 SetAlertModeOn(collider.transform);
+                
+              
             }
         }
     }
@@ -257,7 +265,8 @@ public class VRPatrolAgent : MonoBehaviour, IkFOV
    ///     Debug.DrawLine(agent.transform.position, agent.nextPosition, Color.yellow);
    ///     
         float dist = agent.remainingDistance;
-        float playerDis = Vector3.Distance(GameObject.Find("SoldierBluePlayer").transform.position, agent.transform.position);
+        float  playerDis = 9999;
+        if(GameObject.Find("SoldierBluePlayer") !=null && agent != null ) playerDis = Vector3.Distance(GameObject.Find("SoldierBluePlayer").transform.position, agent.transform.position);
         //	Debug.Log (dist+""+agent.pathStatus+""+agent.remainingDistance);
         if (_alertMode && lookTarget != null)
         {
@@ -266,6 +275,7 @@ public class VRPatrolAgent : MonoBehaviour, IkFOV
             lookAtPos.y = agent.transform.position.y;
             agent.transform.LookAt(lookAtPos);
 
+           
 
 
         }
@@ -320,6 +330,18 @@ public class VRPatrolAgent : MonoBehaviour, IkFOV
         }
     }
 
-
-
+    void CutPlayerLife()
+    {
+        PlayerAnimation pl =GameObject.Find("SoldierBluePlayer").GetComponent<PlayerAnimation>();
+        float l = (pl.life -= .025f);
+        if (l < 0) pl.life = 0;
+        l = Mathf.Min(l, 35);
+        l = Mathf.Max(l, 0);
+        int frame = Mathf.RoundToInt(l);
+        if (pl.State != PlayerState.OVER)
+        {
+            pl.PlayTileAnim(frame);
+            if (frame == 0) pl.State = PlayerState.OVER;
+        }
+    }
 }
