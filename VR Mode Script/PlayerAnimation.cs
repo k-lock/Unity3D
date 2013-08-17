@@ -1,6 +1,13 @@
 using UnityEngine;
 using System.Collections;
 
+public enum PlayerState
+{
+
+    INIT,
+    ALIVE,
+    OVER
+}
 public class PlayerAnimation : MonoBehaviour
 {
 	
@@ -12,19 +19,29 @@ public class PlayerAnimation : MonoBehaviour
 	float angle = 0;
 	float lowerBodyDeltaAngle = 0;
 	float idleWeight = 0;
-
+	
+	public float life = 35;
+    private TileAnim animTile;
+    private PlayerState state;
+    public PlayerState State { get { return state; } set { state=value; }}
 	void Awake ()
 	{
-
-		
+        state = PlayerState.ALIVE;
+        PlayTileAnim(35);
+      //  Debug.Log(GameObject.Find("GUI_GrowFactor_2048").GetComponent<TileAnim>());
 		lastPosition = rigidbody.transform.position;
 		AnimationSetup ();
 		Play (0);
 	}
-	
+    public void PlayTileAnim(int frame)
+    {
+        if(animTile ==  null )animTile = GameObject.Find("GUI_GrowFactor_2048").GetComponent<TileAnim>();
+        animTile._currentFrame = frame;
+        animTile.MESH_refresh();
+    }
 	void Update ()
 	{
-		
+        if (state == PlayerState.OVER) return;
 	//	Debug.DrawLine( transform.position ,transform.position+transform.eulerAngles, Color.green);
 		if(Input.GetAxis ("Horizontal") !=0 || Input.GetAxis ("Vertical") !=0 ){
 			Play (1);
