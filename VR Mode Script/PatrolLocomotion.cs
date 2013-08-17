@@ -1,0 +1,170 @@
+using UnityEngine;
+using System.Collections;
+
+public class PatrolLocomotion : MonoBehaviour
+{
+	#region variables
+	private string _locoState = "Locomotion_Stand";
+	public Animation _anim;
+	public int animID = 0;
+	public float animWalk = .6f;
+	public float animRun = 1.2f;
+	
+	#endregion
+	#region unity
+	
+	void Awake ()
+	{
+		AnimationSetup ();
+	}
+	
+	void Update ()
+	{
+	
+	}
+	
+	
+	#endregion
+	public void Stop(){
+		
+		_anim.Stop();
+		
+	}
+	
+	
+	public void Play(int id){
+		string mode="";
+		switch(id){
+		case 0:
+			mode="Idle";
+			break;
+			case 1:
+			mode="Walk";
+			break;
+			case 2:
+			mode="Standing";
+			break;
+			mode = "StandingFire";
+			break;
+			case 4:
+			mode = "StandingAim";
+			break;
+		}
+		
+		if(mode != ""){
+			_anim.Play (mode);
+			animID = id;
+		}
+	}
+	private void AnimationSetup ()
+	{
+		if(_anim==null)_anim = GetComponent<Animation> ();
+		_anim.wrapMode = WrapMode.Loop;
+		
+		// loop in sync
+		_anim ["Walk"].layer = 1;
+		_anim ["Run"].layer = 1;
+		_anim ["Standing"].layer = 1;
+		_anim ["Idle"].layer = 1;
+		_anim ["StandingFire"].layer = 1;
+		_anim ["StandingAim"].layer = 1;
+		
+		_anim.SyncLayer (1);
+		//_anim.CrossFade ("Idle", 0.5f, PlayMode.StopAll);
+	
+	}
+/*	#region Loco Blends
+	private void Locomotion_Stand ()
+	{
+		do {
+			UpdateAnimationBlend ();
+			
+		} while(_agent.remainingDistance == 0);
+
+		_locoState = "Locomotion_Move";
+		
+	}
+
+	private void Locomotion_Move ()
+	{
+		do {
+			UpdateAnimationBlend ();
+			
+
+			if (_agent.isOnOffMeshLink) {
+				_locoState = SelectLinkAnimation ();
+			
+			}
+		} while(_agent.remainingDistance != 0);
+
+		_locoState = "Locomotion_Stand";
+		
+	}
+
+	private void UpdateAnimationBlend ()
+	{
+		float speedThreshold = 0.01f;
+		Vector3 velocityXZ = new Vector3 (_agent.velocity.x, 0.0f, _agent.velocity.z);
+		float speed = velocityXZ.magnitude;
+	
+		_anim ["Run"].speed = speed / animRun;
+		_anim ["Walk"].speed = speed / animWalk;
+
+		if (speed > (animWalk + animRun) / 1.0f) {
+			_anim.CrossFade ("Run");
+		} else if (speed > speedThreshold) {
+			_anim.CrossFade ("Walk");
+		} else {
+			_anim.CrossFade ("Idle", 0.1f, PlayMode.StopAll);
+		}
+	}
+	#endregion
+	#region Animation
+	private void AnimationSetup ()
+	{
+		
+
+		// loop in sync
+		_anim ["Walk"].layer = 1;
+		_anim ["Run"].layer = 1;
+
+		_anim.SyncLayer (1);
+
+		// speed up & play once
+		_anim ["RunJump"].wrapMode = WrapMode.ClampForever;
+		_anim ["RunJump"].speed = animWalk;
+	
+		_anim.CrossFade ("Idle", 0.1f, PlayMode.StopAll);
+	}
+	
+	private string SelectLinkAnimation ()
+	{
+	
+		OffMeshLinkData link;
+		//_agent.GetCurrentOffMeshLinkData(link);
+		link = _agent.currentOffMeshLinkData;
+	
+		float distS = (transform.position - link.startPos).magnitude;
+		float distE = (transform.position - link.endPos).magnitude;
+	
+		if (distS < distE) {
+			_linkStart = link.startPos;
+			_linkEnd = link.endPos;
+		} else {
+			_linkStart = link.endPos;
+			_linkEnd = link.startPos;
+		}
+
+		Vector3 alignDir = _linkEnd - _linkStart;
+		alignDir.y = 0;
+		_linkRot = Quaternion.LookRotation (alignDir);
+
+		if (link.linkType == OffMeshLinkType.LinkTypeManual) {
+			return "Locomotion_LadderAnimation";
+		} else {
+			return "Locomotion_JumpAnimation";
+		}
+	}
+	#endregion*/
+	
+}
