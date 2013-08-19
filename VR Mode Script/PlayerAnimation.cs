@@ -24,6 +24,10 @@ public class PlayerAnimation : MonoBehaviour
     private TileAnim animTile;
     private PlayerState state;
     public PlayerState State { get { return state; } set { state=value; }}
+
+    public bool RIGHT_MOUSE = false;
+    public bool LEFT_MOUSE = false;
+
 	void Awake ()
 	{
         state = PlayerState.ALIVE;
@@ -43,12 +47,30 @@ public class PlayerAnimation : MonoBehaviour
 	{
         if (state == PlayerState.OVER) return;
 	//	Debug.DrawLine( transform.position ,transform.position+transform.eulerAngles, Color.green);
+        if (Input.GetMouseButtonDown(0)) LEFT_MOUSE = true;
+        if (Input.GetMouseButtonUp(0)) LEFT_MOUSE = false;
+
+        if (Input.GetMouseButtonDown(1)) RIGHT_MOUSE = true;
+        if (Input.GetMouseButtonUp(1)) RIGHT_MOUSE = false;
+
 		if(Input.GetAxis ("Horizontal") !=0 || Input.GetAxis ("Vertical") !=0 ){
-			Play (1);
+            if (RIGHT_MOUSE)
+                Play(6);
+            else
+                Play (1);
 		}else{
-			Play (0);
+            if (RIGHT_MOUSE)
+                Play(4);
+            else
+			    Play (0);
 		}
-		
+        if (RIGHT_MOUSE)
+        {
+            
+        }else{
+
+        }
+     
 		/*idleWeight = Mathf.Lerp (idleWeight, Mathf.InverseLerp (.25f, 1.5f, speed), Time.deltaTime * 10);
 		animComp ["Idle"].weight = idleWeight;*/
 	}
@@ -75,8 +97,10 @@ public class PlayerAnimation : MonoBehaviour
 		animComp ["Run"].layer = 1;
 		animComp ["Standing"].layer = 1;
 		animComp ["Idle"].layer = 1;
-	/*	animComp ["StandingFire"].layer = 1;
-		animComp ["StandingAim"].layer = 1;*/
+		animComp ["StandingFire"].layer = 1;
+		animComp ["StandingAim"].layer = 1;
+        animComp["WalkAim"].layer = 1;
+        animComp["WalkFire"].layer = 1;
 
 		animComp.SyncLayer (1);
 		//animComp.CrossFade ("Idle", 0.5f, PlayMode.StopAll);
@@ -102,6 +126,12 @@ public class PlayerAnimation : MonoBehaviour
 			case 4:
 			mode = "StandingAim";
 			break;
+            case 5:
+            mode = "WalkFire";
+            break;
+            case 6:
+            mode = "WalkAim";
+            break;
 		}
 		if (mode != "")
 			animComp.Play (mode);

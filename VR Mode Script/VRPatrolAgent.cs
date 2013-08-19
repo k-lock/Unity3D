@@ -125,7 +125,7 @@ public class VRPatrolAgent : MonoBehaviour, IkFOV
 
         if (Physics.Raycast(ray, out hit))
         {
-            if (hit.collider.tag == "Red")
+            if (hit.collider.tag == "Player")
             {
                 fov.GetComponent<MeshRenderer>().material.color = fov.color2;
                 agent.SetDestination(posi.position);
@@ -150,7 +150,7 @@ public class VRPatrolAgent : MonoBehaviour, IkFOV
                 StartCoroutine(SetAlertModeOff(ALERT_OFF_WAIT_TIME));
             }
         }
-        //if(fov.showDebug) Debug.DrawRay(agent.transform.position, lookAtPos - agent.transform.position,  (hit.collider.tag == "Red")  ? Color.red :Color.yellow);
+        //if(fov.showDebug) Debug.DrawRay(agent.transform.position, lookAtPos - agent.transform.position,  (hit.collider.tag == "Player")  ? Color.red :Color.yellow);
     }
 
     IEnumerator SetAlertModeOff(float alertTime)
@@ -201,17 +201,19 @@ public class VRPatrolAgent : MonoBehaviour, IkFOV
         instance.localScale = new Vector3(.4f, .4f, .4f);
         instance.tag = "kFOV";
         instance.parent = transform;
-        fov = instance.GetComponent<kFOV>();
+        
+        fov = instance.FindChild("kFOV").GetComponent<kFOV>();
         fov.index = index;
         fov.listener = this;
         fov.mask = ~((1 << 8));
-        
 
         agent = instance.GetComponent<NavMeshAgent>();
         agent.speed = 0;
 
         loco = instance.GetComponent<PatrolLocomotion>();
         loco.Play(0);
+
+  //      instance.GetComponent<MeshCollider>().sharedMesh = instance.FindChild("Soldier").GetComponent<SkinnedMeshRenderer>().sharedMesh;
 
 
         yield return new WaitForSeconds(2);
