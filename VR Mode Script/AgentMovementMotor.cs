@@ -9,13 +9,15 @@ public class AgentMovementMotor : MovementMotor
 	public float walkingSpeed  = 5.0f;
 	public float walkingSnappyness = 50f;
 	public float turningSmoothing = 0.3f;
-	void FixedUpdate () {
+	
+    void FixedUpdate () {
 		// Handle the movement of the character
 		Vector3 targetVelocity  = movementDirection * walkingSpeed;
 		Vector3 deltaVelocity = targetVelocity - rigidbody.velocity;
-		if (rigidbody.useGravity)
-			deltaVelocity.y = 0;
-		rigidbody.AddForce (deltaVelocity * walkingSnappyness, ForceMode.Acceleration);
+		
+        if (rigidbody.useGravity) deltaVelocity.y = 0;
+		
+        rigidbody.AddForce (deltaVelocity * walkingSnappyness, ForceMode.Acceleration);
 		
 		// Setup player to face facingDirection, or if that is zero, then the movementDirection
 		Vector3 faceDir = facingDirection;

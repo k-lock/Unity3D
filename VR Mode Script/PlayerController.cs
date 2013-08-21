@@ -30,8 +30,8 @@ public class PlayerController : MonoBehaviour
 
     private Transform mainCameraTransform;
     private Vector3 cameraVelocity = Vector3.zero;
-    private Vector3 cameraOffset = Vector3.zero;
-    private Vector3 initOffsetToPlayer;
+    public Vector3 cameraOffset = Vector3.zero;
+    public Vector3 initOffsetToPlayer;
 
     // Prepare a cursor point varibale. This is the mouse position on PC and controlled by the thumbstick on mobiles.
     private Vector3 cursorScreenPosition;
@@ -76,9 +76,8 @@ public class PlayerController : MonoBehaviour
     }
     void Update()
     {
-
+       // camController();
         motor.movementDirection = Input.GetAxis("Horizontal") * screenMovementRight + Input.GetAxis("Vertical") * screenMovementForward;
-
 
         // Make sure the direction vector doesn't exceed a length of 1
         // so the character can't move faster diagonally than horizontally or vertically
@@ -130,16 +129,33 @@ public class PlayerController : MonoBehaviour
         HandleCursorAlignment(cursorWorldPosition);
 
         // HANDLE CAMERA POSITION
-
+       //Debug.Log(cameraOffset + " " + initOffsetToPlayer);
         // Set the target position of the camera to point at the focus point
         Vector3 cameraTargetPosition = character.position + initOffsetToPlayer + cameraAdjustmentVector * cameraPreview;
 
         // Apply some smoothing to the camera movement
-        mainCameraTransform.position = Vector3.SmoothDamp(mainCameraTransform.position, cameraTargetPosition,ref cameraVelocity, cameraSmoothing);
+      //  mainCameraTransform.position = Vector3.SmoothDamp(mainCameraTransform.position, cameraTargetPosition,ref cameraVelocity, cameraSmoothing);
+
+        mainCameraTransform.GetComponent<CameraMovement>().newPos = cameraTargetPosition + cameraAdjustmentVector * cameraPreview;
 
         // Save camera offset so we can use it in the next frame
         cameraOffset = mainCameraTransform.position - character.position;
 
+    }
+    void camController()
+    {
+        Vector3 camEuler =  mainCamera.transform.eulerAngles;
+        if (transform.position.z > -.5f)
+        {
+            mainCamera.transform.position = new Vector3(0, 3.5f, 5);
+            mainCamera.transform.eulerAngles = new Vector3(camEuler.x, -180, camEuler.z);
+        }
+        else
+        {
+            mainCamera.transform.position = new Vector3(0, 3.5f, -5);
+            mainCamera.transform.eulerAngles = new Vector3(camEuler.x, 0, camEuler.z);
+        }
+        
     }
     public static Vector3 PlaneRayIntersection(Plane plane, Ray ray)
     {
