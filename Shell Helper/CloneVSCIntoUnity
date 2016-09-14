@@ -1,0 +1,37 @@
+#!/bin/bash
+echo "---------------------------------------------------------------"
+echo -n "Enter the unity project path:"
+read -e DIRECTORY
+PROJECTDIR=$DIRECTORY"/Assets/"
+DWLDIR="/Users/pknab/Downloads/vsc/"
+REPOSITORY_PATH="https://github.com/dotBunny/VSCode.git"
+PLUGINDIR="Plugins/"
+EDITORDIR="Editor/"
+echo "---------------------------------------------------------------"
+echo "create temp download directory"
+if [ -d ${DWLDIR} ]
+then
+    rm -rf ${DWLDIR}
+fi
+echo "---------------------------------------------------------------"
+echo "cloning repository - Visual Studio Code"
+echo "---------------------------------------------------------------"
+git clone ${REPOSITORY_PATH} ${DWLDIR} 
+echo "---------------------------------------------------------------"
+echo "check / create plugins and editor directory"
+if [ ! -e ${PROJECTDIR}${PLUGINDIR} ] 
+	then
+    mkdir ${PROJECTDIR}${PLUGINDIR}
+fi
+if [ ! -e ${PROJECTDIR}${PLUGINDIR}${EDITORDIR} ] 
+	then
+    mkdir ${PROJECTDIR}${PLUGINDIR}${EDITORDIR}
+fi
+echo "---------------------------------------------------------------"
+echo "copy vsc editor script"
+echo "---------------------------------------------------------------"
+cp -R ${DWLDIR}"Plugins/Editor/" ${PROJECTDIR}${PLUGINDIR}${EDITORDIR}
+echo "---------------------------------------------------------------"
+echo "remove temp download directory data"
+echo "---------------------------------------------------------------"
+rm -rf ${DWLDIR}

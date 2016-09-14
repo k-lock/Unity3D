@@ -13,4 +13,5 @@ Contains projects of:
  * **kFOV** - Field of View Mesh Modifier - Cutting out colliding meshes.
  * **kMultiplyEditor** - A editor extension for comfortable cloning gameobjects in the scene view.
  * **kPolyMesh** - Editor Window for mesh creation in a Unity3D project.
+ * **Shell Helper** - collection of bash files for unity projects.
  and ...

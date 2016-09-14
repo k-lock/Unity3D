@@ -1,0 +1,19 @@
+#!/bin/bash
+
+PROJECT_PATH="/Users/pknab/Workspace/unity3d/ReflectorProject/Reflector/Build/IOS/ReflectorV0.app/"
+XCODE_PROJECT="Unity-iPhone.xcodeproj"	
+SIGN_IDENTITY="iPhone Developer"
+
+
+#xcodebuild -project ${PROJECT_PATH}${XCODE_PROJECT} -target "Unity-iPhone" -configuration Release clean build DEPLOYMENT_POSTPROCESSING=YES CODE_SIGN_IDENTITY="${SIGN_IDENTITY}"
+
+
+xcrun -sdk iphoneos PackageApplication "/Users/pknab/Workspace/unity3d/ReflectorProject/Reflector/Build/IOS/ReflectorV0.app" 
+    -o "/Users/pknab/Workspace/MyApp.ipa" 
+    --sign "iPhone Distribution" 
+    --embed "/Users/pknab/certificates/Provisioning-reflector.mobileprovision"
+
+#xcodebuild 
+#-project /Users/pknab/Workspace/unity3d/ReflectorProject/Reflector/Build/IOS/ReflectorV0.app/Unity-iPhone.xcodeproj 
+#-target "Unity-iPhone" 
+#-configuration Release clean build DEPLOYMENT_POSTPROCESSING=YES CODE_SIGN_IDENTITY="iPhone Developer"

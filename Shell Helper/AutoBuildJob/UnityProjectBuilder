@@ -1,0 +1,29 @@
+#!/bin/bash
+
+BUILD_CLASS="BuildJob."
+
+BUILD_METHOD[0]="PerformMacOSXBuild"
+BUILD_METHOD[1]="PerformIOSBuild"
+BUILD_METHOD[2]="PerformAndroidBuild"
+BUILD_METHOD[3]="PerformWindows64Build"
+
+UNITY_PATH="/Applications/Unity/Unity.app/Contents/MacOS/Unity"	
+PROJECT_PATH="/Users/pknab/Workspace/unity3d/ReflectorProject/Reflector"
+PROJECT_PATH="/Users/pknab/temp/"
+
+BUILD_ID="1"
+
+echo "---------------------------------------------------------------"
+echo "automated build starting"
+echo "---------------------------------------------------------------"
+
+echo "project path : ${PROJECT_PATH}"
+echo "build type : ${BUILD_METHOD["${BUILD_ID}"]}"
+
+"${UNITY_PATH}" -projectPath "${PROJECT_PATH}" -batchmode -executeMethod "${BUILD_CLASS}${BUILD_METHOD["${BUILD_ID}"]}" -quit
+
+echo "---------------------------------------------------------------"
+echo "building complete"
+echo "---------------------------------------------------------------"
+
+

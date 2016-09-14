@@ -1,0 +1,19 @@
+#!/bin/bash
+
+## directory list
+FOLDERS=("Scenes" "Resources" "Resources/Prefabs" "Resources/Textures" "Plugins" "Scripts" "Materials")
+## unity project path input
+echo -n "Enter the unity project path:"
+read -e DIRECTORY
+## map to the asset folder of the current selected project
+PROJECTDIR=$DIRECTORY"/Assets/"
+## loop the directory list and create folders in not existing
+for f in "${FOLDERS[@]}"
+do
+	if [ ! -e ${PROJECTDIR}"$f" ] 
+	then
+    	mkdir ${PROJECTDIR}"$f"
+	fi
+done
+
+

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+DIRECTORY="temp"
+REPOSITORY_PATH="https://k-lock@bitbucket.org/k-lock/"
+REPOSITORY_NAME="petapult"
+
+echo '$0 = ' $1
+echo "---------------------------------------------------------------"
+echo "cloning repository - "${REPOSITORY_NAME}
+echo "---------------------------------------------------------------"
+
+if [ -d "${DIRECTORY}" ]
+then
+    rm -rf temp
+fi
+
+git clone ${REPOSITORY_PATH}${REPOSITORY_NAME}.git temp/  && source /Users/pknab/Desktop/UnityProjectBuilder || echo -e "---------------------------------------------------------------\n cloning failed\n---------------------------------------------------------------"
